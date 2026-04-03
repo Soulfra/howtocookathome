@@ -1,0 +1,32 @@
+Copyright (c) 2026 Matthew Mauer. All Rights Reserved.
+
+PROPRIETARY SOFTWARE LICENSE
+
+This software and associated documentation files (the "Software") are the
+proprietary property of Matthew Mauer, operating as HowToCookAtHome.com.
+
+TERMS:
+
+1. NO DISTRIBUTION — The Software may not be copied, modified, merged,
+   published, distributed, sublicensed, or sold without express written
+   permission from the copyright holder.
+
+2. NO REVERSE ENGINEERING — You may not decompile, disassemble, or
+   reverse engineer any part of the Software.
+
+3. CONTRIBUTOR TERMS — Any person granted access to this repository
+   must sign the Contributor License Agreement (CLA.md) before
+   submitting code. All contributions become the property of the
+   copyright holder as described in the CLA.
+
+4. USDA DATA — Nutrition data sourced from USDA FoodData Central is
+   public domain and not subject to this license. See:
+   https://fdc.nal.usda.gov/
+
+5. THIRD-PARTY COMPONENTS — Third-party libraries used by this Software
+   retain their original licenses. See requirements.txt for dependencies.
+
+6. NO WARRANTY — THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+   ANY KIND, EXPRESS OR IMPLIED.
+
+For licensing inquiries: matt@howtocookathome.com

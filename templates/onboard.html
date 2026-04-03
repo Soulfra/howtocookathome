@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join | How To Cook At Home</title>
+<meta name="description" content="Launch your restaurant site with real USDA nutrition data in 60 seconds.">
+<style>
+  :root {
+    --color-primary: #1A1A2E;
+    --color-accent: #C4975A;
+    --color-bg: #F5F0E8;
+    --color-surface: #FFFFFF;
+    --color-text: #2C2C2C;
+    --color-text-light: #6B6B6B;
+    --color-success: #2D6A4F;
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-body: 'Georgia', serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--font-body); color: var(--color-text); background: var(--color-bg); line-height: 1.6; }
+
+  nav { background: var(--color-primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  nav .brand { font-family: var(--font-heading); color: var(--color-accent); font-size: 1.3rem; text-decoration: none; font-weight: bold; }
+  nav .links { display: flex; gap: 1.5rem; }
+  nav .links a { color: var(--color-bg); text-decoration: none; font-size: 0.9rem; opacity: 0.85; }
+  nav .links a:hover { opacity: 1; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 2rem; }
+  .hero { background: var(--color-primary); color: var(--color-bg); padding: 2.5rem 2rem; text-align: center; }
+  .hero h1 { font-family: var(--font-heading); font-size: 2.2rem; color: var(--color-accent); margin-bottom: 0.5rem; }
+  .hero p { font-size: 1rem; opacity: 0.85; max-width: 520px; margin: 0 auto; }
+  section { padding: 1.5rem 0; }
+  section h2 { font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 1rem; color: var(--color-primary); }
+
+  .type-card {
+    background: var(--color-surface); padding: 1.2rem; border: 2px solid #ddd;
+    cursor: pointer; text-align: center; transition: border-color 0.15s;
+  }
+  .type-card:hover { border-color: var(--color-accent); }
+  .type-card.selected { border-color: var(--color-accent); background: #FAF5EE; }
+
+  .domain-chip {
+    padding: 0.4rem 1rem; border: 2px solid #ddd; cursor: pointer;
+    font-size: 0.85rem; background: var(--color-surface); transition: all 0.15s;
+  }
+  .domain-chip.selected { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-primary); font-weight: bold; }
+
+  .btn-back {
+    background: transparent; border: 2px solid var(--color-accent);
+    color: var(--color-accent); padding: 0.7rem 2rem; font-weight: bold;
+    cursor: pointer; font-size: 1rem;
+  }
+  .btn-primary {
+    background: var(--color-accent); color: var(--color-primary); border: none;
+    padding: 0.7rem 2rem; font-weight: bold; cursor: pointer; font-size: 1rem;
+  }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  footer { background: var(--color-primary); color: var(--color-bg); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; opacity: 0.7; }
+  footer a { color: var(--color-accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="brand">How To Cook At Home</a>
+  <div class="links">
+    <a href="/scan">Scanner</a>
+    <a href="/guide">Guide</a>
+    <a href="/terms">Terms</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Launch your kitchen.</h1>
+  <p>Pick a name. Tell us what you serve. Get a branded site with real USDA nutrition data in 60 seconds.</p>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: PICK YOUR NAME + DOMAIN -->
+  <div id="step-1">
+    <section>
+      <h2>1. Claim your name</h2>
+
+      <div style="display:flex;gap:0;margin:1.5rem 0;">
+        <input type="text" id="f_subdomain" placeholder="yourname"
+          oninput="sanitizeSlug()" autocomplete="off"
+          style="flex:1;padding:0.8rem 1rem;font-size:1.1rem;border:2px solid #ddd;border-right:none;outline:none;">
+        <div id="domainSuffix" style="background:var(--color-primary);color:var(--color-accent);padding:0.8rem 1rem;font-size:1.1rem;font-weight:bold;white-space:nowrap;display:flex;align-items:center;">.howtocookathome.com</div>
+      </div>
+      <div id="slug-status" style="font-size:0.8rem;margin:-0.5rem 0 0.5rem;min-height:1.2em;"></div>
+
+      <!-- Domain chips: add more here when additional domains are available -->
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin:1rem 0;" id="domainChips">
+        <span class="domain-chip selected" onclick="pickDomain('howtocookathome.com', this)">howtocookathome.com</span>
+      </div>
+
+      <div style="margin:1rem 0;">
+        <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.3rem;">Kitchen / Restaurant Name (as displayed)</label>
+        <input type="text" id="f_name" placeholder="e.g., Big Red's BBQ" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-size:0.95rem;">
+
+        <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin:0.75rem 0 0.3rem;">Email (optional — for your token recovery)</label>
+        <input type="email" id="f_email" placeholder="you@kitchen.com" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-size:0.95rem;">
+      </div>
+
+      <button onclick="goStep(2)" id="btn-step1" disabled class="btn-primary">Next: What type?</button>
+    </section>
+  </div>
+
+  <!-- STEP 2: WHAT TYPE + ENTITY -->
+  <div id="step-2" style="display:none;">
+    <section>
+      <h2>2. What is this for?</h2>
+      <p style="color:var(--color-text-light);margin-bottom:1rem;">This changes your features and site layout.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;" id="typeGrid">
+        <div class="type-card" onclick="pickType('restaurant', this)">
+          <div style="font-size:1.8rem;margin-bottom:0.5rem;">&#127869;</div>
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;margin-bottom:0.3rem;">Restaurant</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">Menu, orders, catering, recipes</p>
+        </div>
+        <div class="type-card" onclick="pickType('creator', this)">
+          <div style="font-size:1.8rem;margin-bottom:0.5rem;">&#127916;</div>
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;margin-bottom:0.3rem;">Content Creator</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">Episodes, recipes, audience</p>
+        </div>
+        <div class="type-card" onclick="pickType('corporate', this)">
+          <div style="font-size:1.8rem;margin-bottom:0.5rem;">&#127970;</div>
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;margin-bottom:0.3rem;">Company Kitchen</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">HQ cafeteria, employee meals</p>
+        </div>
+        <div class="type-card" onclick="pickType('family', this)">
+          <div style="font-size:1.8rem;margin-bottom:0.5rem;">&#128214;</div>
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;margin-bottom:0.3rem;">Family Cookbook</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">Preserve grandma's recipes</p>
+        </div>
+      </div>
+
+      <h2 style="margin-top:2rem;">How is it registered?</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;" id="entityGrid">
+        <div class="type-card" onclick="pickEntity('individual', this)">
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;">Individual</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">Personal, side hustle</p>
+        </div>
+        <div class="type-card" onclick="pickEntity('llc', this)">
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;">LLC</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">Small business</p>
+        </div>
+        <div class="type-card" onclick="pickEntity('nonprofit', this)">
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;">Non-Profit</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">501(c)(3), donations</p>
+        </div>
+        <div class="type-card" onclick="pickEntity('corp', this)">
+          <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:1rem;">Corporation</h3>
+          <p style="font-size:0.8rem;color:var(--color-text-light);">C-Corp, S-Corp, B-Corp</p>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-top:1rem;">
+        <button onclick="goStep(1)" class="btn-back">Back</button>
+        <button onclick="goStep(3)" id="btn-step2" disabled class="btn-primary">Next: Your food</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- STEP 3: YOUR INGREDIENTS -->
+  <div id="step-3" style="display:none;">
+    <section>
+      <h2>3. What do you serve?</h2>
+      <p style="color:var(--color-text-light);">Paste your ingredient list, a recipe, or a vendor invoice. We match everything against 84,673 USDA foods.</p>
+
+      <div style="background:var(--color-surface);border:1px solid #ddd;padding:1.5rem;margin:1rem 0;">
+        <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.3rem;">How are you submitting?</label>
+        <select id="f_submit_type" onchange="toggleIngInput()" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-size:0.95rem;">
+          <option value="paste">Paste ingredient list (one per line)</option>
+          <option value="recipe">Paste a full recipe</option>
+          <option value="pricelist">Paste vendor price list / invoice</option>
+        </select>
+
+        <div id="ing-paste" style="margin-top:1rem;">
+          <textarea id="f_ingredients" rows="8" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-family:monospace;font-size:0.85rem;" placeholder="chicken thighs&#10;vegetable oil&#10;chipotle peppers&#10;white onion&#10;garlic cloves&#10;fire roasted tomatoes&#10;cumin&#10;salt"></textarea>
+        </div>
+
+        <div id="ing-recipe" style="display:none;margin-top:1rem;">
+          <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.3rem;">Recipe Title</label>
+          <input type="text" id="f_recipe_title" placeholder="e.g., Abuela's Chicken Tinga" style="width:100%;padding:0.6rem;border:1px solid #ddd;">
+          <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin:0.75rem 0 0.3rem;">Cuisine</label>
+          <input type="text" id="f_cuisine" placeholder="e.g., Mexican" style="width:100%;padding:0.6rem;border:1px solid #ddd;">
+          <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin:0.75rem 0 0.3rem;">Full Recipe</label>
+          <textarea id="f_recipe_text" rows="10" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-family:monospace;font-size:0.85rem;" placeholder="2 lbs chicken thighs&#10;2 tbsp vegetable oil&#10;---&#10;Sear chicken until golden.&#10;Add onion, cook until soft."></textarea>
+        </div>
+
+        <div id="ing-pricelist" style="display:none;margin-top:1rem;">
+          <textarea id="f_pricelist" rows="10" style="width:100%;padding:0.6rem;border:1px solid #ddd;font-family:monospace;font-size:0.85rem;" placeholder="Chicken Thigh Boneless 40lb  $48.50&#10;Canola Oil 35lb              $22.75&#10;Yellow Onion 50lb            $18.90"></textarea>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <label style="display:block;font-size:0.85rem;color:var(--color-text-light);margin-bottom:0.3rem;">Your Colors (optional)</label>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="color" id="f_primary" value="#1A1A2E" style="width:36px;height:36px;border:1px solid #ddd;padding:2px;cursor:pointer;">
+              <span style="font-size:0.8rem;color:var(--color-text-light);">Primary</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="color" id="f_accent" value="#C4975A" style="width:36px;height:36px;border:1px solid #ddd;padding:2px;cursor:pointer;">
+              <span style="font-size:0.8rem;color:var(--color-text-light);">Accent</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="color" id="f_bg" value="#F5F0E8" style="width:36px;height:36px;border:1px solid #ddd;padding:2px;cursor:pointer;">
+              <span style="font-size:0.8rem;color:var(--color-text-light);">Background</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin:1.5rem 0;padding:1rem;background:var(--color-surface);border:1px solid #ddd;">
+        <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;">
+          <input type="checkbox" id="f_terms" onchange="document.getElementById('btn-submit').disabled = !this.checked" style="margin-top:0.25rem;width:18px;height:18px;accent-color:var(--color-accent);flex-shrink:0;">
+          <span style="font-size:0.85rem;color:var(--color-text-light);">
+            I've read the <a href="/terms" target="_blank" style="color:var(--color-accent);font-weight:bold;">Terms of Service</a> and understand that my recipes are mine, the platform is theirs, and USDA nutrition data is public domain. No cookies, no tracking, no BS.
+          </span>
+        </label>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;">
+        <button onclick="goStep(2)" class="btn-back">Back</button>
+        <button onclick="submitOnboard()" id="btn-submit" disabled class="btn-primary">Build My Site</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- STEP 4: BUILDING -->
+  <div id="step-4" style="display:none;">
+    <section>
+      <h2>Building your site...</h2>
+      <div id="pipeline-log" style="background:var(--color-primary);color:var(--color-bg);padding:1.5rem;font-family:monospace;font-size:0.8rem;line-height:1.8;max-height:400px;overflow-y:auto;"></div>
+    </section>
+  </div>
+
+  <!-- STEP 5: DONE -->
+  <div id="step-5" style="display:none;">
+    <section>
+      <div style="background:var(--color-surface);border:2px solid var(--color-success);padding:2rem;text-align:center;">
+        <h2 style="color:var(--color-success);">Your site is live.</h2>
+        <p id="done-domain" style="font-size:1.2rem;font-weight:bold;margin:0.5rem 0;"></p>
+        <p id="done-summary" style="color:var(--color-text-light);"></p>
+        <div style="margin-top:1.5rem;">
+          <a id="done-link" href="#" style="display:inline-block;background:var(--color-accent);color:var(--color-primary);padding:0.8rem 2rem;text-decoration:none;font-weight:bold;">View Your Site</a>
+        </div>
+        <div style="margin-top:1.5rem;font-size:0.75rem;color:var(--color-text-light);">
+          <strong>Your token:</strong> <code id="done-token" style="background:#f5f5f5;padding:0.2rem 0.5rem;"></code>
+          <div style="margin-top:0.3rem;">Save this. It's your key to edit your site. No passwords. No cookies.</div>
+        </div>
+        <div id="done-tier" style="margin-top:1rem;font-size:0.85rem;color:var(--color-text-light);"></div>
+      </div>
+    </section>
+  </div>
+
+  <div style="margin-top:2rem;padding:1.5rem;background:var(--color-surface);border:1px solid #ddd;">
+    <h3 style="font-family:var(--font-heading);color:var(--color-primary);font-size:0.95rem;margin-bottom:0.5rem;">How your data is handled</h3>
+    <p style="font-size:0.85rem;color:var(--color-text-light);margin:0;">
+      No cookies. No third-party tracking. Your ingredients are matched against
+      <a href="https://fdc.nal.usda.gov/" style="color:var(--color-accent);">USDA FoodData Central</a>
+      (public domain, 84,673 foods). Your brand config is stored as a YAML file — you own it.
+      Powered by <a href="https://death2data.com" style="color:var(--color-accent);">Death2Data</a>.
+    </p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 How To Cook At Home. Built by <a href="https://death2data.com">Death2Data</a>.
+</footer>
+
+<script>
+let state = {
+  subdomain: '',
+  baseDomain: 'howtocookathome.com',
+  type: null,
+  entity: null,
+};
+
+const MEMORY_KEY = 'htcah_last';
+
+function saveMemory() {
+  try {
+    const mem = { subdomain: state.subdomain, baseDomain: state.baseDomain, type: state.type, entity: state.entity };
+    sessionStorage.setItem(MEMORY_KEY, JSON.stringify(mem));
+    localStorage.setItem(MEMORY_KEY, JSON.stringify({ subdomain: state.subdomain, baseDomain: state.baseDomain }));
+  } catch(e) {}
+}
+
+function loadMemory() {
+  try {
+    let raw = sessionStorage.getItem(MEMORY_KEY);
+    if (raw) return JSON.parse(raw);
+    raw = localStorage.getItem(MEMORY_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+
+function goStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('step-' + i).style.display = (i === n) ? 'block' : 'none';
+  }
+  saveMemory();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* --- Step 1: Domain + Slug Availability --- */
+let slugCheckTimer = null;
+let slugAvailable = false;
+
+function sanitizeSlug() {
+  const el = document.getElementById('f_subdomain');
+  el.value = el.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+  state.subdomain = el.value;
+  const btn = document.getElementById('btn-step1');
+  const status = document.getElementById('slug-status');
+
+  if (state.subdomain.length < 2) {
+    btn.disabled = true; slugAvailable = false; status.textContent = ''; return;
+  }
+
+  const nameEl = document.getElementById('f_name');
+  if (!nameEl.dataset.userEdited) {
+    nameEl.value = state.subdomain.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
+  btn.disabled = true; slugAvailable = false;
+  status.innerHTML = '<span style="color:var(--color-text-light);">Checking availability...</span>';
+  clearTimeout(slugCheckTimer);
+  slugCheckTimer = setTimeout(() => checkSlug(state.subdomain), 400);
+}
+
+async function checkSlug(slug) {
+  const status = document.getElementById('slug-status');
+  const btn = document.getElementById('btn-step1');
+  try {
+    const name = document.getElementById('f_name').value || slug;
+    const resp = await fetch('/api/check-slug?name=' + encodeURIComponent(name));
+    const data = await resp.json();
+    if (state.subdomain !== slug) return;
+
+    /* API returns: { name, suggestions: [{slug, available, reason}, ...] }
+       The first suggestion matching our slug tells us if it's available. */
+    const match = (data.suggestions || []).find(s => s.slug === slug || s.slug === name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
+    const isAvailable = match ? match.available : true; /* If no match, assume available */
+
+    if (isAvailable) {
+      slugAvailable = true; btn.disabled = false;
+      status.innerHTML = '<span style="color:var(--color-success);">&#10003; ' + slug + ' is available</span>';
+    } else {
+      slugAvailable = false; btn.disabled = true;
+      /* Find alternative suggestions that ARE available */
+      const alts = (data.suggestions || []).filter(s => s.available && s.slug !== slug);
+      let msg = '<span style="color:#e74c3c;">&#10007; That name is taken</span>';
+      if (alts.length > 0) {
+        msg += '<span style="color:var(--color-text-light);"> — try: ';
+        msg += alts.map(s =>
+          '<a href="#" onclick="useSuggestion(\'' + s.slug + '\');return false;" style="color:var(--color-accent);text-decoration:underline;">' + s.slug + '</a>'
+        ).join(', ');
+        msg += '</span>';
+      }
+      status.innerHTML = msg;
+    }
+  } catch(e) {
+    slugAvailable = true; btn.disabled = false;
+    status.innerHTML = '<span style="color:var(--color-text-light);">Could not check — you can proceed</span>';
+  }
+}
+
+function useSuggestion(slug) {
+  document.getElementById('f_subdomain').value = slug;
+  sanitizeSlug();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('f_name').addEventListener('input', function() { this.dataset.userEdited = 'true'; });
+  const mem = loadMemory();
+  if (mem) {
+    if (mem.subdomain) { document.getElementById('f_subdomain').value = mem.subdomain; sanitizeSlug(); }
+    if (mem.baseDomain && mem.baseDomain !== 'howtocookathome.com') {
+      document.querySelectorAll('.domain-chip').forEach(chip => {
+        if (chip.textContent.trim() === mem.baseDomain) pickDomain(mem.baseDomain, chip);
+      });
+    }
+    if (mem.type) {
+      document.querySelectorAll('#typeGrid .type-card').forEach(card => {
+        if (card.onclick && card.onclick.toString().includes("'" + mem.type + "'")) pickType(mem.type, card);
+      });
+    }
+    if (mem.entity) {
+      document.querySelectorAll('#entityGrid .type-card').forEach(card => {
+        if (card.onclick && card.onclick.toString().includes("'" + mem.entity + "'")) pickEntity(mem.entity, card);
+      });
+    }
+    if (mem.subdomain) {
+      const hint = document.createElement('div');
+      hint.style.cssText = 'font-size:0.8rem;color:var(--color-text-light);margin-top:0.5rem;';
+      hint.textContent = 'Welcome back — we remembered your last pick.';
+      document.getElementById('f_subdomain').parentNode.after(hint);
+    }
+  }
+});
+
+function pickDomain(domain, el) {
+  state.baseDomain = domain;
+  document.querySelectorAll('.domain-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('domainSuffix').textContent = '.' + domain;
+  saveMemory();
+}
+
+function pickType(type, el) {
+  state.type = type;
+  document.querySelectorAll('#typeGrid .type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-step2').disabled = !(state.type && state.entity);
+  saveMemory();
+}
+
+function pickEntity(entity, el) {
+  state.entity = entity;
+  document.querySelectorAll('#entityGrid .type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-step2').disabled = !(state.type && state.entity);
+  saveMemory();
+}
+
+function toggleIngInput() {
+  const t = document.getElementById('f_submit_type').value;
+  document.getElementById('ing-paste').style.display = t === 'paste' ? 'block' : 'none';
+  document.getElementById('ing-recipe').style.display = t === 'recipe' ? 'block' : 'none';
+  document.getElementById('ing-pricelist').style.display = t === 'pricelist' ? 'block' : 'none';
+}
+
+function submitOnboard() {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true; btn.textContent = 'Processing...';
+
+  const submitType = document.getElementById('f_submit_type').value;
+  let ingredients = '', recipe_title = '', cuisine = '', recipe_text = '';
+
+  if (submitType === 'paste') { ingredients = document.getElementById('f_ingredients').value; }
+  else if (submitType === 'recipe') {
+    recipe_title = document.getElementById('f_recipe_title').value;
+    cuisine = document.getElementById('f_cuisine').value;
+    recipe_text = document.getElementById('f_recipe_text').value;
+  } else if (submitType === 'pricelist') { ingredients = document.getElementById('f_pricelist').value; }
+
+  const payload = {
+    name: document.getElementById('f_name').value,
+    subdomain: state.subdomain,
+    base_domain: state.baseDomain,
+    email: document.getElementById('f_email').value,
+    type: state.type,
+    entity: state.entity,
+    submit_type: submitType,
+    ingredients: ingredients,
+    recipe_title: recipe_title,
+    cuisine: cuisine,
+    recipe_text: recipe_text,
+    colors: {
+      primary: document.getElementById('f_primary').value,
+      accent: document.getElementById('f_accent').value,
+      background: document.getElementById('f_bg').value,
+    },
+    terms_accepted: document.getElementById('f_terms').checked,
+    terms_version: '2026-04-02',
+  };
+
+  goStep(4);
+  const log = document.getElementById('pipeline-log');
+
+  fetch('/api/onboard', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      log.innerHTML += '<div style="color:#f44336;">Error: ' + data.error + '</div>';
+      btn.disabled = false; btn.textContent = 'Build My Site'; return;
+    }
+    (data.steps || []).forEach((s, i) => {
+      setTimeout(() => {
+        const icon = s.ok ? '&#10003;' : '&#10007;';
+        const color = s.ok ? '#A0E0A0' : '#f44336';
+        log.innerHTML += '<div style="color:' + color + '">' + icon + ' ' + s.msg + '</div>';
+        log.scrollTop = log.scrollHeight;
+      }, i * 80);
+    });
+    const delay = (data.steps || []).length * 80 + 400;
+    setTimeout(() => {
+      try { sessionStorage.removeItem(MEMORY_KEY); localStorage.removeItem(MEMORY_KEY); } catch(e) {}
+      goStep(5);
+      const domain = data.domain || (state.subdomain + '.' + state.baseDomain);
+      document.getElementById('done-domain').textContent = domain;
+      document.getElementById('done-summary').textContent =
+        (data.ingredient_count || 0) + ' ingredients matched to USDA. ' +
+        (data.recipe_count || 0) + ' dish(es) created.';
+      document.getElementById('done-link').href = data.url_path || ('/t/' + data.slug + '/');
+      document.getElementById('done-token').textContent = data.token;
+      document.getElementById('done-tier').innerHTML =
+        'Tier: <strong>Seed</strong> (free) — Upgrade to <strong>Sprout</strong> ($9/mo) for custom email + checkout.';
+    }, delay);
+  })
+  .catch(err => {
+    log.innerHTML += '<div style="color:#f44336;">Network error: ' + err + '</div>';
+    btn.disabled = false; btn.textContent = 'Build My Site';
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+"""HowToCookAtHome application package."""

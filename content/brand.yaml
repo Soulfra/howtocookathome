@@ -1,0 +1,174 @@
+# ============================================================
+# BRAND.YAML — The Manuscript Identity
+# ============================================================
+# This file defines WHO the brand is.
+# Every word on the site, every color, every font choice
+# comes from this file. Change this, everything changes.
+#
+# Think of this as the style guide for a publication:
+# voice, tone, visual identity, editorial standards.
+# ============================================================
+
+name: "HowToCookAtHome"
+domain: "howtocookathome.com"
+tagline: "Better than TV. Built for real kitchens."
+
+mission: >
+  Teach anyone to cook confidently at home —
+  no culinary school, no pretension, no shortcuts on quality.
+  Every episode earns trust.
+
+audience: >
+  Complete beginners → confident home cooks. Ages 18-45.
+  People who DoorDash 5x/week and feel guilty about it.
+  College students. New parents.
+  Anyone who Googles 'how to boil an egg.'
+
+voice:
+  tone: "Calm, clear, confident"
+  personality: "A skilled friend who explains WHY, not just what"
+  never: "Yelling, gimmicks, 'SMASH that like button.' Let the food do the talking."
+  always: "Empathetic, never condescending. Earn trust through competence."
+
+visual:
+  style: "Overhead shots. Clean countertops. Natural light. Hands-only (faceless)."
+  feel: "Minimal text overlays — warm serif font, cream/white palette. Feels like a cookbook come to life."
+
+colors:
+  primary: "#1A1A2E"       # Dark navy — headers, nav, footer
+  accent: "#C4975A"        # Warm gold — buttons, highlights, CTAs
+  background: "#F5F0E8"    # Cream — page background
+  surface: "#FFFFFF"       # White — cards, content areas
+  text: "#333333"          # Dark gray — body text
+  text_light: "#666666"    # Medium gray — secondary text, captions
+  success: "#2D6A4F"       # Forest green — positive states
+  warning: "#F4D35E"       # Warm yellow — attention states
+
+fonts:
+  heading: "Georgia, 'Times New Roman', serif"
+  body: "Arial, Helvetica, sans-serif"
+
+# --- Terminology map (makes platform domain-agnostic) ---
+terminology:
+  content_item: "Recipe"
+  content_items: "Recipes"
+  materials: "Ingredients"
+  steps: "Steps"
+  timer_label: "Cook Time"
+  difficulty_label: "Difficulty"
+  creator_type: "Chef"
+  collection: "Season"
+  sub_brand: "Partner Kitchen"
+
+seo:
+  site_title: "HowToCookAtHome — Learn to Cook with Confidence"
+  meta_description: "Step-by-step cooking tutorials for complete beginners. Every episode answers a real search query. No fluff, no gimmicks."
+  schema_type: "Recipe"
+  strategy: >
+    Every episode title = a natural language search query.
+    'How to dice an onion.' 'How to make rice without a rice cooker.'
+    Optimized for Google, YouTube, AND AI assistants citing sources.
+
+competitive_moat: >
+  The domain IS the search query.
+  howtocookathome.com will outrank recipe blogs
+  because it IS what people type.
+  Build the brand around the behavior.
+
+nav:
+  - label: "Episodes"
+    href: "/episodes"
+  - label: "Recipes"
+    href: "#recipes"
+  - label: "Restaurants"
+    href: "/restaurants"
+  - label: "About"
+    href: "/about"
+  - label: "Get Your Site"
+    href: "/onboard"
+
+homepage:
+  hero_heading: "Learn to cook. For real this time."
+  hero_subheading: "30 episodes. From boiling water to cooking without a recipe. No culinary school required."
+  hero_cta_text: "Start with Episode 1"
+  hero_cta_href: "/recipe/how-to-boil-water"
+  featured_section_title: "Start Here"
+  subscribe_heading: "New episode every week."
+  subscribe_subheading: "Join the list. We'll send you one new technique every week — no spam, no fluff."
+  subscribe_cta_text: "Subscribe"
+
+footer:
+  copyright: "HowToCookAtHome"
+  built_by: "Death2Data"
+  built_by_href: "https://death2data.com"
+
+# --- Revenue phases (from content bible) ---
+revenue:
+  - phase: 0
+    timeline: "Months 1-3"
+    stream: "None (investment period)"
+    target: "$0"
+  - phase: 1
+    timeline: "Months 3-6"
+    stream: "First-party product sales (HTCAH branded)"
+    target: "$200-$1,000/mo"
+  - phase: 2
+    timeline: "Months 6-9"
+    stream: "Brand sponsorships"
+    target: "$1,000-$5,000/mo"
+  - phase: 3
+    timeline: "Months 9-12"
+    stream: "Digital cookbook / meal plans"
+    target: "$2,000-$10,000/mo"
+  - phase: 4
+    timeline: "Year 2"
+    stream: "Membership / subscription"
+    target: "$5,000-$20,000/mo"
+  - phase: 5
+    timeline: "Year 2-3"
+    stream: "Branded product line + partner brands"
+    target: "$10,000-$50,000/mo"
+
+# --- Content authenticity ---
+# Not for legal compliance — for trust.
+# Open source means the code IS the transparency.
+content_policy:
+  ai_labeling: >
+    AI-assisted content (descriptions, SEO, nutrition, portions)
+    is tagged as such in the YAML source. Human content (handwritten
+    notes, audio reviews, video) is tagged as human. Anyone can
+    check the source files.
+
+  review_sources:
+    - type: handwritten
+      label: "Handwritten Note"
+      description: "Physical recipe card, photographed or scanned"
+      ai_generated: false
+    - type: audio
+      label: "Audio Review"
+      description: "Voice recording during or after cooking"
+      ai_generated: false
+    - type: video
+      label: "Video Review"
+      description: "Recorded cook-along or taste test"
+      ai_generated: false
+    - type: ai_transcription
+      label: "AI Transcription"
+      description: "Audio/video transcribed by AI"
+      ai_generated: true
+    - type: ai_summary
+      label: "AI Summary"
+      description: "AI-generated summary of human reviews"
+      ai_generated: true
+
+  recipe_card_provenance:
+    description: >
+      Handwritten recipe cards store the original photo alongside
+      the digitized version. Handwriting → OCR → structured YAML.
+      The handwriting style can fingerprint repeat contributors.
+    fields_captured:
+      - "Original photo (unmodified)"
+      - "OCR text extraction"
+      - "Author attribution (optional)"
+      - "Timestamp"
+      - "Handwriting style hash"

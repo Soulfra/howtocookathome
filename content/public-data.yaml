@@ -1,0 +1,171 @@
+# ============================================================
+# PUBLIC-DATA.YAML — Free Data We Can Actually Use
+# ============================================================
+# Government data = public domain (no license needed)
+# Creative Commons = free with attribution
+# Open APIs = free with rate limits
+#
+# These are real, live data sources. Not hypothetical.
+# ============================================================
+
+government_public_domain:
+  # No license. No attribution required. It's taxpayer-funded.
+
+  - id: usda-fooddata
+    name: "USDA FoodData Central"
+    url: "https://fdc.nal.usda.gov/api-guide"
+    api: "https://api.nal.usda.gov/fdc/v1/"
+    api_key: "free — register at api.data.gov"
+    what_it_has:
+      - "Nutrition data for 300,000+ foods"
+      - "Calories, protein, fat, carbs, vitamins, minerals"
+      - "Serving sizes and portions"
+      - "Branded food products"
+    use_for:
+      - "Automatic nutrition labels on every recipe"
+      - "Portion calculator calorie estimates"
+      - "Dietary restriction filtering"
+    license: "Public domain (US government work)"
+
+  - id: usda-myplate
+    name: "USDA MyPlate"
+    url: "https://www.myplate.gov/"
+    what_it_has:
+      - "Recommended daily portions by age/activity"
+      - "Food group categories"
+      - "Meal planning guidelines"
+    use_for:
+      - "Portion calculator defaults"
+      - "Balanced meal suggestions"
+      - "Kid vs adult portion ratios"
+    license: "Public domain"
+
+  - id: fda-food-safety
+    name: "FDA Food Safety"
+    url: "https://www.fda.gov/food/resourcesforyou/consumers"
+    what_it_has:
+      - "Safe cooking temperatures for every protein"
+      - "Food storage guidelines (fridge, freezer, pantry)"
+      - "Cross-contamination prevention"
+      - "Allergen information"
+    use_for:
+      - "Safety badges on recipe pages"
+      - "Storage tips attached to ingredients"
+      - "Temperature callouts in cooking steps"
+    license: "Public domain"
+
+  - id: usda-snap
+    name: "USDA SNAP Recipe Finder"
+    url: "https://snaped.fns.usda.gov/nutrition-education/snap-ed-connection"
+    what_it_has:
+      - "Budget-friendly recipes"
+      - "Nutrition education materials"
+    use_for:
+      - "Budget-tier recipe suggestions"
+      - "Accessible cooking content"
+    license: "Public domain"
+
+creative_commons:
+  # Free to use with attribution (CC-BY or CC-BY-SA)
+
+  - id: wikibooks-cookbook
+    name: "Wikibooks Cookbook"
+    url: "https://en.wikibooks.org/wiki/Cookbook:Table_of_Contents"
+    license: "CC-BY-SA 3.0"
+    what_it_has:
+      - "Hundreds of recipes with techniques"
+      - "Ingredient guides"
+      - "Cooking method explanations"
+    use_for:
+      - "Supplemental technique descriptions"
+      - "Ingredient substitution guides"
+    attribution: "Required — link back to source"
+
+  - id: openfoodfacts
+    name: "Open Food Facts"
+    url: "https://world.openfoodfacts.org/"
+    api: "https://world.openfoodfacts.org/api/v0/"
+    license: "Open Database License (ODbL)"
+    what_it_has:
+      - "Product database with barcodes"
+      - "Nutrition labels from real products"
+      - "Ingredient lists"
+      - "Allergen data"
+    use_for:
+      - "Scan a product, get nutrition info"
+      - "Compare store-bought vs homemade"
+    attribution: "Required"
+
+open_apis:
+  # Free to use, sometimes with API key
+
+  - id: edamam
+    name: "Edamam Nutrition API"
+    url: "https://developer.edamam.com/"
+    what_it_has:
+      - "Recipe nutrition analysis"
+      - "Ingredient parsing (natural language → structured)"
+      - "Diet/allergy labeling"
+    use_for:
+      - "Paste a recipe, get auto nutrition"
+      - "Parse handwritten recipe cards into ingredients"
+    tier: "Free up to 10,000 calls/month"
+
+  - id: spoonacular
+    name: "Spoonacular API"
+    url: "https://spoonacular.com/food-api"
+    what_it_has:
+      - "Recipe search and analysis"
+      - "Ingredient substitutions"
+      - "Meal planning"
+      - "Grocery list generation"
+    use_for:
+      - "Auto-generate grocery lists from recipes"
+      - "Suggest ingredient swaps"
+    tier: "Free up to 150 calls/day"
+
+public_broadcasting:
+  # PBS content and similar — NOT automatically free.
+
+  - id: pbs-food
+    name: "PBS Food"
+    url: "https://www.pbs.org/food/"
+    license: "NOT public domain — PBS is publicly funded but content is copyrighted"
+    what_you_can_do:
+      - "Link to PBS recipes and videos (fair use)"
+      - "Reference techniques (in your own words)"
+      - "Embed PBS YouTube videos (if embeds are enabled)"
+    what_you_cannot_do:
+      - "Copy PBS recipes verbatim"
+      - "Rehost PBS video content"
+      - "Claim PBS content as your own"
+    use_for:
+      - "Curated links: 'Learn more about braising from PBS'"
+      - "Supplemental video embeds"
+    note: >
+      PBS is publicly funded but NOT public domain.
+      Individual shows own their content (Americas Test Kitchen, etc).
+      Government data (USDA, FDA) IS public domain.
+      Don't confuse the two.
+
+# --- HOW THESE PLUG INTO THE PLATFORM ---
+#
+# Each data source becomes a CONNECTOR.
+#
+# usda-fooddata connector:
+#   Input: ingredient name from recipe YAML
+#   Output: nutrition data written to episode YAML
+#   Runs: on_new_episode pipeline step "calculate_nutrition"
+#
+# fda-food-safety connector:
+#   Input: protein type from recipe YAML
+#   Output: safe temp + storage tips added to episode YAML
+#   Runs: on_new_episode pipeline step
+#
+# openfoodfacts connector:
+#   Input: barcode scan or product name
+#   Output: structured product YAML
+#   Runs: on_recipe_card_scan pipeline step
+#
+# The pattern is always the same:
+#   Public data source → connector → YAML or database

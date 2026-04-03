@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service | How To Cook At Home</title>
+<style>
+  :root {
+    --primary: #1A1A2E;
+    --accent: #C4975A;
+    --bg: #F5F0E8;
+    --surface: #FFFFFF;
+    --text: #2C2C2C;
+    --text-light: #6B6B6B;
+    --success: #2D6A4F;
+    --border: #E0D8CC;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Georgia', serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+
+  nav { background: var(--primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  nav a.brand { font-family: 'Playfair Display', Georgia, serif; color: var(--accent); font-size: 1.3rem; text-decoration: none; font-weight: bold; }
+  nav .links { display: flex; gap: 1.5rem; }
+  nav .links a { color: var(--bg); text-decoration: none; font-size: 0.9rem; opacity: 0.85; }
+  nav .links a:hover { opacity: 1; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 2rem; }
+
+  .hero-mini { background: var(--primary); color: var(--bg); padding: 2.5rem 2rem; text-align: center; }
+  .hero-mini h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .hero-mini p { font-size: 1rem; opacity: 0.8; }
+
+  .terms-date { font-size: 0.85rem; color: var(--text-light); margin-bottom: 2rem; text-align: center; }
+
+  /* Section styling */
+  .terms-section { margin-bottom: 2.5rem; }
+  .terms-section h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.3rem; color: var(--primary);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .terms-section h3 {
+    font-size: 1rem; color: var(--accent); font-weight: bold;
+    margin: 1.25rem 0 0.5rem;
+  }
+  .terms-section p { margin-bottom: 0.75rem; font-size: 0.95rem; }
+
+  /* The kitchen analogy callouts */
+  .kitchen-note {
+    background: var(--surface); border-left: 4px solid var(--accent);
+    padding: 1rem 1.25rem; margin: 1rem 0; font-size: 0.9rem;
+  }
+  .kitchen-note strong { color: var(--accent); }
+
+  /* Tier comparison */
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .tier-card {
+    background: var(--surface); border: 2px solid var(--border); padding: 1.25rem;
+    text-align: center;
+  }
+  .tier-card.highlight { border-color: var(--accent); }
+  .tier-card h4 { font-family: 'Playfair Display', Georgia, serif; color: var(--primary); margin-bottom: 0.25rem; }
+  .tier-card .price { font-size: 1.4rem; font-weight: bold; color: var(--accent); margin: 0.5rem 0; }
+  .tier-card .price small { font-size: 0.7rem; color: var(--text-light); font-weight: normal; }
+  .tier-card ul { list-style: none; text-align: left; font-size: 0.8rem; }
+  .tier-card ul li { padding: 0.25rem 0; border-bottom: 1px solid var(--border); }
+  .tier-card ul li:last-child { border: none; }
+
+  footer { background: var(--primary); color: var(--bg); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; opacity: 0.7; }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .tier-grid { grid-template-columns: 1fr; }
+    .container { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="brand">How To Cook At Home</a>
+  <div class="links">
+    <a href="/onboard">Join</a>
+    <a href="/scan">Scanner</a>
+    <a href="/guide">Guide</a>
+  </div>
+</nav>
+
+<div class="hero-mini">
+  <h1>Terms of Service</h1>
+  <p>Plain language. No lawyer speak. Here's the deal.</p>
+</div>
+
+<div class="container">
+  <p class="terms-date">Last updated: April 2, 2026</p>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>What This Is</h2>
+    <p>How To Cook At Home ("HTCAH") is a platform that gives restaurants, food creators, and home cooks a branded website with real USDA nutrition data. When you sign up, we build you a site. These terms explain what you get, what we do with your data, and what's expected from both sides.</p>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> Think of this like a lease for a food stall in a market. We provide the stall (your site), the signage (your brand), and the health inspector data (USDA nutrition). You bring the food (your recipes and content).
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>What You Get</h2>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <h4>Seed</h4>
+        <div class="price">Free</div>
+        <ul>
+          <li>Branded site at yourname.howtocookathome.com</li>
+          <li>USDA nutrition matching for your ingredients</li>
+          <li>Up to 20 dishes</li>
+          <li>Downloadable cookbook PDF</li>
+          <li>HTCAH branding on your site</li>
+        </ul>
+      </div>
+      <div class="tier-card highlight">
+        <h4>Sprout</h4>
+        <div class="price">$9<small>/mo</small></div>
+        <ul>
+          <li>Everything in Seed</li>
+          <li>Custom domain support</li>
+          <li>Remove HTCAH branding</li>
+          <li>Up to 100 dishes</li>
+          <li>Email support</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <h4>Growth</h4>
+        <div class="price">$29<small>/mo</small></div>
+        <ul>
+          <li>Everything in Sprout</li>
+          <li>Menu engineering reports</li>
+          <li>POS integration</li>
+          <li>Unlimited dishes</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> Seed is the farmers market booth — free, gets you started, our logo on the tent. Sprout is your own storefront — your sign, your rules. Growth is the full commercial kitchen — analytics, integrations, the works.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>Your Data</h2>
+
+    <h3>What we collect</h3>
+    <p>Your restaurant name, subdomain, ingredient list, and optionally your email. That's it. No cookies. No third-party tracking pixels. No selling your data to anyone.</p>
+
+    <h3>What we do with it</h3>
+    <p>We match your ingredients against the USDA FoodData Central database (public domain, maintained by the U.S. Department of Agriculture). We generate your site, your nutrition labels, and your cookbook. Your brand config is stored as a YAML file — a plain text file you could open in any text editor.</p>
+
+    <h3>What you own</h3>
+    <p>Your recipes, your brand, your content — all yours. If you leave, you take it with you. We can export your data as YAML files or a PDF cookbook at any time. We don't claim ownership of anything you create on the platform.</p>
+
+    <h3>What we own</h3>
+    <p>The platform code, the USDA integration, the site templates, and the HTCAH brand. You're licensing use of the platform, not buying it.</p>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> You own your recipes. We own the kitchen equipment. If you move out, your recipes go with you — we don't keep a copy of grandma's secret sauce. The USDA data is public domain — it belongs to everyone (your tax dollars at work).
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>Your Token</h2>
+    <p>When you sign up, you get a token — a unique string of characters. This is your key. No passwords, no login pages, no "forgot my password" flows. You present the token, you get access.</p>
+    <p>If you lose your token and provided an email during signup, we can help you recover it. If you didn't provide an email and lose your token, we cannot verify you're the owner. Keep it safe.</p>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> Your token is like the key to the restaurant. There's one copy. We don't keep a spare behind the register. If you gave us your email, we can cut you a new one. If not, locksmith can't help.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>USDA Nutrition Data</h2>
+    <p>All nutrition information comes from the USDA FoodData Central database. This data is public domain and provided as-is by the U.S. government. We match your ingredients to the closest USDA entry, but we are not a nutrition labeling service.</p>
+    <p>If you're using this data on actual food packaging or printed menus for regulatory compliance, you should verify it with a registered dietitian or use an FDA-compliant labeling service. Our data is accurate for education, planning, and general reference — not for FDA Nutrition Facts panel compliance.</p>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> We give you the calorie counts from the USDA's own books — same source the government uses. But if you're printing nutrition labels for retail packaging, get a dietitian to sign off. We're the prep cook, not the health inspector.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>UPC Barcode Scanner</h2>
+    <p>The consumer barcode scanner uses USDA Branded Foods data — nearly 2 million packaged products with UPC codes. Scanning a product shows you nutrition data sourced from manufacturer-reported information in the USDA database.</p>
+    <p>This data may not reflect recent reformulations. Always check the actual product label if you have specific dietary needs or allergies.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>What You Agree To</h2>
+    <p>By creating a site on HTCAH, you agree that:</p>
+    <p>You won't use the platform to host content that's illegal, harmful, or deceptive. You won't scrape our database or other tenants' sites. You won't claim the USDA data as proprietary (it's public domain). You'll keep your token secure. You understand that the free tier includes HTCAH branding on your site.</p>
+    <p>We reserve the right to remove sites that violate these terms or that have been inactive for more than 12 months on the free tier.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>What We Agree To</h2>
+    <p>We agree to keep your data secure, not sell it, not share it with third parties, and give you a way to export everything if you ever want to leave. We'll give you reasonable notice before any pricing changes. We won't change these terms without updating this page and noting the date.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>Cancellation</h2>
+    <p>Free tier: your site stays up as long as it's active. Paid tiers: cancel anytime, your site reverts to the free tier features at the end of the billing period. No contracts, no cancellation fees, no guilt trips.</p>
+
+    <div class="kitchen-note">
+      <strong>In kitchen terms:</strong> Month-to-month lease. Walk out anytime. We'll box up your recipes for you on the way out.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="terms-section">
+    <h2>Contact</h2>
+    <p>Questions about these terms? Reach out at <strong>hello@howtocookathome.com</strong> or through your Death2Data dashboard.</p>
+  </div>
+
+  <div style="text-align:center;margin:2rem 0;padding:1.5rem;background:var(--surface);border:2px solid var(--border);">
+    <p style="font-size:0.85rem;color:var(--text-light);">
+      Powered by <a href="https://death2data.com" style="color:var(--accent);">Death2Data</a> — your data stays yours.
+    </p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 How To Cook At Home. Built by <a href="https://death2data.com">Death2Data</a>.
+</footer>
+
+</body>
+</html>

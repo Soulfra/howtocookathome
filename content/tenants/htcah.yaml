@@ -1,0 +1,35 @@
+# TENANT: HowToCookAtHome (the platform itself)
+tenant_id: htcah
+slug: htcah
+type: platform  # this is the parent platform
+
+name: "HowToCookAtHome"
+tagline: "Better than TV. Built for real kitchens."
+
+colors:
+  primary: "#1A1A2E"
+  accent: "#C4975A"
+  background: "#F5F0E8"
+  surface: "#FFFFFF"
+  text: "#333333"
+  text_light: "#666666"
+  success: "#2D6A4F"
+
+fonts:
+  heading: "Georgia, 'Times New Roman', serif"
+  body: "Arial, Helvetica, sans-serif"
+
+logo_text: "HowToCookAtHome"
+
+nav:
+  - label: "Recipes"
+    href: "/recipes"
+  - label: "Episodes"
+    href: "/episodes"
+  - label: "About"
+    href: "/about"
+
+footer:
+  copyright: "HowToCookAtHome"
+  built_by: "Death2Data"
+  built_by_href: "https://death2data.com"

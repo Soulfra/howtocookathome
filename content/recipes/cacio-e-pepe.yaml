@@ -1,0 +1,117 @@
+# Recipe: Cacio e Pepe
+# Ingested: 2026-03-27T11:59:45.272085
+# Pipeline: parse → normalize → profile → enrich → store
+
+recipe_id: cacio-e-pepe
+slug: cacio-e-pepe
+title: Cacio e Pepe
+source:
+  type: text
+  language: en
+  region: null
+  attribution: Manual entry
+  ingested_at: '2026-03-27T11:59:45.272085'
+cuisine: italian
+cuisine_confidence: 0.17
+ingredients:
+- item: pasta
+  display_name: Pasta
+  amount: '1'
+  unit: lb
+  prep: ''
+  original: 1 pound spaghetti
+  _match_source: normalization
+  usda_fdc_id: 168925
+- item: romano_cheese
+  display_name: Romano Cheese
+  amount: '2'
+  unit: cup
+  prep: ''
+  original: 2 cups finely grated Pecorino Romano
+  _match_source: normalization
+  usda_fdc_id: 171249
+- item: black_pepper
+  display_name: Black Pepper
+  amount: '1'
+  unit: tbsp
+  prep: ''
+  original: 1 tablespoon freshly cracked black pepper
+  _match_source: normalization
+  usda_fdc_id: 170931
+- item: kosher_salt
+  display_name: Kosher Salt
+  amount: ''
+  unit: ''
+  prep: ''
+  original: Kosher salt for pasta water
+  _match_source: normalization
+steps:
+- Boil water, cook spaghetti. Toast pepper. Toss with cheese and pasta water.
+equipment: []
+techniques: &id001
+- boil
+notes: ''
+flavor_profile:
+  scores:
+    salt: 3
+    acid: 0
+    fat: 0
+    sweet: 0
+    heat: 0
+    umami: 0
+    bitter: 0
+    aromatic: 0
+  detected_cuisine: italian
+  confidence: 0.17
+  matched_products: &id002
+enrichment:
+  nutrition:
+    source: USDA FoodData Central (public domain)
+    status: enriched
+    usda_matched: 3/4 ingredients have USDA IDs
+    details:
+      pasta:
+        fdc_id: 168925
+        per_100g:
+          calories: 355.0
+          protein_g: 8.41
+          fat_g: 1.72
+          carbs_g: 74.79
+          sodium_mg: 1348.0
+      romano_cheese:
+        fdc_id: 171249
+        per_100g:
+          calories: 387.0
+          protein_g: 31.8
+          fat_g: 26.94
+          carbs_g: 3.63
+          sodium_mg: 1433.0
+      black_pepper:
+        fdc_id: 170931
+        per_100g:
+          calories: 251.0
+          protein_g: 10.39
+          fat_g: 3.26
+          carbs_g: 63.95
+          sodium_mg: 20.0
+  safety:
+    allergens: []
+    status: pending
+  cost:
+    status: pending
+    note: Requires regional pricing data
+references:
+  teaches_techniques: *id001
+  uses_products: *id002
+  similar_recipes: []
+history:
+  created_at: '2026-03-27T11:59:45.276110'
+  created_by: intake_pipeline
+  version: 1
+  changes: []
+license:
+  recipe_data: proprietary
+  nutrition_data: public_domain
+  flavor_profile: proprietary
+  training_restriction: true
+  redistribution: with_attribution

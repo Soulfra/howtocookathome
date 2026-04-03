@@ -1,0 +1,279 @@
+# ============================================================
+# DATABASE.YAML — The Private Layer Schema
+# ============================================================
+# YAML defines the SHAPE of runtime data.
+# The actual data lives in SQLite/Postgres, never in git.
+#
+# Three categories:
+#   1. Identity — who is this person
+#   2. Behavior — what did they do
+#   3. Commerce — what did they buy / almost buy
+# ============================================================
+
+# --- IDENTITY ---
+# How someone goes from anonymous visitor to paying customer.
+# No login wall. No forced signup. Earn the email.
+
+identity:
+
+  # Stage 0: Anonymous
+  # They have a browser fingerprint and maybe a region.
+  # That's it. No email, no account, no friction.
+  anonymous:
+    tracked_by: "session_id (cookie or fingerprint)"
+    data_captured:
+      - session_id
+      - first_seen_at
+      - referral_source       # where they came from
+      - region                # IP geolocation (city, state, country)
+      - device_type           # mobile, desktop, tablet
+      - pages_viewed          # list of slugs + timestamps
+      - time_on_page          # per page
+      - scroll_depth          # how far they read
+    persists: "until cookie expires or browser clears"
+
+  # Stage 1: Subscriber
+  # They gave you an email. That's the conversion.
+  # Triggered by: subscribe form, badge unlock, taste test submit.
+  subscriber:
+    tracked_by: "email"
+    inherits: "anonymous (merge session data)"
+    data_captured:
+      - email
+      - subscribed_at
+      - subscription_source   # "subscribe_form", "badge_unlock", "taste_test"
+      - badges_earned         # list of badge IDs
+      - episodes_completed    # list of episode slugs
+      - recipes_saved         # list of recipe slugs
+      - taste_tests_submitted # list of test IDs
+      - flavor_preferences    # derived from taste test data
+    triggers_on:
+      - "subscribe form submit"
+      - "badge earned (prompts email to save progress)"
+      - "taste test submit (needs email to save results)"
+      - "recipe save (needs email to persist)"
+
+  # Stage 2: Customer
+  # They bought something. Now you have payment data.
+  customer:
+    tracked_by: "email + stripe_customer_id"
+    inherits: "subscriber"
+    data_captured:
+      - stripe_customer_id
+      - first_purchase_at
+      - orders               # list of order IDs
+      - subscriptions         # active subscription IDs
+      - shipping_address      # for regional demand mapping
+      - lifetime_value        # total spent
+      - last_order_at
+    triggers_on:
+      - "first checkout completed"
+
+# --- BADGES ---
+# Gamification that earns identity, not gates content.
+# You don't need an account to learn. You need one to collect.
+
+badges:
+  - id: knife-skills
+    name: "Knife Skills"
+    earned_by: "Complete Episodes 1-5"
+    icon: "knife"
+
+  - id: egg-master
+    name: "Egg Master"
+    earned_by: "Complete Episodes 6-8 (eggs trilogy)"
+    icon: "egg"
+
+  - id: first-meal
+    name: "First Full Meal"
+    earned_by: "Complete Episode 15 (Roast Chicken)"
+    icon: "plate"
+
+  - id: no-recipe
+    name: "Off Script"
+    earned_by: "Complete Episode 30 (Cook Without a Recipe)"
+    icon: "star"
+
+  - id: taste-tester
+    name: "Taste Tester"
+    earned_by: "Submit 5 taste test ratings"
+    icon: "flask"
+
+  - id: recipe-card
+    name: "Family Recipe"
+    earned_by: "Scan and submit a handwritten recipe card"
+    icon: "card"
+
+  - id: subscriber-box
+    name: "Unboxed"
+    earned_by: "Receive first monthly subscription box"
+    icon: "box"
+
+# --- BEHAVIOR ---
+# What people do on the site. All anonymous until they convert.
+
+behavior:
+
+  page_views:
+    description: "Every page load, timestamped"
+    fields:
+      - session_id
+      - page_slug            # "recipe_how-to-boil-water"
+      - page_type            # "episode", "product", "shop", "partner"
+      - timestamp
+      - referrer             # previous page or external source
+      - time_on_page_seconds
+      - scroll_depth_percent
+
+  product_views:
+    description: "Specifically tracking product page visits"
+    fields:
+      - session_id
+      - product_slug
+      - viewed_from          # which recipe page or shop page
+      - timestamp
+      - time_on_page_seconds
+      - clicked_buy          # boolean — did they click the button?
+
+  episode_progress:
+    description: "How far someone got through an episode"
+    fields:
+      - session_id
+      - episode_slug
+      - started_at
+      - completed_at         # null if not finished
+      - steps_completed      # for step-by-step recipes
+      - timer_used           # boolean
+      - scaled_to            # if they used portion scaling
+
+# --- COMMERCE ---
+# Carts, orders, subscriptions, and the gaps between them.
+
+commerce:
+
+  cart:
+    description: "What someone intended to buy"
+    fields:
+      - session_id
+      - email                # null if anonymous
+      - items                # list of {product_slug, quantity, price}
+      - created_at
+      - updated_at
+      - status               # "active", "abandoned", "converted"
+      - abandoned_at         # timestamp when they left
+      - converted_at         # timestamp when they checked out
+      - recovery_email_sent  # boolean — did we email them?
+
+  orders:
+    description: "Completed purchases"
+    fields:
+      - order_id
+      - email
+      - stripe_payment_id
+      - items                # list of {product_slug, quantity, price}
+      - total
+      - shipping_address
+      - region               # derived from shipping address
+      - ordered_at
+      - shipped_at
+      - delivered_at
+      - fulfillment_warehouse  # which warehouse shipped it
+
+  subscriptions:
+    description: "Active subscription boxes"
+    fields:
+      - subscription_id
+      - email
+      - stripe_subscription_id
+      - plan                 # "monthly", "3-month", "annual"
+      - started_at
+      - next_shipment_at
+      - shipping_address
+      - region
+      - boxes_received       # count
+      - status               # "active", "paused", "cancelled"
+
+# --- REGIONAL DEMAND ---
+# Where products are popular. Drives fulfillment decisions.
+
+regional_demand:
+
+  description: >
+    Aggregate product interest and purchases by region.
+    Used to decide where to stock inventory and which
+    warehouses to ship from.
+
+  data_sources:
+    - "IP geolocation from page_views (interest)"
+    - "Shipping addresses from orders (demand)"
+    - "Subscription addresses (recurring demand)"
+
+  aggregation:
+    by_product:
+      fields:
+        - product_slug
+        - region              # state or metro area
+        - views_30d           # product page views, last 30 days
+        - carts_30d           # added to cart, last 30 days
+        - orders_30d          # purchased, last 30 days
+        - conversion_rate     # orders / views
+        - avg_order_value
+
+    by_region:
+      fields:
+        - region
+        - total_visitors_30d
+        - total_orders_30d
+        - top_products        # ranked list
+        - avg_order_value
+        - subscriber_count    # active subscription boxes
+
+  fulfillment:
+    description: >
+      When regional demand for a product crosses a threshold,
+      pre-ship inventory to the nearest warehouse.
+      Reduces shipping time and cost.
+    warehouses:
+      - id: east
+        region: "East Coast"
+        location: null        # TBD — fulfillment partner
+      - id: central
+        region: "Central"
+        location: null
+      - id: west
+        region: "West Coast"
+        location: null
+    threshold: >
+      If a region accounts for >15% of orders for a product,
+      stock that product in the nearest warehouse.
+      Below threshold: ship from central.
+
+# --- TASTE TEST DATA ---
+# Real-time flavor feedback during cooking sessions.
+
+taste_tests:
+  description: >
+    When someone cooks a recipe and rates the flavor,
+    that data feeds back into product development.
+    This is the loop: recipe → cook → taste → rate → new product.
+
+  fields:
+    - test_id
+    - email                  # null if anonymous (still useful)
+    - episode_slug           # which recipe they were cooking
+    - product_slug           # which product prompted the test (if any)
+    - rating                 # 1-10
+    - salt_level             # 1-5 scale
+    - flavor_tags            # ["smoky", "too sweet", "perfect heat"]
+    - notes                  # free text
+    - source                 # "in_app", "rating_card_scan", "audio"
+    - submitted_at
+    - region                 # for geographic flavor preferences
+
+  product_development:
+    description: >
+      Aggregate taste test data tells you what to build next.
+      If 70% of testers in Texas rate "heat" as too low,
+      make a Texas edition with more chili.
+      If the everything seasoning gets 9/10 on eggs but 5/10
+      on vegetables, that's a product positioning insight.

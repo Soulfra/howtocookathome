@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Scan — HowToCookAtHome</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--card:#141414;--text:#e8e8e8;--muted:#888;--accent:#c4975a;--green:#4ade80;--red:#ef4444;--border:#222}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.top-bar{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.top-bar h1{font-size:16px;font-weight:600;color:var(--accent)}
+.top-bar a{color:var(--muted);text-decoration:none;font-size:13px}
+
+/* Scanner area */
+.scanner-wrap{position:relative;width:100%;max-width:500px;margin:0 auto;aspect-ratio:1;background:#000;overflow:hidden}
+.scanner-wrap video{width:100%;height:100%;object-fit:cover}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scan-box{width:70%;height:40%;border:2px solid var(--accent);border-radius:12px;position:relative}
+.scan-box::before,.scan-box::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid}
+.scan-box::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
+.scan-box::after{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 8px 0 0}
+.scan-line{position:absolute;top:0;left:5%;width:90%;height:2px;background:var(--accent);animation:scanMove 2s ease-in-out infinite;opacity:0.8}
+@keyframes scanMove{0%,100%{top:10%}50%{top:90%}}
+
+/* Manual entry */
+.manual-entry{padding:16px;max-width:500px;margin:0 auto}
+.manual-entry form{display:flex;gap:8px}
+.manual-entry input{flex:1;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:16px;outline:none}
+.manual-entry input:focus{border-color:var(--accent)}
+.manual-entry button{padding:12px 20px;background:var(--accent);color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap}
+
+/* Status */
+.status{text-align:center;padding:8px;font-size:13px;color:var(--muted)}
+.status.scanning{color:var(--accent)}
+.status.found{color:var(--green)}
+.status.error{color:var(--red)}
+
+/* Result card */
+.result{max-width:500px;margin:0 auto;padding:0 16px 24px}
+.result-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.result-header{padding:16px;border-bottom:1px solid var(--border)}
+.result-header .brand{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.result-header .product-name{font-size:18px;font-weight:600;line-height:1.3}
+.result-header .category{font-size:12px;color:var(--muted);margin-top:4px}
+.result-header .upc{font-size:11px;color:var(--muted);font-family:monospace;margin-top:2px}
+
+/* Nutrition grid */
+.nutrition{padding:16px}
+.nutrition h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.nutrition .serving{font-size:12px;color:var(--muted);margin-bottom:12px}
+.nut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.nut-item{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.nut-item .value{font-size:20px;font-weight:700;color:var(--text)}
+.nut-item .unit{font-size:11px;color:var(--muted)}
+.nut-item .label{font-size:11px;color:var(--muted);margin-top:2px}
+.nut-item.calories .value{color:var(--accent)}
+
+/* Ingredients */
+.ingredients{padding:16px;border-top:1px solid var(--border)}
+.ingredients h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.ingredients p{font-size:13px;line-height:1.6;color:var(--text)}
+
+/* All nutrients expandable */
+.all-nutrients{padding:16px;border-top:1px solid var(--border)}
+.all-nutrients summary{font-size:13px;color:var(--accent);cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.all-nutrients summary::before{content:'+ '}
+.all-nutrients[open] summary::before{content:'- '}
+.nut-table{width:100%;margin-top:12px;font-size:12px}
+.nut-table tr{border-bottom:1px solid var(--border)}
+.nut-table td{padding:6px 0}
+.nut-table td:last-child{text-align:right;color:var(--muted)}
+
+/* Actions */
+.actions{padding:16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.actions button{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;cursor:pointer}
+.actions button:hover{border-color:var(--accent)}
+.actions button.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+
+/* Camera permission prompt */
+.camera-prompt{text-align:center;padding:60px 20px}
+.camera-prompt p{color:var(--muted);margin-bottom:16px}
+.camera-prompt button{padding:14px 28px;background:var(--accent);color:#000;border:none;border-radius:8px;font-weight:600;font-size:16px;cursor:pointer}
+
+/* History */
+.history{max-width:500px;margin:0 auto;padding:16px}
+.history h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--card);border-radius:8px;margin-bottom:6px;cursor:pointer}
+.history-item:hover{border:1px solid var(--accent)}
+.history-item .hi-name{font-size:13px;font-weight:500}
+.history-item .hi-cal{font-size:12px;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>HTCAH Scanner</h1>
+  <a href="/">Home</a>
+</div>
+
+<!-- Camera scanner -->
+<div class="scanner-wrap" id="scannerWrap">
+  <video id="video" autoplay playsinline muted></video>
+  <div class="scanner-overlay">
+    <div class="scan-box">
+      <div class="scan-line"></div>
+    </div>
+  </div>
+  <div class="camera-prompt" id="cameraPrompt" style="display:none;position:absolute;inset:0;background:var(--bg)">
+    <p style="margin-top:40%">Point your camera at a barcode</p>
+    <button onclick="startCamera()">Enable Camera</button>
+  </div>
+</div>
+
+<div class="status" id="status">Initializing camera...</div>
+
+<!-- Manual UPC entry -->
+<div class="manual-entry">
+  <form onsubmit="manualLookup(event)">
+    <input type="text" id="upcInput" placeholder="Enter UPC barcode..." inputmode="numeric" pattern="[0-9]*">
+    <button type="submit">Look Up</button>
+  </form>
+</div>
+
+<!-- Result display -->
+<div class="result" id="resultArea" style="display:none"></div>
+
+<!-- Scan history -->
+<div class="history" id="historyArea"></div>
+
+<script>
+// State
+let scanning = false;
+let lastScanned = '';
+let scanHistory = [];
+let detector = null;
+
+// Barcode Detection API (native in Chrome/Edge/Safari)
+async function initDetector() {
+  if ('BarcodeDetector' in window) {
+    try {
+      detector = new BarcodeDetector({formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39']});
+      return true;
+    } catch(e) { console.warn('BarcodeDetector failed:', e); }
+  }
+  return false;
+}
+
+// Camera
+async function startCamera() {
+  const video = document.getElementById('video');
+  const prompt = document.getElementById('cameraPrompt');
+  const status = document.getElementById('status');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: 'environment', width: {ideal: 1280}, height: {ideal: 720}}
+    });
+    video.srcObject = stream;
+    prompt.style.display = 'none';
+    status.textContent = 'Scanning...';
+    status.className = 'status scanning';
+    scanning = true;
+    scanLoop();
+  } catch(e) {
+    prompt.style.display = 'flex';
+    status.textContent = 'Camera access needed for scanning';
+    status.className = 'status error';
+  }
+}
+
+// Continuous scan loop
+async function scanLoop() {
+  if (!scanning || !detector) return;
+  const video = document.getElementById('video');
+  if (video.readyState < 2) {
+    requestAnimationFrame(scanLoop);
+    return;
+  }
+  try {
+    const barcodes = await detector.detect(video);
+    if (barcodes.length > 0) {
+      const code = barcodes[0].rawValue;
+      if (code !== lastScanned) {
+        lastScanned = code;
+        document.getElementById('status').textContent = 'Found: ' + code;
+        document.getElementById('status').className = 'status found';
+        document.getElementById('upcInput').value = code;
+        // Vibrate if supported
+        if (navigator.vibrate) navigator.vibrate(100);
+        await lookupUPC(code);
+        // Pause scanning briefly after a successful scan
+        setTimeout(() => { lastScanned = ''; }, 3000);
+      }
+    }
+  } catch(e) {}
+  if (scanning) requestAnimationFrame(scanLoop);
+}
+
+// API lookup
+async function lookupUPC(upc) {
+  const status = document.getElementById('status');
+  const resultArea = document.getElementById('resultArea');
+
+  status.textContent = 'Looking up ' + upc + '...';
+  status.className = 'status scanning';
+
+  try {
+    const resp = await fetch('/api/scan/' + encodeURIComponent(upc));
+    const data = await resp.json();
+
+    if (data.error) {
+      status.textContent = 'Not found: ' + upc;
+      status.className = 'status error';
+      resultArea.style.display = 'none';
+      return;
+    }
+
+    status.textContent = 'Found!';
+    status.className = 'status found';
+    renderResult(data);
+
+    // Add to history
+    scanHistory.unshift({upc: upc, name: data.description || data.brand_name || 'Unknown', cal: data.nutrition_summary?.calories?.amount || '?'});
+    if (scanHistory.length > 10) scanHistory.pop();
+    renderHistory();
+
+  } catch(e) {
+    status.textContent = 'Error looking up barcode';
+    status.className = 'status error';
+  }
+}
+
+function renderResult(data) {
+  const area = document.getElementById('resultArea');
+  const ns = data.nutrition_summary || {};
+
+  let nutGrid = '';
+  const items = [
+    {key:'calories', label:'Calories', cls:'calories'},
+    {key:'protein', label:'Protein', cls:''},
+    {key:'carbs', label:'Carbs', cls:''},
+    {key:'fat', label:'Fat', cls:''},
+    {key:'fiber', label:'Fiber', cls:''},
+    {key:'sugar', label:'Sugar', cls:''},
+    {key:'sodium', label:'Sodium', cls:''},
+    {key:'saturated_fat', label:'Sat Fat', cls:''},
+    {key:'cholesterol', label:'Cholesterol', cls:''},
+  ];
+  items.forEach(i => {
+    if (ns[i.key]) {
+      nutGrid += `<div class="nut-item ${i.cls}">
+        <div class="value">${Math.round(ns[i.key].amount)}</div>
+        <div class="unit">${ns[i.key].unit}</div>
+        <div class="label">${i.label}</div>
+      </div>`;
+    }
+  });
+
+  // All nutrients table
+  let nutTable = '';
+  if (data.nutrients) {
+    const entries = Object.entries(data.nutrients).sort((a,b) => a[0].localeCompare(b[0]));
+    entries.forEach(([name, val]) => {
+      if (val.amount > 0) {
+        nutTable += `<tr><td>${name}</td><td>${val.amount} ${val.unit}</td></tr>`;
+      }
+    });
+  }
+
+  area.innerHTML = `
+    <div class="result-card">
+      <div class="result-header">
+        <div class="brand">${data.brand_owner || ''} ${data.brand_name ? '/ ' + data.brand_name : ''}</div>
+        <div class="product-name">${data.description || data.brand_name || 'Unknown Product'}</div>
+        <div class="category">${data.branded_food_category || ''}</div>
+        <div class="upc">UPC: ${data.gtin_upc || ''}</div>
+      </div>
+
+      <div class="nutrition">
+        <h3>Nutrition Facts</h3>
+        <div class="serving">Serving: ${data.household_serving || (data.serving_size ? data.serving_size + ' ' + (data.serving_size_unit||'') : 'Not specified')}</div>
+        <div class="nut-grid">${nutGrid}</div>
+      </div>
+
+      ${data.ingredients ? `
+        <div class="ingredients">
+          <h3>Ingredients</h3>
+          <p>${data.ingredients}</p>
+        </div>
+      ` : ''}
+
+      ${nutTable ? `
+        <details class="all-nutrients">
+          <summary>All Nutrients (${Object.keys(data.nutrients).length})</summary>
+          <table class="nut-table">${nutTable}</table>
+        </details>
+      ` : ''}
+
+      <div class="actions">
+        <button onclick="document.getElementById('resultArea').style.display='none'">Dismiss</button>
+        <button class="primary" onclick="scanAnother()">Scan Another</button>
+      </div>
+    </div>
+  `;
+  area.style.display = 'block';
+  area.scrollIntoView({behavior:'smooth'});
+}
+
+function renderHistory() {
+  const area = document.getElementById('historyArea');
+  if (scanHistory.length === 0) { area.innerHTML = ''; return; }
+  let html = '<h3>Recent Scans</h3>';
+  scanHistory.forEach(h => {
+    html += `<div class="history-item" onclick="lookupUPC('${h.upc}')">
+      <span class="hi-name">${h.name.substring(0,40)}</span>
+      <span class="hi-cal">${h.cal} cal</span>
+    </div>`;
+  });
+  area.innerHTML = html;
+}
+
+function scanAnother() {
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('upcInput').value = '';
+  lastScanned = '';
+}
+
+function manualLookup(e) {
+  e.preventDefault();
+  const upc = document.getElementById('upcInput').value.trim();
+  if (upc) lookupUPC(upc);
+}
+
+// Init
+(async function() {
+  const hasDetector = await initDetector();
+  if (hasDetector) {
+    startCamera();
+  } else {
+    document.getElementById('status').textContent = 'Camera scanning not supported — enter UPC manually';
+    document.getElementById('status').className = 'status';
+    document.getElementById('scannerWrap').style.display = 'none';
+  }
+})();
+</script>
+</body>
+</html>

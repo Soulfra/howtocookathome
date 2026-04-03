@@ -1,0 +1,374 @@
+/* ==========================================================
+   HTCAH Design System — Single source of truth for all pages
+   Edit this file, refresh browser, see changes instantly.
+
+   To debug: Open any page → right-click → Inspect →
+   Elements panel shows HTML, Styles panel shows CSS.
+   Edit values live in the browser, then copy back here.
+   ========================================================== */
+
+/* --- FONTS (loaded from Google Fonts in <head>) --- */
+/* Lora:  warm serif for headings — feels like a cookbook */
+/* DM Sans: clean modern sans for body — reads easy on screens */
+
+/* --- DESIGN TOKENS --- */
+:root {
+  /* Colors — override per-tenant via inline :root in <style> */
+  --primary: #1A1A2E;
+  --accent: #C4975A;
+  --bg: #FFFBF5;
+  --surface: #FFFFFF;
+  --text: #1C1917;
+  --text-light: #57534E;
+  --success: #2D6A4F;
+
+  /* Typography */
+  --heading: 'Lora', Georgia, 'Times New Roman', serif;
+  --body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Spacing & Shape */
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+
+  /* Shadows — layered for depth */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+
+  /* Motion */
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- RESET & BASE --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.7;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--heading);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover { color: var(--primary); }
+
+img { max-width: 100%; height: auto; }
+::selection { background: var(--accent); color: white; }
+
+
+/* --- NAVIGATION --- */
+nav {
+  background: var(--primary);
+  padding: 0.875rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+}
+
+nav .logo {
+  font-family: var(--heading);
+  color: var(--accent);
+  font-size: 1.35rem;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+nav .links {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+nav .links a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all var(--transition);
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+nav .links a:hover {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom-color: var(--accent);
+}
+
+
+/* --- LAYOUT --- */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+
+/* --- HERO --- */
+.hero {
+  background: var(--primary);
+  color: white;
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-family: var(--heading);
+  font-size: 2.6rem;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.hero .tagline {
+  opacity: 0.8;
+  margin-top: 0.75rem;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.hero .powered-by {
+  font-size: 0.72rem;
+  opacity: 0.3;
+  margin-top: 1.5rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+
+/* --- CARDS --- */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card h2 {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 0.875rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+
+/* --- MENU GRID --- */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.menu-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  color: inherit;
+}
+
+.menu-card .cuisine {
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.menu-card h3 {
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  color: var(--primary);
+  margin: 0.4rem 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.menu-card .meta {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.menu-card .pricing {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0,0,0,0.04);
+}
+
+
+/* --- BADGES --- */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-xs);
+  color: #fff;
+}
+
+.badge-usda { background: #1565c0; }
+.badge-syn { background: #2e7d32; }
+.badge-star { background: var(--accent); }
+
+
+/* --- STAT PILLS (hero inventory summary) --- */
+.stat-pill {
+  background: rgba(255,255,255,0.1);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.stat-pill .num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-pill .label {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+
+/* --- DEMO BANNER --- */
+.demo-banner {
+  background: #FEF3C7;
+  border-bottom: 2px solid #F59E0B;
+  padding: 0.6rem 1.5rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #92400E;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.demo-banner a {
+  color: #B45309;
+  text-decoration: underline;
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+
+/* --- FOOTER --- */
+footer {
+  background: var(--primary);
+  color: rgba(255,255,255,0.45);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  font-size: 0.78rem;
+  margin-top: 4rem;
+  letter-spacing: 0.01em;
+  line-height: 1.8;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+footer a:hover { text-decoration: underline; }
+
+
+/* --- TABLES (ingredient lists, data tables) --- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  border-bottom: 2px solid var(--accent);
+  font-weight: 600;
+}
+
+.data-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.data-table tr:nth-child(even) {
+  background: rgba(0,0,0,0.015);
+}
+
+.data-table tr:hover {
+  background: rgba(0,0,0,0.025);
+}
+
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .menu-grid { grid-template-columns: 1fr !important; }
+  .grid-2col { grid-template-columns: 1fr !important; }
+  nav { padding: 0.75rem 1rem; }
+  nav .links { gap: 1rem; }
+  nav .links a { font-size: 0.78rem; }
+  .container { padding: 1.75rem 1.25rem !important; }
+  .hero { padding: 3rem 1.25rem !important; }
+  .hero h1 { font-size: 1.75rem !important; }
+}
+
+@media (max-width: 480px) {
+  nav { flex-direction: column; gap: 0.5rem; }
+  nav .links { flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+}

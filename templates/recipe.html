@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ episode.title }} | {{ config.brand.name }}{% endblock %}
+{% block meta_desc %}{{ episode.what_you_learn }}{% endblock %}
+
+{% block content %}
+
+<div class="recipe-header">
+    <div class="container">
+        <span class="ep-label">Season 1 — Episode {{ episode.ep_number }}</span>
+        <h1>{{ episode.title }}</h1>
+        <p class="hook-text">"{{ episode.hook }}"</p>
+    </div>
+</div>
+
+<div class="recipe-body">
+
+    <div class="recipe-meta-grid">
+        <div class="meta-item">
+            <div class="label">Time</div>
+            <div class="value">{{ episode.time_estimate }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="label">Difficulty</div>
+            <div class="value">{{ episode.difficulty }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="label">Format</div>
+            <div class="value">{{ episode.content_tier }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="label">Technique</div>
+            <div class="value">{{ episode.key_technique }}</div>
+        </div>
+    </div>
+
+    <h2>What You'll Learn</h2>
+    <p>{{ episode.what_you_learn }}</p>
+
+    <h2>Key Technique</h2>
+    <p><strong>{{ episode.key_technique }}</strong></p>
+
+    {% if episode.equipment %}
+    <h2>Equipment</h2>
+    <p>{{ episode.equipment }}</p>
+    {% endif %}
+
+    {# === PARTNER PRODUCTS — clean, no placeholders === #}
+    {% if episode._products %}
+    <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
+        {% for prod in episode._products %}
+        <a href="/product/{{ prod.slug }}" style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); border: 1px solid #ddd; padding: 1rem 1.5rem; margin: 0.5rem 0; text-decoration: none; color: inherit;">
+            <div>
+                <strong style="color: var(--color-primary); font-size: 0.95rem;">{{ prod.name }}</strong>
+                <span style="display: block; font-size: 0.85rem; color: var(--color-text-light);">{{ prod.callout }}</span>
+            </div>
+            <span style="font-weight: bold; color: var(--color-accent);">{{ prod.price }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# === SEO KEYWORDS (hidden) === #}
+    {% if episode.seo_keywords %}
+    <div class="seo-keywords">{{ episode.seo_keywords }}</div>
+    {% endif %}
+
+    <div class="episode-nav">
+        {% if prev_ep %}
+        <a href="/recipe/{{ prev_ep.slug }}">&larr; Ep {{ prev_ep.ep_number }}: {{ prev_ep.title }}</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        {% if next_ep %}
+        <a href="/recipe/{{ next_ep.slug }}">Ep {{ next_ep.ep_number }}: {{ next_ep.title }} &rarr;</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="subscribe" id="subscribe">
+    <h2>{{ config.homepage.subscribe_heading }}</h2>
+    <p>{{ config.homepage.subscribe_subheading }}</p>
+    <form action="/api/subscribe" method="POST">
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <button type="submit">{{ config.homepage.subscribe_cta_text }}</button>
+    </form>
+</div>
+
+{% endblock %}

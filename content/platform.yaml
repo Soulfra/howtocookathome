@@ -1,0 +1,107 @@
+# ============================================================
+# PLATFORM.YAML — The Publishing Spec
+# ============================================================
+# This file defines HOW the platform works.
+# What modules are active, what outputs get generated,
+# and how the interpreter processes source/ into output/.
+#
+# Think of this as the print spec for a book:
+# trim size, paper stock, binding, distribution channels.
+# ============================================================
+
+version: "1.0"
+engine: "death2data-platform"
+
+# --- What gets generated from source/ ---
+outputs:
+  web:
+    enabled: true
+    format: static-html
+    directory: output/web
+    description: "Full website with all pages, recipes, and navigation"
+
+  api:
+    enabled: true
+    format: json
+    directory: output/api
+    description: "JSON API endpoints for every content type"
+
+  widgets:
+    enabled: true
+    format: embeddable-html
+    directory: output/widgets
+    description: "Standalone embeddable components (recipe player, timer, email capture)"
+
+  pdf:
+    enabled: false
+    format: pdf
+    directory: output/pdf
+    description: "Printable cookbook, recipe cards, meal plans"
+
+  captions:
+    enabled: true
+    format: srt
+    directory: output/captions
+    description: "Closed captions for video content (.srt files)"
+
+  rss:
+    enabled: true
+    format: xml
+    directory: output/rss
+    description: "RSS feed for podcast-style subscribers"
+
+# --- Active modules ---
+modules:
+  core:
+    - cms           # Pages and content management
+    - blog_seo      # SEO-optimized blog posts with schema markup
+    - analytics     # Page views, funnels, content performance
+    - accessibility # ARIA, captions, screen reader, alt text
+
+  enabled:
+    - video           # YouTube sync, auto-embed
+    - recipe_tools    # Timers, scaling, step-by-step mode
+    - email           # Capture, sequences, newsletters
+    - commerce        # Product links, click tracking, revenue (first-party)
+    - digital_products # Sell PDFs, cookbooks, downloads
+    - payments        # Stripe integration
+    - membership      # Tiered access, gated content
+    - partner_portal  # Guest brands, rev share
+    - flavor_profiles # Taste testing, personalized recommendations
+
+  disabled:
+    - social_automation  # Future: cross-post scheduling
+    - course_builder     # Future: lesson sequences
+    - workout_timer      # Not applicable to this domain
+
+# --- Content pipeline (AI processing) ---
+pipeline:
+  on_new_episode:
+    - transcribe_video     # Generate transcript from video
+    - generate_seo_post    # Write SEO blog post from transcript + episode data
+    - generate_captions    # Create .srt closed caption file
+    - generate_alt_text    # Write alt text for any images
+    - extract_steps        # Break content into structured step-by-step
+    - calculate_nutrition  # Estimate calories, macros from ingredients
+    - scale_portions       # Generate 1-2 person portions from family-size
+    - link_products        # Match equipment mentions to first-party products
+    - link_partners        # Match ingredient/gear mentions to partner products
+
+  on_recipe_card_scan:
+    - ocr_handwriting      # Extract text from photo of handwritten card
+    - fingerprint_author   # Identify handwriting style for provenance
+    - structure_recipe     # Convert raw text to structured YAML
+    - calculate_nutrition  # Add calorie/macro estimates
+    - scale_portions       # Generate scaled versions
+    - generate_story_prompt # Suggest memory/story prompts for personal cookbook
+
+# --- Domains ---
+# We own the platform, we own the brands, we own the domains.
+# All checkout goes through Stripe on our domain.
+# Sub-brands get subdomains when real partners onboard
+domains:
+  primary: "howtocookathome.com"
+  parent: "death2data.com"
+  sub_brands:
+  checkout_base: "/shop/checkout"
+  payments: "stripe"

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: howtocookathome
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python3 -m app.publish
+    startCommand: gunicorn app.server:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+    healthCheckPath: /api/health

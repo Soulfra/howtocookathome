@@ -1,0 +1,158 @@
+# ============================================================
+# CONNECTORS.YAML — The Bridge Layer
+# ============================================================
+# YAML metadata is the universal schema.
+# Connectors are how that metadata becomes real things.
+#
+# Each connector reads from source/ and does ONE job.
+# The platform is just: metadata + connectors.
+# ============================================================
+
+# --- What we have now ---
+active:
+  - id: static-web
+    type: publisher
+    description: "Reads source/ YAML, generates static HTML site"
+    input: "source/*.yaml"
+    output: "output/web/*.html"
+    engine: "publish.py"
+    status: built
+
+  - id: json-api
+    type: publisher
+    description: "Reads source/ YAML, generates JSON API files"
+    input: "source/*.yaml"
+    output: "output/api/*.json"
+    engine: "publish.py"
+    status: built
+
+# --- What we need ---
+planned:
+
+  # DATA CONNECTORS — move data in/out of the private database
+  - id: csv-import
+    type: ingest
+    description: "Import CSV/XLSX → structured YAML"
+    input: "*.csv, *.xlsx"
+    output: "source/episodes/*.yaml, source/products/*.yaml"
+    use_case: >
+      Client hands you a spreadsheet (like the content bible).
+      This connector parses it into proper YAML files.
+      Reverse: export YAML back to CSV/XLSX for clients
+      who want to edit in a spreadsheet.
+
+  - id: recipe-card-scan
+    type: ingest
+    description: "Photo of handwritten recipe card → structured YAML"
+    input: "image (jpg/png)"
+    output: "source/episodes/*.yaml"
+    pipeline:
+      - ocr_handwriting
+      - fingerprint_author
+      - structure_recipe
+      - calculate_nutrition
+      - scale_portions
+    use_case: >
+      Grandma's recipe card. Take a photo. Platform OCRs it,
+      structures it, calculates nutrition, scales portions.
+      The original photo is stored as provenance.
+
+  - id: audio-review
+    type: ingest
+    description: "Audio recording → transcription → review YAML"
+    input: "audio (mp3/wav/m4a)"
+    output: "source/reviews/*.yaml"
+    pipeline:
+      - transcribe_audio
+      - extract_sentiment
+      - tag_review_source_as_human
+
+  # PAYMENT CONNECTORS — Stripe, checkout, subscriptions
+  - id: stripe
+    type: payment
+    description: "Creates Stripe products/prices from product YAML"
+    input: "source/products/*.yaml"
+    output: "stripe_price_id written back to YAML"
+    use_case: >
+      Read product YAML. Create matching Stripe product + price.
+      Write the stripe_price_id back into the YAML.
+      Checkout URL becomes a real Stripe checkout session.
+    config:
+      checkout_base: "/shop/checkout"
+      success_url: "/shop/thanks"
+      cancel_url: "/shop"
+
+  # DATABASE CONNECTORS — private data store
+  - id: sqlite
+    type: database
+    description: "Syncs YAML schema to SQLite tables"
+    input: "source/*.yaml (schema)"
+    output: "data/platform.db"
+    tables:
+      - episodes     # from source/episodes/*.yaml
+      - products     # from source/products/*.yaml
+      - partners     # from source/partners/*.yaml
+      - orders       # runtime — from Stripe webhooks
+      - reviews      # runtime — from user submissions
+      - taste_tests  # runtime — from flavor profile module
+      - subscribers  # runtime — from email capture
+    use_case: >
+      YAML defines the SCHEMA (what fields exist).
+      SQLite holds the RUNTIME DATA (orders, reviews, users).
+      YAML is public (open source). Database is private.
+
+  # AI/MCP CONNECTORS — let AI tools query the platform
+  - id: mcp-server
+    type: api
+    description: "Exposes platform data as MCP tools"
+    input: "data/platform.db + source/*.yaml"
+    output: "MCP tool endpoints"
+    tools:
+      - search_episodes      # "find me a recipe for chicken"
+      - get_product           # "what's in the starter spice kit?"
+      - submit_review         # "I made the pasta and it was great"
+      - log_taste_test        # "the salt level was a 7"
+      - get_nutrition          # "how many calories in episode 12?"
+      - scale_recipe           # "make episode 5 for 2 people"
+    use_case: >
+      Any AI assistant can connect to the platform via MCP.
+      Claude, ChatGPT, local Ollama — they query the same data.
+      The MCP server reads from the private database,
+      not the public YAML files.
+
+  # EXPORT CONNECTORS — turn platform data into other formats
+  - id: pdf-cookbook
+    type: publisher
+    description: "Generates printable PDF cookbook from episodes"
+    input: "source/episodes/*.yaml"
+    output: "output/pdf/cookbook.pdf"
+
+  - id: rss-feed
+    type: publisher
+    description: "Generates RSS/podcast feed from episodes"
+    input: "source/episodes/*.yaml"
+    output: "output/rss/feed.xml"
+
+  - id: caption-generator
+    type: publisher
+    description: "Generates .srt caption files from transcripts"
+    input: "source/episodes/*.yaml (transcript field)"
+    output: "output/captions/*.srt"
+
+# --- The pattern ---
+# Every connector follows the same contract:
+#
+#   INPUT:  source/*.yaml  (schema + seed data)
+#         + data/*.db      (runtime data, if needed)
+#
+#   OUTPUT: something useful
+#         (HTML, JSON, PDF, Stripe product, MCP endpoint,
+#          structured YAML from raw input, database rows)
+#
+# The YAML files are the METADATA LAYER.
+# The database is the PRIVATE DATA LAYER.
+# Connectors are the BRIDGE between them.
+#
+# This is why it feels like COBOL — the YAML is self-documenting,
+# verbose, readable by anyone. It describes the business.
+# The connectors are the programs that execute against it.

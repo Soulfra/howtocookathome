@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.seo.site_title }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_desc %}{{ config.seo.meta_description }}{% endblock %}">
+
+    {# === ALL STYLING FROM CONFIG — NOTHING HARDCODED === #}
+    <style>
+        :root {
+            --color-primary: {{ config.brand.colors.primary }};
+            --color-accent: {{ config.brand.colors.accent }};
+            --color-bg: {{ config.brand.colors.background }};
+            --color-surface: {{ config.brand.colors.surface }};
+            --color-text: {{ config.brand.colors.text }};
+            --color-text-light: {{ config.brand.colors.text_light }};
+            --color-success: {{ config.brand.colors.success }};
+            --font-heading: {{ config.brand.fonts.heading }};
+            --font-body: {{ config.brand.fonts.body }};
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background: var(--color-bg);
+            line-height: 1.6;
+        }
+
+        /* --- NAV --- */
+        nav {
+            background: var(--color-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav .brand {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            font-size: 1.3rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav .links { display: flex; gap: 1.5rem; }
+        nav .links a {
+            color: var(--color-bg);
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+        nav .links a:hover { opacity: 1; }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+        .wide-container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+        /* --- HERO --- */
+        .hero {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+        }
+        .hero p {
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        .hero .cta {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* --- SECTIONS --- */
+        section { padding: 3rem 0; }
+        section h2 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        /* --- EPISODE GRID --- */
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .episode-card {
+            background: var(--color-surface);
+            border: 1px solid #ddd;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .episode-card:hover {
+            border-color: var(--color-accent);
+        }
+        .episode-card .ep-number {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .episode-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: var(--color-primary);
+        }
+        .episode-card .hook {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            font-style: italic;
+        }
+        .episode-card .meta {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--color-text-light);
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* --- EPISODE LIST (compact) --- */
+        .episode-list { list-style: none; }
+        .episode-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+        .episode-list .num {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            font-size: 0.85rem;
+            min-width: 2rem;
+        }
+        .episode-list a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .episode-list a:hover { color: var(--color-accent); }
+        .episode-list .diff {
+            margin-left: auto;
+            font-size: 0.85rem;
+        }
+
+        /* --- SUBSCRIBE BLOCK --- */
+        .subscribe {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .subscribe h2 {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+        }
+        .subscribe p {
+            max-width: 500px;
+            margin: 0.75rem auto 1.5rem;
+            opacity: 0.85;
+        }
+        .subscribe form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .subscribe input[type="email"] {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: none;
+            font-size: 1rem;
+            font-family: var(--font-body);
+        }
+        .subscribe button {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        /* --- RECIPE PAGE --- */
+        .recipe-header {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 3rem 2rem;
+        }
+        .recipe-header .ep-label {
+            color: var(--color-accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .recipe-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            margin: 0.5rem 0;
+            color: var(--color-bg);
+        }
+        .recipe-header .hook-text {
+            font-style: italic;
+            opacity: 0.85;
+            font-size: 1.1rem;
+        }
+        .recipe-body { padding: 2rem; max-width: 720px; margin: 0 auto; }
+        .recipe-body h2 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--color-primary);
+            margin: 2rem 0 0.75rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--color-accent);
+        }
+        .recipe-body p { margin-bottom: 1rem; }
+        .recipe-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .meta-item {
+            background: var(--color-surface);
+            border: 1px solid #ddd;
+            padding: 1rem;
+            text-align: center;
+        }
+        .meta-item .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--color-text-light);
+            letter-spacing: 0.05em;
+        }
+        .meta-item .value {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            color: var(--color-primary);
+            margin-top: 0.25rem;
+        }
+
+        /* --- NAV BETWEEN EPISODES --- */
+        .episode-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ddd;
+        }
+        .episode-nav a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .episode-nav a:hover { text-decoration: underline; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        footer a { color: var(--color-accent); text-decoration: none; }
+
+        /* --- SEO KEYWORDS (hidden, for reference) --- */
+        .seo-keywords { display: none; }
+    </style>
+</head>
+<body>
+
+{# === NAV — ALL FROM CONFIG === #}
+<nav>
+    <a href="/" class="brand">{{ config.brand.logo_text }}</a>
+    <div class="links">
+        {% for link in config.nav %}
+        <a href="{{ link.href }}">{{ link.label }}</a>
+        {% endfor %}
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+{# === FOOTER — ALL FROM CONFIG === #}
+<footer>
+    &copy; 2026 {{ config.footer.copyright }}.
+    Built by <a href="{{ config.footer.built_by_href }}">{{ config.footer.built_by }}</a>.
+</footer>
+
+</body>
+</html>

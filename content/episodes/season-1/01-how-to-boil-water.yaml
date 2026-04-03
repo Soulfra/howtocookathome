@@ -1,0 +1,52 @@
+episode: 1
+season: 1
+title: How to Boil Water (Yes, Really)
+slug: how-to-boil-water
+status: planned
+hook: You've been boiling water wrong.
+what_you_learn: Rolling boil vs simmer vs poach — and why it matters for everything
+  you'll ever cook.
+key_technique: Temperature control
+equipment:
+- Pot
+- Stove
+time_estimate: 3 min
+difficulty: 1
+content_tier: Short
+seo_keywords: boil water, how to boil water, simmer vs boil
+ingredients:
+- item: Water
+  amount: 4 cups
+  scalable: true
+- item: Salt
+  amount: 1 tsp
+  scalable: true
+  note: for pasta/blanching
+steps:
+- do: Fill your pot with cold water. Cold, not hot — hot tap water picks up more minerals
+    from your pipes.
+  tip: Use cold water from the tap.
+  timer: null
+- do: Place the pot on the burner, turn heat to HIGH. Put a lid on — traps heat, gets
+    you to a boil 25% faster.
+  tip: Lid on = faster boil. Basic physics.
+  timer: null
+- do: Watch for small bubbles on the bottom — about 160°F. This is a SIMMER. Good
+    for poaching eggs, cooking delicate fish.
+  tip: Simmer ≠ boil. Most common beginner mistake.
+  timer: null
+- do: Steady streams of bubbles — about 185°F. This is a GENTLE BOIL. Good for soups,
+    stews, sauces.
+  tip: If your soup is erupting, turn it down.
+  timer: null
+- do: Large, aggressive bubbles breaking the surface — 212°F. This is a ROLLING BOIL.
+    For pasta, blanching vegetables, boiling potatoes.
+  tip: A rolling boil can't be stirred down. That's how you know.
+  timer:
+    seconds: 180
+    label: Watch your rolling boil
+- do: For pasta or blanching, add salt NOW — about 1 tsp per quart. The water should
+    taste like the sea.
+  tip: Salt the water. This is your only chance to season from the inside.
+  timer: null
+difficulty_max: 3

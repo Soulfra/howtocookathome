@@ -1,0 +1,233 @@
+# ============================================================
+# TIERS.YAML — How People Get In and What They Get
+# ============================================================
+# The domain is the free tier. The email is the upgrade.
+# Value is tracked, not assumed. If it's not working, you see it.
+# ============================================================
+
+onboarding:
+  step_1: "Pick a name"
+  step_2: "Upload anything (XLSX, CSV, paste text, or start blank)"
+  step_3: "Get a free subdomain with a live page"
+  step_4: "See your value dashboard from day one"
+
+tiers:
+
+  free:
+    name: "Seed"
+    price: "$0"
+    what_you_get:
+      - subdomain: "{yourname}.{available-domain}.com"
+      - static_site: true         # generated from YAML
+      - pages: 10                 # up to 10 pages
+      - products: 3               # up to 3 product listings
+      - api_json: true            # your data as JSON
+      - value_dashboard: true     # see your stats from day one
+      - badge_system: true        # earn badges, track progress
+    what_you_dont_get:
+      - custom_domain: false
+      - custom_email: false
+      - checkout: false           # can list products, can't sell yet
+      - mcp_server: false
+      - pdf_export: false
+      - subscription_box: false
+    domain_pool: "230 domains Matt owns"
+    example_subdomains:
+      # - placeholder removed
+      - "yourband.death2data.com"
+      - "whatever.anotherdomain.com"
+
+  growth:
+    name: "Sprout"
+    price: "$9/mo"
+    upgrades_from: "free"
+    what_you_add:
+      - custom_email: "{you}@{yourname}.{domain}.com"
+      - checkout: true            # Stripe checkout, sell products
+      - pages: 50
+      - products: 25
+      - pdf_export: true          # generate business cards, one-pagers, cookbooks
+      - mcp_server: true          # AI tools can query your data
+      - email_capture: true       # collect subscriber emails
+    trigger: >
+      When someone on the free tier gets their first 100 views,
+      or tries to add a 4th product, or clicks "sell this" —
+      that's the upgrade prompt. Not a paywall. A value wall.
+
+  pro:
+    name: "Harvest"
+    price: "$29/mo"
+    upgrades_from: "growth"
+    what_you_add:
+      - custom_domain: true       # point your own domain
+      - subscription_products: true
+      - unlimited_pages: true
+      - unlimited_products: true
+      - regional_analytics: true  # see where your customers are
+      - fulfillment_dashboard: true
+      - white_label: true         # remove "Built by Death2Data" footer
+      - priority_connectors: true # new output formats first
+
+# --- VALUE DASHBOARD ---
+# Everyone sees this from day one, even on free.
+# It answers: "Is this platform worth my time?"
+
+value_dashboard:
+  description: >
+    Not a vanity metrics page. A real accounting of
+    what the platform did for you this month.
+
+  metrics_tracked:
+    visibility:
+      - total_page_views
+      - unique_visitors
+      - top_pages                 # which content gets traffic
+      - referral_sources          # where traffic comes from
+      - search_impressions        # if SEO is working
+
+    engagement:
+      - episodes_viewed           # how many people watch/read
+      - avg_time_on_page
+      - badge_earners             # how many people are progressing
+      - taste_tests_submitted
+      - recipe_cards_scanned
+      - email_subscribers
+
+    revenue:                      # only on paid tiers with checkout
+      - total_revenue_this_month
+      - total_revenue_all_time
+      - orders_this_month
+      - avg_order_value
+      - top_selling_products
+      - subscription_mrr          # monthly recurring from boxes
+      - revenue_by_region         # where the money comes from
+
+    value_score:
+      description: >
+        A single number: "The platform generated $X of value for you."
+        For free tier: estimated value based on equivalent ad spend
+        for the traffic you got. "Your 500 views would cost $45 in ads."
+        For paid tier: actual revenue minus platform cost.
+        "You paid $29. You made $340. Net value: $311."
+      formula: "revenue - platform_cost (or estimated_ad_value for free tier)"
+
+  refund_leaderboard:
+    description: >
+      Public (opt-in) ranking of users by net value gained.
+      Shows: username, tier, value_score, months_active.
+      Not about bragging. About proof.
+      New users can see: "People actually make money on this."
+      Users at $0 can see: "I need to change something."
+      Users negative can request a refund — the platform
+      should be confident enough to offer this.
+    opt_in: true
+    fields_shown:
+      - display_name
+      - tier
+      - months_active
+      - value_score
+      - top_product              # their best seller
+
+  transparency_rule: >
+    If someone is paying $29/mo and their value_score is $0
+    for 3 months straight, the platform should TELL THEM.
+    "Hey, you've paid $87 and gotten $0 in value. Here's what
+    you could try. Or here's a refund." That's how you build
+    trust that compounds.
+
+# --- FORMAT PIPELINE ---
+# The same YAML source generates everything.
+# Input anything. Output everything.
+
+format_pipeline:
+  description: >
+    Someone hands you a spreadsheet. Or a recipe card photo.
+    Or they type into a form. Or they paste a YouTube URL.
+    It all becomes YAML. And from YAML, everything else.
+
+  inputs:
+    - format: "xlsx/csv"
+      connector: "csv-import"
+      becomes: "source/episodes/*.yaml, source/products/*.yaml"
+      example: "Client hands you a content bible spreadsheet"
+
+    - format: "photo (handwritten recipe card)"
+      connector: "recipe-card-scan"
+      becomes: "source/episodes/*.yaml"
+      example: "Grandma's recipe card, photographed"
+
+    - format: "audio (voice recording)"
+      connector: "audio-ingest"
+      becomes: "source/reviews/*.yaml"
+      example: "Taste test recording while cooking"
+
+    - format: "web form"
+      connector: "onboard-form"
+      becomes: "source/brand.yaml + source/platform.yaml"
+      example: "New user fills out the onboarding wizard"
+
+    - format: "youtube url"
+      connector: "video-ingest"
+      becomes: "source/episodes/*.yaml (with transcript)"
+      example: "Creator pastes their YouTube channel"
+
+    - format: "paste text"
+      connector: "text-ingest"
+      becomes: "source/episodes/*.yaml"
+      example: "Someone pastes a recipe from a blog"
+
+  outputs:
+    - format: "static website"
+      connector: "static-web (publish.py)"
+      from: "source/*.yaml"
+      status: built
+
+    - format: "json api"
+      connector: "json-api (publish.py)"
+      from: "source/*.yaml"
+      status: built
+
+    - format: "business card (pdf)"
+      connector: "pdf-card"
+      from: "source/brand.yaml"
+      status: planned
+
+    - format: "one-pager (pdf)"
+      connector: "pdf-onepager"
+      from: "source/brand.yaml + source/products/*.yaml"
+      status: planned
+
+    - format: "pitch deck (pptx)"
+      connector: "pptx-deck"
+      from: "source/brand.yaml + source/database.yaml (value metrics)"
+      status: planned
+
+    - format: "cookbook (pdf)"
+      connector: "pdf-cookbook"
+      from: "source/episodes/*.yaml"
+      status: planned
+
+    - format: "rss feed"
+      connector: "rss"
+      from: "source/episodes/*.yaml"
+      status: planned
+
+    - format: "mcp server"
+      connector: "mcp-server"
+      from: "source/*.yaml + data/*.db"
+      status: planned
+
+    - format: "stripe products"
+      connector: "stripe-sync"
+      from: "source/products/*.yaml"
+      status: planned
+
+    - format: "email sequence"
+      connector: "email-builder"
+      from: "source/episodes/*.yaml (drip content)"
+      status: planned
+
+    - format: "captions (srt)"
+      connector: "caption-gen"
+      from: "source/episodes/*.yaml (transcript)"
+      status: planned

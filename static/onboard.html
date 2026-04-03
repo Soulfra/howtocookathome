@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Your Kitchen | HowToCookAtHome</title>
+    <style>
+        :root {
+            --primary: #1A1A2E;
+            --accent: #C4975A;
+            --bg: #F5F0E8;
+            --surface: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --success: #2D6A4F;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; }
+        nav { background: var(--primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        nav .brand { font-family: Georgia, serif; color: var(--accent); font-size: 1.3rem; text-decoration: none; font-weight: bold; }
+        nav .links { display: flex; gap: 1.5rem; }
+        nav .links a { color: var(--bg); text-decoration: none; font-size: 0.9rem; opacity: 0.85; }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 2rem; }
+        h1 { font-family: Georgia, serif; color: var(--primary); font-size: 2rem; margin-bottom: 0.5rem; }
+        h2 { font-family: Georgia, serif; color: var(--primary); font-size: 1.3rem; margin: 2rem 0 0.8rem; }
+
+        .step { display: none; }
+        .step.active { display: block; }
+
+        .domain-input-wrap { display: flex; gap: 0; margin: 1.5rem 0; }
+        .domain-input-wrap input {
+            flex: 1; padding: 0.8rem 1rem; font-size: 1.1rem; border: 2px solid #ddd;
+            border-right: none; font-family: inherit; outline: none;
+        }
+        .domain-input-wrap input:focus { border-color: var(--accent); }
+        .domain-input-wrap .suffix {
+            background: var(--primary); color: var(--accent); padding: 0.8rem 1rem;
+            font-size: 1.1rem; font-weight: bold; white-space: nowrap;
+            display: flex; align-items: center;
+        }
+
+        .btn {
+            display: inline-block; background: var(--accent); color: var(--primary);
+            padding: 0.7rem 2rem; border: none; font-weight: bold; font-size: 1rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-outline {
+            display: inline-block; background: transparent; color: var(--primary);
+            padding: 0.7rem 2rem; border: 2px solid var(--primary); font-weight: bold;
+            font-size: 1rem; cursor: pointer; font-family: inherit;
+        }
+
+        .domain-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+        .domain-list .chip {
+            padding: 0.4rem 1rem; border: 2px solid #ddd; cursor: pointer;
+            font-size: 0.85rem; background: var(--surface);
+        }
+        .domain-list .chip.selected { border-color: var(--accent); background: var(--accent); color: var(--primary); font-weight: bold; }
+
+        .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+        .type-card {
+            background: var(--surface); padding: 1.2rem; border: 2px solid #ddd;
+            cursor: pointer; text-align: center;
+        }
+        .type-card:hover { border-color: var(--accent); }
+        .type-card.selected { border-color: var(--accent); background: #FAF5EE; }
+        .type-card h3 { font-family: Georgia, serif; color: var(--primary); font-size: 1rem; margin-bottom: 0.3rem; }
+        .type-card p { font-size: 0.8rem; color: var(--text-light); }
+        .type-card .icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+        .role-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+        .role-tag {
+            padding: 0.5rem 1.2rem; border: 2px solid #ddd; cursor: pointer;
+            font-size: 0.9rem; background: var(--surface);
+        }
+        .role-tag.selected { border-color: var(--accent); background: var(--accent); color: var(--primary); font-weight: bold; }
+
+        .preview-frame {
+            background: var(--surface); border: 2px solid #ddd; margin: 1.5rem 0;
+            overflow: hidden; font-size: 0.85rem;
+        }
+        .preview-nav { background: var(--primary); color: var(--bg); padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .preview-nav .p-brand { font-family: Georgia, serif; color: var(--accent); font-weight: bold; }
+        .preview-nav .p-links { display: flex; gap: 1rem; font-size: 0.75rem; opacity: 0.8; }
+        .preview-hero { background: var(--primary); color: var(--bg); padding: 1.5rem; text-align: center; }
+        .preview-hero h2 { color: var(--accent); font-size: 1.2rem; }
+        .preview-body { padding: 1rem; }
+        .preview-card { background: var(--bg); padding: 0.8rem; margin-bottom: 0.5rem; font-size: 0.8rem; }
+
+        .feature-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .feature-row .name { font-size: 0.9rem; }
+        .tag { font-size: 0.7rem; padding: 0.15rem 0.5rem; font-weight: bold; text-transform: uppercase; }
+        .tag-free { background: #E8F5E9; color: var(--success); }
+        .tag-paid { background: #FFF3E0; color: #E65100; }
+
+        .yaml-output {
+            background: var(--primary); color: #A0E0A0; padding: 1.5rem;
+            font-family: 'Courier New', monospace; font-size: 0.8rem;
+            white-space: pre-wrap; max-height: 500px; overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--text-light); }
+        footer a { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a class="brand" href="index.html">HowToCookAtHome</a>
+    <div class="links">
+        <a href="episodes.html">Episodes</a>
+        <a href="about.html">About</a>
+        <a href="shop.html">Shop</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- STEP 1: PICK A DOMAIN -->
+    <div class="step active" id="step1">
+        <h1>Launch your kitchen.</h1>
+        <p>Pick a name. Get a free subdomain. Your site is live in 60 seconds.</p>
+
+        <div class="domain-input-wrap">
+            <input type="text" id="domainName" placeholder="yourname" oninput="updatePreview()" autocomplete="off">
+            <div class="suffix" id="domainSuffix">.howtocookathome.com</div>
+        </div>
+
+        <h2>Pick a base domain</h2>
+        <p style="color: var(--text-light); font-size: 0.85rem;">230 available domains. Here are a few:</p>
+        <div class="domain-list" id="domainList">
+            <span class="chip selected" onclick="selectBase('howtocookathome.com', this)">howtocookathome.com</span>
+            <span class="chip" onclick="selectBase('death2data.com', this)">death2data.com</span>
+            <!-- Only domains Matt actually owns. 230 total — populate from domains.yaml -->
+        </div>
+
+        <button class="btn" onclick="goStep(2)" id="step1btn" disabled>Claim this domain</button>
+    </div>
+
+    <!-- STEP 2: WHAT TYPE + ENTITY -->
+    <div class="step" id="step2">
+        <h1 id="step2title">What is this for?</h1>
+        <p style="color: var(--text-light);">This changes what features you get and what your site looks like.</p>
+
+        <div class="type-grid" id="typeGrid">
+            <div class="type-card" onclick="selectType('creator')">
+                <div class="icon">&#127916;</div>
+                <h3>Content Creator</h3>
+                <p>Episodes, recipes, audience, products</p>
+            </div>
+            <div class="type-card" onclick="selectType('corporate')">
+                <div class="icon">&#127970;</div>
+                <h3>Company Kitchen</h3>
+                <p>HQ cafeteria, employee meals, reviews</p>
+            </div>
+            <div class="type-card" onclick="selectType('restaurant')">
+                <div class="icon">&#127869;</div>
+                <h3>Restaurant</h3>
+                <p>Menu, orders, catering, recipes</p>
+            </div>
+            <div class="type-card" onclick="selectType('family')">
+                <div class="icon">&#128214;</div>
+                <h3>Family Cookbook</h3>
+                <p>Scan grandma's cards, preserve recipes</p>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 2rem;">How is it registered?</h2>
+        <p style="color: var(--text-light); margin-bottom: 1rem;">This affects what features are available and what outputs the platform generates.</p>
+
+        <div class="type-grid" id="entityGrid">
+            <div class="type-card" onclick="selectEntity('individual')">
+                <h3>Individual / Sole Prop</h3>
+                <p>Personal project, side hustle, freelancer</p>
+            </div>
+            <div class="type-card" onclick="selectEntity('llc')">
+                <h3>LLC</h3>
+                <p>Small business, liability protection</p>
+            </div>
+            <div class="type-card" onclick="selectEntity('nonprofit')">
+                <h3>501(c)(3) Non-Profit</h3>
+                <p>Tax-exempt, donation-based, public benefit</p>
+            </div>
+            <div class="type-card" onclick="selectEntity('corp')">
+                <h3>Corporation / B-Corp</h3>
+                <p>C-Corp, S-Corp, B-Corp, investors</p>
+            </div>
+        </div>
+
+        <button class="btn" onclick="goStep(3)" id="step2btn" disabled>Next</button>
+    </div>
+
+    <!-- STEP 3: ROLES -->
+    <div class="step" id="step3">
+        <h1 id="step3title">Who's involved?</h1>
+        <p style="color: var(--text-light);" id="step3desc">Select the roles that apply.</p>
+
+        <div class="role-grid" id="roleGrid"></div>
+
+        <button class="btn" onclick="goStep(4)" style="margin-top: 1rem;">Generate</button>
+    </div>
+
+    <!-- STEP 4: PREVIEW + YAML -->
+    <div class="step" id="step4">
+        <h1>Your platform is ready.</h1>
+        <p style="color: var(--text-light);" id="resultUrl"></p>
+
+        <div class="preview-frame" id="livePreview"></div>
+
+        <h2>What's included</h2>
+        <div id="featureList"></div>
+
+        <h2>Your source files</h2>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem;">This is real. These YAML files define your entire platform. Edit them to change anything.</p>
+        <div class="yaml-output" id="yamlOutput"></div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+            <button class="btn" onclick="downloadYaml()">Download source files</button>
+            <button class="btn-outline" onclick="goStep(1)">Start over</button>
+        </div>
+    </div>
+
+</div>
+
+<footer>&copy; 2026 HowToCookAtHome. Built by <a href="https://death2data.com">Death2Data</a>.</footer>
+
+<script>
+let state = { domain: '', base: 'howtocookathome.com', type: null, entity: null, roles: [] };
+
+const ROLES = {
+    creator: [
+        { id: 'host', label: 'Host / Creator' },
+        { id: 'editor', label: 'Editor' },
+        { id: 'guest_chef', label: 'Guest Chef' },
+        { id: 'product_partner', label: 'Product Partner' },
+        { id: 'subscriber', label: 'Subscribers' },
+    ],
+    corporate: [
+        { id: 'hq_chef', label: 'HQ Chef' },
+        { id: 'cafeteria_manager', label: 'Cafeteria Manager' },
+        { id: 'employee', label: 'Employees' },
+        { id: 'dietitian', label: 'Dietitian' },
+        { id: 'vendor', label: 'Vendor / Supplier' },
+        { id: 'hr_wellness', label: 'HR / Wellness' },
+    ],
+    restaurant: [
+        { id: 'head_chef', label: 'Head Chef' },
+        { id: 'sous_chef', label: 'Sous Chef' },
+        { id: 'front_house', label: 'Front of House' },
+        { id: 'customer', label: 'Customers' },
+    ],
+    family: [
+        { id: 'contributor', label: 'Recipe Contributor' },
+        { id: 'archivist', label: 'Family Archivist' },
+        { id: 'viewer', label: 'Family Members' },
+    ],
+};
+
+const TYPE_FEATURES = {
+    creator: {
+        label: 'Content Creator',
+        terminology: { content_item: 'Episode', collection: 'Season', audience: 'Viewers', author: 'Host' },
+        free: ['Subdomain + static site', 'Up to 10 pages', '3 product listings', 'JSON API', 'Value dashboard', 'Badge system'],
+        paid: ['Custom email', 'Checkout (Stripe)', 'PDF cookbook export', 'MCP server', 'Custom domain', 'Subscription products'],
+    },
+    corporate: {
+        label: 'Company Kitchen',
+        terminology: { content_item: 'Menu Item', collection: 'Week', audience: 'Employees', author: 'Chef' },
+        free: ['Subdomain + static site', 'Weekly menu display', 'Employee reviews', 'Nutrition display (USDA)', 'Catering calculator'],
+        paid: ['Dietary profiles per employee', 'Wellness reports', 'Vendor portal', 'Custom domain', 'Multi-location'],
+    },
+    restaurant: {
+        label: 'Restaurant',
+        terminology: { content_item: 'Dish', collection: 'Menu', audience: 'Guests', author: 'Chef' },
+        free: ['Subdomain + menu page', 'Dish photos + descriptions', 'Hours + location', 'JSON API', 'Value dashboard'],
+        paid: ['Online ordering', 'Catering calculator', 'Custom domain', 'Reservation widget', 'Email marketing'],
+    },
+    family: {
+        label: 'Family Cookbook',
+        terminology: { content_item: 'Recipe', collection: 'Chapter', audience: 'Family', author: 'Contributor' },
+        free: ['Subdomain + cookbook', 'Recipe card scanner', 'Up to 50 recipes', 'Shareable link', 'Print-friendly'],
+        paid: ['PDF cookbook export', 'Custom domain', 'Private access (password)', 'Audio story recorder', 'Family tree display'],
+    },
+};
+
+function selectBase(domain, el) {
+    state.base = domain;
+    document.querySelectorAll('.domain-list .chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('domainSuffix').textContent = '.' + domain;
+}
+
+function updatePreview() {
+    state.domain = document.getElementById('domainName').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    document.getElementById('domainName').value = state.domain;
+    document.getElementById('step1btn').disabled = state.domain.length < 2;
+}
+
+function selectType(type) {
+    state.type = type;
+    document.querySelectorAll('#typeGrid .type-card').forEach(c => c.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    document.getElementById('step2btn').disabled = !(state.type && state.entity);
+}
+
+function selectEntity(entity) {
+    state.entity = entity;
+    document.querySelectorAll('#entityGrid .type-card').forEach(c => c.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    document.getElementById('step2btn').disabled = !(state.type && state.entity);
+}
+
+function goStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+
+    if (n === 3) renderRoles();
+    if (n === 4) renderResult();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderRoles() {
+    const roles = ROLES[state.type] || [];
+    const typeLabel = TYPE_FEATURES[state.type]?.label || '';
+    document.getElementById('step3title').textContent = `Who's at ${state.domain}.${state.base}?`;
+    document.getElementById('step3desc').textContent = `For a ${typeLabel}, these are the people who'll use the platform.`;
+
+    state.roles = [];
+    document.getElementById('roleGrid').innerHTML = roles.map(r =>
+        `<div class="role-tag" onclick="toggleRole('${r.id}', this)">${r.label}</div>`
+    ).join('');
+}
+
+function toggleRole(id, el) {
+    el.classList.toggle('selected');
+    if (state.roles.includes(id)) {
+        state.roles = state.roles.filter(r => r !== id);
+    } else {
+        state.roles.push(id);
+    }
+}
+
+function renderResult() {
+    const fullDomain = `${state.domain}.${state.base}`;
+    const ft = TYPE_FEATURES[state.type];
+
+    document.getElementById('resultUrl').innerHTML = `Live at <strong>${fullDomain}</strong>`;
+
+    const term = ft.terminology;
+    document.getElementById('livePreview').innerHTML = `
+        <div class="preview-nav">
+            <span class="p-brand">${capitalize(state.domain)}</span>
+            <div class="p-links">
+                <span>${term.content_item}s</span>
+                <span>About</span>
+                ${state.type === 'corporate' ? '<span>This Week</span><span>Review</span>' : ''}
+                ${state.type === 'restaurant' ? '<span>Menu</span><span>Order</span>' : ''}
+                ${state.type === 'family' ? '<span>Scan Card</span>' : ''}
+                ${state.type === 'creator' ? '<span>Shop</span>' : ''}
+            </div>
+        </div>
+        <div class="preview-hero">
+            <h2>${getHeroText()}</h2>
+            <p style="opacity: 0.7; font-size: 0.9rem; margin-top: 0.3rem;">${getSubText()}</p>
+        </div>
+        <div class="preview-body">
+            ${getPreviewBody()}
+        </div>
+    `;
+
+    // Features — base type + entity-specific
+    let featHtml = '';
+    ft.free.forEach(f => {
+        featHtml += `<div class="feature-row"><span class="name">${f}</span><span class="tag tag-free">Free</span></div>`;
+    });
+
+    const entityFeatures = {
+        nonprofit: [
+            { name: 'Donation checkout (no product sales)', tag: 'free', label: 'Non-Profit' },
+            { name: 'Tax receipt auto-generation', tag: 'free', label: 'Non-Profit' },
+            { name: 'Grant reporting dashboard', tag: 'paid', label: 'Upgrade' },
+            { name: 'Mission + Board pages auto-generated', tag: 'free', label: 'Non-Profit' },
+        ],
+        llc: [
+            { name: 'Full commerce (products + subscriptions)', tag: 'free', label: 'LLC' },
+            { name: 'Liability notice auto-footer', tag: 'free', label: 'LLC' },
+            { name: 'EIN-based Stripe setup', tag: 'paid', label: 'Upgrade' },
+        ],
+        corp: [
+            { name: 'Multi-location kitchen support', tag: 'paid', label: 'Upgrade' },
+            { name: 'Investor revenue reporting', tag: 'paid', label: 'Upgrade' },
+            { name: 'Auto-generated Terms + Privacy pages', tag: 'free', label: 'Corp' },
+        ],
+        individual: [
+            { name: 'Simplified tax reporting', tag: 'free', label: 'Solo' },
+            { name: 'SSN-based Stripe (no EIN needed)', tag: 'free', label: 'Solo' },
+        ]
+    };
+    (entityFeatures[state.entity] || []).forEach(ef => {
+        const cls = ef.tag === 'free' ? 'tag-free' : 'tag-paid';
+        featHtml += `<div class="feature-row"><span class="name">${ef.name}</span><span class="tag ${cls}">${ef.label}</span></div>`;
+    });
+
+    ft.paid.forEach(f => {
+        featHtml += `<div class="feature-row"><span class="name">${f}</span><span class="tag tag-paid">Upgrade</span></div>`;
+    });
+    document.getElementById('featureList').innerHTML = featHtml;
+
+    // YAML
+    document.getElementById('yamlOutput').textContent = generateYaml();
+}
+
+function getHeroText() {
+    switch(state.type) {
+        case 'creator': return `Welcome to ${capitalize(state.domain)}`;
+        case 'corporate': return `${capitalize(state.domain)} Kitchen`;
+        case 'restaurant': return capitalize(state.domain);
+        case 'family': return `The ${capitalize(state.domain)} Family Cookbook`;
+    }
+}
+
+function getSubText() {
+    switch(state.type) {
+        case 'creator': return 'Episodes, recipes, and products — all from one place.';
+        case 'corporate': return "This week's menu, nutrition info, and reviews from the team.";
+        case 'restaurant': return 'Our menu, our story, and online ordering.';
+        case 'family': return "Grandma's recipes, preserved forever.";
+    }
+}
+
+function getPreviewBody() {
+    if (state.type === 'corporate') {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        let grid = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem;">';
+        days.forEach(d => {
+            grid += `<div class="preview-card"><strong>${d}</strong><br>${getRandomMeal()}</div>`;
+        });
+        grid += '</div>';
+        grid += `<div class="preview-card" style="margin-top:0.5rem;text-align:center;">
+            <strong>4.2</strong> avg rating &middot; <strong>89</strong> reviews this week &middot; <strong>12</strong> dietary profiles
+        </div>`;
+        return grid;
+    }
+    let cards = '';
+    for (let i = 1; i <= 3; i++) {
+        const term = TYPE_FEATURES[state.type].terminology;
+        cards += `<div class="preview-card">${term.content_item} ${i}: Sample ${term.content_item.toLowerCase()}</div>`;
+    }
+    return cards;
+}
+
+function getRandomMeal() {
+    const meals = ['Grilled Chicken Bowl','Pasta Bar','Taco Tuesday','Salmon + Rice','Pizza Friday','Stir Fry','Soup + Salad','Burger Day'];
+    return meals[Math.floor(Math.random() * meals.length)];
+}
+
+function generateYaml() {
+    const ft = TYPE_FEATURES[state.type];
+    const term = ft.terminology;
+    const roles = state.roles.length > 0 ? state.roles : ['(none selected)'];
+
+    let yaml = `# ============================\n`;
+    yaml += `# ${state.domain}.${state.base}\n`;
+    yaml += `# Generated by the platform\n`;
+    yaml += `# ============================\n\n`;
+
+    yaml += `# --- brand.yaml ---\n`;
+    yaml += `name: "${capitalize(state.domain)}"\n`;
+    yaml += `domain: "${state.domain}.${state.base}"\n`;
+    yaml += `type: "${state.type}"\n`;
+    yaml += `entity_type: "${state.entity}"\n`;
+    yaml += `tagline: "${getSubText()}"\n\n`;
+
+    yaml += `# --- terminology ---\n`;
+    yaml += `terminology:\n`;
+    Object.entries(term).forEach(([k, v]) => { yaml += `  ${k}: "${v}"\n`; });
+
+    yaml += `\n# --- roles ---\n`;
+    yaml += `roles:\n`;
+    roles.forEach(r => { yaml += `  - ${r}\n`; });
+
+    if (state.type === 'corporate') {
+        yaml += `\n# --- corporate features ---\n`;
+        yaml += `features:\n`;
+        yaml += `  weekly_menu: true\n`;
+        yaml += `  employee_reviews: true\n`;
+        yaml += `  dietary_profiles: true    # per-employee restrictions\n`;
+        yaml += `  nutrition_display: true   # USDA data, auto-calculated\n`;
+        yaml += `  wellness_reports: false   # upgrade to Sprout\n`;
+        yaml += `  vendor_portal: false      # upgrade to Sprout\n`;
+        yaml += `  catering_calc: true       # dinner party calculator, scaled\n`;
+        yaml += `\n# --- review system ---\n`;
+        yaml += `reviews:\n`;
+        yaml += `  who_can_review: "employees"  # by company email domain\n`;
+        yaml += `  rating_scale: 5\n`;
+        yaml += `  fields:\n`;
+        yaml += `    - rating\n`;
+        yaml += `    - taste_notes         # "too salty", "perfect", etc\n`;
+        yaml += `    - would_order_again   # boolean\n`;
+        yaml += `    - dietary_tags        # auto from employee profile\n`;
+        yaml += `  feedback_loop: true     # ratings go to chef dashboard\n`;
+        yaml += `  anonymous: true         # employees can review anonymously\n`;
+    }
+
+    yaml += `\n# --- data sources (free, public domain) ---\n`;
+    yaml += `data:\n`;
+    yaml += `  nutrition: "USDA FoodData Central"  # public domain\n`;
+    yaml += `  food_safety: "FDA guidelines"        # public domain\n`;
+    yaml += `  portions: "USDA MyPlate"             # public domain\n`;
+
+    // Entity-specific gating
+    yaml += `\n# --- entity: ${state.entity} ---\n`;
+    if (state.entity === 'nonprofit') {
+        yaml += `entity:\n`;
+        yaml += `  type: "501(c)(3)"\n`;
+        yaml += `  commerce_mode: "donations"      # no direct product sales\n`;
+        yaml += `  checkout_label: "Donate"         # instead of "Buy"\n`;
+        yaml += `  tax_receipt: true                # auto-generate for donors\n`;
+        yaml += `  grant_reporting: true            # exportable impact metrics\n`;
+        yaml += `  required_pages:\n`;
+        yaml += `    - mission_statement\n`;
+        yaml += `    - board_of_directors\n`;
+        yaml += `    - annual_report\n`;
+        yaml += `  restricted:\n`;
+        yaml += `    - subscription_box: false      # can't sell subscriptions\n`;
+        yaml += `    - affiliate_links: false       # no commercial endorsements\n`;
+    } else if (state.entity === 'llc') {
+        yaml += `entity:\n`;
+        yaml += `  type: "LLC"\n`;
+        yaml += `  commerce_mode: "full"            # products + subscriptions\n`;
+        yaml += `  checkout_label: "Buy"\n`;
+        yaml += `  tax_id_required: true            # EIN for Stripe\n`;
+        yaml += `  liability_notice: true           # auto-generated footer\n`;
+    } else if (state.entity === 'corp') {
+        yaml += `entity:\n`;
+        yaml += `  type: "Corporation"\n`;
+        yaml += `  commerce_mode: "full"\n`;
+        yaml += `  checkout_label: "Buy"\n`;
+        yaml += `  tax_id_required: true\n`;
+        yaml += `  investor_reporting: true         # revenue dashboards for board\n`;
+        yaml += `  multi_location: true             # support multiple kitchens\n`;
+        yaml += `  required_pages:\n`;
+        yaml += `    - terms_of_service\n`;
+        yaml += `    - privacy_policy\n`;
+    } else {
+        yaml += `entity:\n`;
+        yaml += `  type: "Individual"\n`;
+        yaml += `  commerce_mode: "full"\n`;
+        yaml += `  checkout_label: "Buy"\n`;
+        yaml += `  tax_id_required: false           # SSN ok for Stripe\n`;
+        yaml += `  simplified_reporting: true       # basic revenue + expenses\n`;
+    }
+
+    yaml += `\n# --- tier ---\n`;
+    yaml += `tier: "seed"  # free\n`;
+    yaml += `upgrade_path:\n`;
+    yaml += `  sprout: "$9/mo — custom email + checkout"\n`;
+    yaml += `  harvest: "$29/mo — custom domain + full features"\n`;
+
+    return yaml;
+}
+
+function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function downloadYaml() {
+    const yaml = generateYaml();
+    const blob = new Blob([yaml], { type: 'text/yaml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${state.domain}-brand.yaml`;
+    a.click();
+}
+</script>
+</body>
+</html>

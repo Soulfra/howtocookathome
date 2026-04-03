@@ -1,0 +1,78 @@
+# ============================================
+# OWNED ASSETS REGISTRY
+# ============================================
+# Before anything goes live, every domain, brand name, and
+# external reference in the manuscript gets checked against
+# this file. If it's not listed here, publish.py flags it.
+#
+# This is the "do we actually own this?" checklist.
+
+# --- Domains we own ---
+# Only these can appear in href, src, checkout URLs, etc.
+# Anything else gets flagged as an external dependency.
+domains:
+  owned:
+    - howtocookathome.com
+    - death2data.com
+    # Add your other 228 domains here as you catalog them.
+    # Example:
+    # - cooklocal.org
+    # - mykitchen.club
+
+  # Domains we explicitly allow linking to (public data, govt, etc.)
+  # These won't trigger warnings but WILL be marked as external.
+  allowed_external:
+    - fdc.nal.usda.gov          # USDA FoodData Central
+    - api.nal.usda.gov          # USDA API
+    - www.myplate.gov           # USDA MyPlate
+    - www.fda.gov               # FDA food safety
+    - snaped.fns.usda.gov       # SNAP education
+    - en.wikibooks.org          # Wikibooks (CC-BY-SA)
+    - world.openfoodfacts.org   # Open Food Facts
+    - developer.edamam.com      # Edamam API
+    - spoonacular.com           # Spoonacular API
+    - youtube.com               # Video embeds
+    - www.youtube.com
+    - www.pbs.org               # Referenced as NOT-public-domain example
+
+  # Domains we KNOW we don't own that should never appear.
+  # If these show up anywhere, it's an error.
+  blocked:
+    # placeholder sub-brands removed
+    - cooklocal.org       # until you actually buy it
+    - mykitchen.club      # until you actually buy it
+    - recipebook.app      # until you actually buy it
+
+# --- Brand names we own ---
+# Sub-brands, partner brands, product lines.
+# If a partner YAML references a brand not listed here, flag it.
+brands:
+  owned:
+    - name: "HowToCookAtHome"
+      entity: "LLC"          # or whatever you register as
+      domain: howtocookathome.com
+
+    - name: "Death2Data"
+      entity: "parent"
+      domain: death2data.com
+
+# --- What the validator checks ---
+# publish.py reads this file and scans ALL source YAML for:
+validation_rules:
+  # 1. Every href/url/link in source/ must point to an owned or allowed domain
+  check_domains: true
+
+  # 2. Every partner_id must map to a brand in brands.owned
+  check_brands: true
+
+  # 3. No blocked domain should appear anywhere
+  check_blocked: true
+
+  # 4. Every product checkout URL must be on an owned domain
+  check_checkout_urls: true
+
+  # 5. Flag any field that says "affiliate" (we're first-party)
+  flag_affiliate_refs: true
+
+  # 6. Flag any external domain not in allowed_external
+  flag_unknown_external: true

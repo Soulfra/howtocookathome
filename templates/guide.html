@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Kitchen Terminal | How To Cook At Home</title>
+<style>
+  :root {
+    --primary: #1A1A2E;
+    --accent: #C4975A;
+    --bg: #F5F0E8;
+    --surface: #FFFFFF;
+    --text: #2C2C2C;
+    --text-light: #6B6B6B;
+    --border: #E0D8CC;
+    --code-bg: #1A1A2E;
+    --code-text: #E8E0D0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Georgia', serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+
+  nav { background: var(--primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  nav a.brand { font-family: 'Playfair Display', Georgia, serif; color: var(--accent); font-size: 1.3rem; text-decoration: none; font-weight: bold; }
+  nav .links { display: flex; gap: 1.5rem; }
+  nav .links a { color: var(--bg); text-decoration: none; font-size: 0.9rem; opacity: 0.85; }
+  nav .links a:hover { opacity: 1; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+
+  .hero-mini { background: var(--primary); color: var(--bg); padding: 2.5rem 2rem; text-align: center; }
+  .hero-mini h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .hero-mini p { font-size: 1rem; opacity: 0.8; max-width: 500px; margin: 0 auto; }
+
+  /* TOC */
+  .toc { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; margin: 2rem 0; }
+  .toc h3 { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  .toc a { display: block; color: var(--primary); text-decoration: none; padding: 0.3rem 0; font-size: 0.9rem; }
+  .toc a:hover { color: var(--accent); }
+
+  /* Sections */
+  .guide-section { margin-bottom: 3rem; }
+  .guide-section h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.4rem; color: var(--primary);
+    margin-bottom: 1rem; padding-bottom: 0.3rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .guide-section p { margin-bottom: 0.75rem; font-size: 0.95rem; }
+
+  /* Concept cards */
+  .concept { background: var(--surface); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; margin: 1rem 0; }
+  .concept strong { color: var(--accent); }
+  .concept .tech { color: var(--text-light); font-size: 0.85rem; font-style: italic; }
+
+  /* Command tables */
+  .cmd-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  .cmd-table th {
+    background: var(--primary); color: var(--surface); padding: 0.6rem 0.8rem;
+    text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .cmd-table td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .cmd-table tr:hover { background: rgba(196, 151, 90, 0.08); }
+  .cmd-table .kitchen { font-weight: bold; color: var(--accent); white-space: nowrap; }
+  .cmd-table code {
+    font-family: 'Courier New', monospace; font-size: 0.85rem;
+    background: var(--code-bg); color: var(--code-text);
+    padding: 0.15rem 0.4rem; display: inline-block;
+  }
+
+  /* Tip callouts */
+  .tip { background: #E8F5E9; border-left: 4px solid #2D6A4F; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.9rem; }
+  .tip strong { color: #2D6A4F; }
+
+  .warning { background: #FFF3E0; border-left: 4px solid #E65100; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.9rem; }
+  .warning strong { color: #E65100; }
+
+  /* Quick reference */
+  .quick-ref { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 1rem 0; }
+  .quick-ref .item {
+    background: var(--surface); padding: 0.75rem; border: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .quick-ref .want { font-weight: bold; font-size: 0.85rem; }
+  .quick-ref code { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--accent); }
+
+  footer { background: var(--primary); color: var(--bg); padding: 1.5rem 2rem; text-align: center; font-size: 0.85rem; opacity: 0.7; }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .quick-ref { grid-template-columns: 1fr; }
+    .cmd-table { font-size: 0.8rem; }
+    .cmd-table code { font-size: 0.75rem; }
+    .container { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="brand">How To Cook At Home</a>
+  <div class="links">
+    <a href="/onboard">Join</a>
+    <a href="/scan">Scanner</a>
+    <a href="/terms">Terms</a>
+  </div>
+</nav>
+
+<div class="hero-mini">
+  <h1>The Kitchen Terminal</h1>
+  <p>A guide to managing your site, in language that makes sense if you've ever run a kitchen.</p>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h3>On This Page</h3>
+    <a href="#big-picture">The Big Picture</a>
+    <a href="#checking">Opening the Kitchen: What Do I Have?</a>
+    <a href="#daily">Daily Service: The Basic Workflow</a>
+    <a href="#branches">Test Kitchens: Branches</a>
+    <a href="#github">The Safe: GitHub</a>
+    <a href="#mistakes">86'd It: Fixing Mistakes</a>
+    <a href="#htcah-workflow">Your HTCAH Workflow</a>
+    <a href="#quick-ref">Quick Reference Card</a>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="big-picture">
+    <h2>The Big Picture</h2>
+    <p>Your project folder is your restaurant kitchen. Everything you cook (code, files, configs) lives there. Here's how the pieces map:</p>
+
+    <div class="concept">
+      <strong>Your Kitchen</strong> (Working Directory) &mdash; The folder on your computer. Where you actually do the work. Just like your physical kitchen &mdash; messy, in-progress, real.
+      <div class="tech">Technical: this is your local file system, the folder you see in Finder/Explorer.</div>
+    </div>
+    <div class="concept">
+      <strong>Your Recipe Book</strong> (Git Repository) &mdash; Git watches your kitchen and remembers every version of every recipe you've ever written. Burned the sauce? Go back to last Tuesday's version.
+      <div class="tech">Technical: the .git folder inside your project. Created with "git init".</div>
+    </div>
+    <div class="concept">
+      <strong>The Pass</strong> (Staging Area) &mdash; Before you write a recipe into the book, you put finished dishes on the pass. "These are ready to be recorded."
+      <div class="tech">Technical: "git add" moves files to the staging area.</div>
+    </div>
+    <div class="concept">
+      <strong>The Safe</strong> (GitHub Remote) &mdash; A fireproof copy of your recipe book stored off-site. If your kitchen burns down, the recipes survive.
+      <div class="tech">Technical: a GitHub repository. "git push" sends your commits there.</div>
+    </div>
+    <div class="concept">
+      <strong>A Test Kitchen</strong> (Branch) &mdash; You try a new taco recipe without touching the main menu. If it works, merge it back. If it flops, close that kitchen &mdash; main menu untouched.
+      <div class="tech">Technical: "git checkout -b name" creates a branch.</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="checking">
+    <h2>Opening the Kitchen: What Do I Have?</h2>
+
+    <table class="cmd-table">
+      <tr><th>Kitchen Term</th><th>Command</th><th>What It Does</th></tr>
+      <tr><td class="kitchen">Look around</td><td><code>ls</code></td><td>List files in the current folder</td></tr>
+      <tr><td class="kitchen">Look in the walk-in</td><td><code>ls data/</code></td><td>List files in a subfolder</td></tr>
+      <tr><td class="kitchen">What's cooking?</td><td><code>git status</code></td><td>See changed, new, and staged files</td></tr>
+      <tr><td class="kitchen">Read the recipe book</td><td><code>git log --oneline</code></td><td>See all saved versions (commits)</td></tr>
+      <tr><td class="kitchen">What did I change?</td><td><code>git diff</code></td><td>See exact lines you changed</td></tr>
+      <tr><td class="kitchen">Which kitchens exist?</td><td><code>git branch</code></td><td>List all branches (* = current)</td></tr>
+      <tr><td class="kitchen">Where's the safe?</td><td><code>git remote -v</code></td><td>Show GitHub URL if connected</td></tr>
+    </table>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="daily">
+    <h2>Daily Service: The Basic Workflow</h2>
+    <p>This is the flow you'll use 90% of the time. Think of it like closing out a shift.</p>
+
+    <table class="cmd-table">
+      <tr><th>Kitchen Term</th><th>Command</th><th>What It Does</th></tr>
+      <tr><td class="kitchen">Put dish on the pass</td><td><code>git add filename.py</code></td><td>Stage one specific file</td></tr>
+      <tr><td class="kitchen">Put everything on pass</td><td><code>git add .</code></td><td>Stage ALL changed files</td></tr>
+      <tr><td class="kitchen">Write it in the book</td><td><code>git commit -m "note"</code></td><td>Save a snapshot with a message</td></tr>
+      <tr><td class="kitchen">Send to the safe</td><td><code>git push</code></td><td>Upload to GitHub</td></tr>
+      <tr><td class="kitchen">Get latest from safe</td><td><code>git pull</code></td><td>Download latest changes</td></tr>
+    </table>
+
+    <div class="tip">
+      <strong>Pro tip:</strong> The commit message is your shift note. "Fixed the queso recipe" is good. "changes" is not. Future you will thank present you.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="branches">
+    <h2>Test Kitchens: Branches</h2>
+    <p>Branches let you experiment without risking the main menu. The main branch (master) is your live menu. Everything else is a test kitchen.</p>
+
+    <table class="cmd-table">
+      <tr><th>Kitchen Term</th><th>Command</th><th>What It Does</th></tr>
+      <tr><td class="kitchen">Open a test kitchen</td><td><code>git checkout -b new-tacos</code></td><td>Create + switch to new branch</td></tr>
+      <tr><td class="kitchen">Go back to main</td><td><code>git checkout master</code></td><td>Switch to main branch</td></tr>
+      <tr><td class="kitchen">List all kitchens</td><td><code>git branch</code></td><td>Show branches (* = you're here)</td></tr>
+      <tr><td class="kitchen">Merge test into main</td><td><code>git merge new-tacos</code></td><td>Bring the test recipe into the main menu</td></tr>
+      <tr><td class="kitchen">Close test kitchen</td><td><code>git branch -d new-tacos</code></td><td>Delete branch after merging</td></tr>
+    </table>
+
+    <div class="warning">
+      <strong>Careful:</strong> Always switch to master <em>before</em> merging. You merge <em>into</em> wherever you're standing. Think: "I'm in the main kitchen, bring me what's in the test kitchen."
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="github">
+    <h2>The Safe: GitHub</h2>
+    <p>GitHub is a website that holds a backup of your recipe book. The "gh" commands use the GitHub CLI &mdash; it talks to GitHub from your terminal.</p>
+
+    <table class="cmd-table">
+      <tr><th>Kitchen Term</th><th>Command</th><th>What It Does</th></tr>
+      <tr><td class="kitchen">Build a new safe</td><td><code>gh repo create name --private</code></td><td>Create a new GitHub repo</td></tr>
+      <tr><td class="kitchen">Connect kitchen to safe</td><td><code>git remote add origin URL</code></td><td>Link local folder to GitHub</td></tr>
+      <tr><td class="kitchen">First delivery</td><td><code>git push -u origin master</code></td><td>Push + set as default remote</td></tr>
+      <tr><td class="kitchen">List all safes</td><td><code>gh repo list</code></td><td>Show all your GitHub repos</td></tr>
+      <tr><td class="kitchen">Am I logged in?</td><td><code>gh auth status</code></td><td>Check GitHub authentication</td></tr>
+      <tr><td class="kitchen">Open in browser</td><td><code>gh repo view --web</code></td><td>Opens the GitHub page</td></tr>
+    </table>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="mistakes">
+    <h2>86'd It: Fixing Mistakes</h2>
+    <p>86 = restaurant code for "we're out" or "kill it." These commands undo things.</p>
+
+    <table class="cmd-table">
+      <tr><th>Kitchen Term</th><th>Command</th><th>What It Does</th></tr>
+      <tr><td class="kitchen">Take off the pass</td><td><code>git restore --staged file</code></td><td>Unstage (don't delete, just un-ready)</td></tr>
+      <tr><td class="kitchen">Toss today's edit</td><td><code>git restore file</code></td><td>Revert file to last commit</td></tr>
+      <tr><td class="kitchen">Undo last entry</td><td><code>git revert HEAD</code></td><td>New commit that undoes the last one</td></tr>
+      <tr><td class="kitchen">Stash it for later</td><td><code>git stash</code></td><td>Temporarily shelve changes</td></tr>
+      <tr><td class="kitchen">Bring stash back</td><td><code>git stash pop</code></td><td>Restore shelved changes</td></tr>
+    </table>
+
+    <div class="tip">
+      <strong>Key difference:</strong> <code>git restore</code> throws away changes (like tossing a bad batch). <code>git revert</code> records the undo (like writing "removed bad queso from menu" in the recipe book). Revert is safer because you have a record.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="htcah-workflow">
+    <h2>Your HTCAH Workflow</h2>
+    <p>Here's the actual sequence for making changes to your HTCAH site:</p>
+
+    <table class="cmd-table">
+      <tr><th>Step</th><th>Command</th><th>What's Happening</th></tr>
+      <tr><td class="kitchen">1. Check status</td><td><code>git status && git branch</code></td><td>See where you are</td></tr>
+      <tr><td class="kitchen">2. Make changes</td><td>(edit files normally)</td><td>Work in your editor</td></tr>
+      <tr><td class="kitchen">3. Stage</td><td><code>git add app/ templates/</code></td><td>Put finished work on the pass</td></tr>
+      <tr><td class="kitchen">4. Commit</td><td><code>git commit -m "Fix menu"</code></td><td>Write it in the book</td></tr>
+      <tr><td class="kitchen">5. Push</td><td><code>git push</code></td><td>Send to GitHub</td></tr>
+      <tr><td class="kitchen">6. Deploy</td><td>(automatic)</td><td>Render sees the push and rebuilds</td></tr>
+    </table>
+  </div>
+
+  <!-- ============================================ -->
+  <div class="guide-section" id="quick-ref">
+    <h2>Quick Reference Card</h2>
+    <p>Tape this to the wall next to your monitor:</p>
+
+    <div class="quick-ref">
+      <div class="item"><span class="want">Where am I?</span><code>pwd</code></div>
+      <div class="item"><span class="want">What's here?</span><code>ls</code></div>
+      <div class="item"><span class="want">What's changed?</span><code>git status</code></div>
+      <div class="item"><span class="want">What branch?</span><code>git branch</code></div>
+      <div class="item"><span class="want">Save my work</span><code>git add . && git commit -m "note"</code></div>
+      <div class="item"><span class="want">Push to GitHub</span><code>git push</code></div>
+      <div class="item"><span class="want">Pull latest</span><code>git pull</code></div>
+      <div class="item"><span class="want">New branch</span><code>git checkout -b name</code></div>
+      <div class="item"><span class="want">Switch branch</span><code>git checkout master</code></div>
+      <div class="item"><span class="want">History</span><code>git log --oneline</code></div>
+      <div class="item"><span class="want">Am I logged in?</span><code>gh auth status</code></div>
+      <div class="item"><span class="want">My repos</span><code>gh repo list</code></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:2rem 0;padding:1.5rem;background:var(--surface);border:2px solid var(--border);">
+    <p style="font-size:0.85rem;color:var(--text-light);">
+      <a href="/the-kitchen-terminal.docx" style="color:var(--accent);font-weight:bold;">Download as Word doc</a> &mdash; print it, share it, tape it to the walk-in.
+    </p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 How To Cook At Home. Built by <a href="https://death2data.com">Death2Data</a>.
+</footer>
+
+</body>
+</html>

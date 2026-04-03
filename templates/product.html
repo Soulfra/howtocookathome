@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | {{ config.brand.name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+
+    <p style="font-size: 0.85rem; color: var(--color-text-light); margin-bottom: 2rem;">
+        <a href="shop.html" style="color: var(--color-accent); text-decoration: none;">Shop</a> /
+        <a href="partner_{{ product.partner }}.html" style="color: var(--color-accent); text-decoration: none;">{{ product.partner_name }}</a> /
+        {{ product.name }}
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+        <div style="background: var(--color-surface); border: 1px solid #ddd; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;">
+            <p style="color: var(--color-text-light); font-size: 0.85rem;">Product photo</p>
+        </div>
+
+        <div>
+            <h1 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.8rem; margin-bottom: 0.5rem;">{{ product.name }}</h1>
+            <p style="font-style: italic; color: var(--color-text-light); margin-bottom: 1rem;">{{ product.tagline }}</p>
+
+            <div style="margin-bottom: 1.5rem;">
+                <span style="font-size: 1.8rem; font-weight: bold; color: var(--color-accent);">{{ product.price }}</span>
+                {% if product.compare_at %}
+                <span style="font-size: 1rem; color: var(--color-text-light); text-decoration: line-through; margin-left: 0.5rem;">{{ product.compare_at }}</span>
+                {% endif %}
+                {% if product.frequency %}
+                <span style="font-size: 0.85rem; color: var(--color-text-light);">/ {{ product.frequency }}</span>
+                {% endif %}
+            </div>
+
+            <p style="margin-bottom: 1.5rem; line-height: 1.7;">{{ product.description }}</p>
+
+            <a href="{{ product.checkout_url }}" style="display: inline-block; background: var(--color-accent); color: var(--color-primary); padding: 0.8rem 2.5rem; text-decoration: none; font-weight: bold; font-size: 1rem; margin-bottom: 0.5rem;">
+                {% if product.type == "subscription_box" %}Subscribe — {{ product.price }}/{{ product.frequency }}{% else %}Buy — {{ product.price }}{% endif %}
+            </a>
+
+            {% if product.type == "subscription_box" %}
+            <p style="font-size: 0.8rem; color: var(--color-text-light);">Cancel anytime. Ships {{ product.shipping or "monthly" }}.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+    {% if product.contents %}
+    <section style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--font-heading); color: var(--color-primary); border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem;">What's Inside</h2>
+        <div style="margin-top: 1rem;">
+        {% for item in product.contents %}
+            <div style="background: var(--color-surface); padding: 0.8rem 1.2rem; margin: 0.4rem 0; border-left: 3px solid var(--color-accent);">{{ item }}</div>
+        {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if product.flavor_profiles and product.flavor_profiles != ["varies_monthly"] %}
+    <section style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--font-heading); color: var(--color-primary); border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem;">Flavor Profile</h2>
+        <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem;">
+        {% for profile in product.flavor_profiles %}
+            <span style="background: var(--color-primary); color: var(--color-bg); padding: 0.4rem 1rem; font-size: 0.85rem;">{{ profile }}</span>
+        {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if product.appears_in_episodes %}
+    <section style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--font-heading); color: var(--color-primary); border-bottom: 2px solid var(--color-accent); padding-bottom: 0.3rem;">Featured In</h2>
+        <div style="margin-top: 1rem;">
+        {% for ep in product.appears_in_episodes %}
+            <a href="recipe_{{ ep.slug }}.html" style="display: block; background: var(--color-surface); border: 1px solid #ddd; padding: 1rem 1.2rem; margin: 0.5rem 0; text-decoration: none; color: inherit;">
+                <strong style="color: var(--color-primary);">{{ ep.title }}</strong>
+                {% if ep.callout %}
+                <span style="display: block; font-size: 0.85rem; color: var(--color-text-light); margin-top: 0.2rem;">{{ ep.callout }}</span>
+                {% endif %}
+            </a>
+        {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if product.review_policy %}
+    <p style="font-size: 0.8rem; color: var(--color-text-light); line-height: 1.6; padding-top: 1.5rem; border-top: 1px solid #ddd;">{{ product.review_policy }}</p>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+# USDA data (built locally with: ./scripts/build_db.sh)
+data/usda/
+docs/usda/
+
+# App database (generated)
+data/htcah.db
+data/htcah.db-wal
+data/htcah.db-shm
+
+# Published output (generated)
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
+
+# Business strategy docs (proprietary)
+docs/*.xlsx
+docs/original/
+archive/

@@ -1,0 +1,949 @@
+# ============================================
+# NORMALIZATION LAYER (synonym-only)
+# ============================================
+# This file is a SYNONYM LAYER that sits ON TOP of the USDA
+# foundation database (data/usda/foundation.db).
+#
+# Architecture:
+#   normalization.yaml  ← YOU ARE HERE (synonyms → USDA IDs)
+#   foundation.db       ← canonical ingredients (USDA FoodData Central)
+#
+# When intake.py processes a recipe:
+#   1. Check normalization.yaml first (synonym match)
+#   2. If no match, query foundation.db (fuzzy name search)
+#   3. If still no match, flag for review
+#
+# This file does NOT define ingredients — USDA does.
+# This file maps the messy real-world names people use
+# to the canonical USDA FDC IDs in foundation.db.
+#
+# --- How it works ---
+# 1. Raw input: "2 bunches scallions, chopped"
+# 2. Normalizer checks synonyms → "scallions" matches "green_onion"
+# 3. green_onion has usda_fdc_id → pulls nutrition from foundation.db
+# 4. YAML output: { item: green_onion, amount: "2 bunches", prep: chopped }
+#
+# If usda_fdc_id is null, the ingredient exists as a synonym group
+# but hasn't been mapped to USDA yet (e.g., green onion isn't in
+# the demo foundation — it will be when full CSV import runs).
+
+version: 1
+
+# =====================
+# INGREDIENTS
+# =====================
+ingredients:
+
+  green_onion:
+    display_name: "Green Onion"
+    synonyms:
+      - scallion
+      - scallions
+      - spring onion
+      - spring onions
+      - green onions
+      - salad onion
+    usda_fdc_id: null      # not yet in foundation.db — add when USDA full import runs
+    category: vegetable
+
+  cilantro:
+    display_name: "Cilantro"
+    synonyms:
+      - coriander leaf
+      - coriander leaves
+      - fresh coriander
+      - chinese parsley
+      - dhania
+      - coriander cilantro leaves
+      - coriander_cilantro_leaves
+    usda_fdc_id: 169997
+    category: herb
+    note: "coriander (seed) is a DIFFERENT entry — don't merge"
+
+  fresh_basil:
+    display_name: "Fresh Basil"
+    synonyms:
+      - fresh basil
+      - basil fresh
+      - basil leaves
+      - sweet basil
+    usda_fdc_id: 172232
+    category: herb
+
+  pizza_dough:
+    display_name: "Pizza Dough"
+    synonyms:
+      - pizza dough
+      - pizza crust
+    usda_fdc_id: 172671
+    category: other
+    note: "closest USDA match is refrigerated dough"
+
+  coriander:
+    display_name: "Coriander (ground)"
+    synonyms:
+      - ground coriander
+      - coriander seed
+      - coriander powder
+      - dhania powder
+    usda_fdc_id: 170921
+    category: spice
+
+  bell_pepper:
+    display_name: "Bell Pepper"
+    synonyms:
+      - capsicum
+      - sweet pepper
+      - bell peppers
+      - red pepper        # ambiguous — could be chili. context matters.
+      - green pepper
+      - yellow pepper
+    usda_fdc_id: 169228
+    category: vegetable
+    ambiguous:
+      - red pepper         # could be cayenne or bell — flag for review
+
+  garlic:
+    display_name: "Garlic"
+    synonyms:
+      - garlic cloves
+      - cloves of garlic
+      - fresh garlic
+      - minced garlic      # this is garlic + prep, normalizer strips prep
+    usda_fdc_id: 169230
+    category: vegetable
+    unit_conversions:
+      clove_to_tsp: 0.5   # 1 clove ≈ 0.5 tsp minced
+      head_to_cloves: 10   # 1 head ≈ 10 cloves (varies)
+
+  chicken_breast:
+    display_name: "Chicken Breast"
+    synonyms:
+      - boneless skinless chicken breast
+      - chicken breasts
+      - breast of chicken
+      - chicken breast fillet
+      - chicken cutlet      # technically pounded flat, but often used interchangeably
+    usda_fdc_id: 171077
+    category: protein
+    unit_conversions:
+      breast_to_oz: 6       # avg single breast
+      breast_to_grams: 170
+
+  kosher_salt:
+    display_name: "Kosher Salt"
+    synonyms:
+      - coarse salt
+      - koshering salt
+      - diamond crystal
+      - morton kosher salt
+      - kosher salt
+    usda_fdc_id: 173468
+    category: seasoning
+    note: "Maps to USDA 'Salt, table'. Diamond Crystal is HALF the density of Morton."
+    unit_conversions:
+      diamond_crystal_to_morton: 0.5
+
+  olive_oil:
+    display_name: "Olive Oil"
+    synonyms:
+      - EVOO
+      - extra virgin olive oil
+      - extra-virgin olive oil
+      - pure olive oil
+      - light olive oil
+    usda_fdc_id: 171413
+    category: fat
+
+  onion:
+    display_name: "Onion"
+    synonyms:
+      - yellow onion
+      - white onion
+      - large onion
+      - medium onion
+      - small onion
+      - onions
+      - sweet onion
+      - vidalia onion
+      - spanish onion
+    usda_fdc_id: 169226
+    category: vegetable
+
+  tomato:
+    display_name: "Tomato"
+    synonyms:
+      - tomatoes
+      - crushed tomatoes
+      - diced tomatoes
+      - canned tomatoes
+      - roma tomato
+      - plum tomato
+      - cherry tomatoes
+      - grape tomatoes
+      - tomato paste
+      - tomato sauce
+      - san marzano
+    usda_fdc_id: 170457
+    category: vegetable
+
+  cumin:
+    display_name: "Cumin"
+    synonyms:
+      - ground cumin
+      - cumin powder
+      - cumin seeds
+      - jeera
+      - comino
+    usda_fdc_id: 170923
+    category: spice
+
+  oregano:
+    display_name: "Oregano"
+    synonyms:
+      - dried oregano
+      - fresh oregano
+      - mexican oregano
+      - oregano leaves
+    usda_fdc_id: 170929
+    category: herb
+
+  salt:
+    display_name: "Salt"
+    synonyms:
+      - table salt
+      - sea salt
+      - fine salt
+      - salt to taste
+      - salt and pepper
+      - salt and pepper to taste
+      - seasoning salt
+      - iodized salt
+    category: seasoning
+
+  black_pepper:
+    display_name: "Black Pepper"
+    synonyms:
+      - pepper
+      - ground pepper
+      - ground black pepper
+      - cracked pepper
+      - freshly ground pepper
+      - freshly cracked black pepper
+      - peppercorns
+    usda_fdc_id: 170931
+    category: spice
+
+  lime:
+    display_name: "Lime"
+    synonyms:
+      - limes
+      - lime juice
+      - fresh lime
+      - lime zest
+      - key lime
+    usda_fdc_id: 168155
+    category: fruit
+
+  lemon:
+    display_name: "Lemon"
+    synonyms:
+      - lemons
+      - lemon juice
+      - fresh lemon
+      - lemon zest
+    usda_fdc_id: 168153
+    category: fruit
+
+  butter:
+    display_name: "Butter"
+    synonyms:
+      - unsalted butter
+      - salted butter
+      - melted butter
+      - cold butter
+      - softened butter
+    usda_fdc_id: 173410
+    category: fat
+
+  rice:
+    display_name: "Rice"
+    synonyms:
+      - white rice
+      - long grain rice
+      - jasmine rice
+      - basmati rice
+      - short grain rice
+      - sushi rice
+      - brown rice
+      - sticky rice
+      - glutinous rice
+      - arborio rice
+      - rice grains
+    usda_fdc_id: 169756
+    category: grain
+
+  soy_sauce:
+    display_name: "Soy Sauce"
+    synonyms:
+      - shoyu
+      - tamari
+      - light soy sauce
+      - dark soy sauce
+      - low sodium soy sauce
+      - kikkoman
+      - soya sauce
+    usda_fdc_id: 173767
+    category: condiment
+
+  ginger:
+    display_name: "Ginger"
+    synonyms:
+      - fresh ginger
+      - ginger root
+      - minced ginger
+      - grated ginger
+      - ground ginger
+      - ginger powder
+    usda_fdc_id: 169231
+    category: spice
+
+  sesame_oil:
+    display_name: "Sesame Oil"
+    synonyms:
+      - toasted sesame oil
+      - dark sesame oil
+      - sesame seed oil
+    usda_fdc_id: 171025
+    category: fat
+
+  fish_sauce:
+    display_name: "Fish Sauce"
+    synonyms:
+      - nam pla
+      - nuoc mam
+      - patis
+    usda_fdc_id: 174583
+    category: condiment
+
+  coconut_milk:
+    display_name: "Coconut Milk"
+    synonyms:
+      - coconut cream
+      - canned coconut milk
+      - full fat coconut milk
+      - light coconut milk
+    usda_fdc_id: 170172
+    category: dairy_alt
+
+  chili:
+    display_name: "Chili Pepper"
+    synonyms:
+      - chili peppers
+      - chili flakes
+      - red chili
+      - dried chili
+      - chipotle
+      - chipotle peppers
+      - chipotle peppers in adobo
+      - jalapeño
+      - jalapeno
+      - serrano
+      - habanero
+      - scotch bonnet
+      - thai chili
+      - bird eye chili
+      - cayenne
+      - cayenne pepper
+      - ancho chili
+      - guajillo
+      - pasilla
+      - arbol
+    usda_fdc_id: 170108
+    category: vegetable
+
+  flour:
+    display_name: "All-Purpose Flour"
+    synonyms:
+      - all purpose flour
+      - all-purpose flour
+      - plain flour
+      - ap flour
+      - white flour
+      - wheat flour
+      - cake flour
+      - pastry flour
+    usda_fdc_id: 169761
+    category: grain
+
+  sugar:
+    display_name: "Sugar"
+    synonyms:
+      - white sugar
+      - granulated sugar
+      - caster sugar
+      - superfine sugar
+      - cane sugar
+      - table sugar
+    usda_fdc_id: 169655
+    category: sweetener
+
+  honey:
+    display_name: "Honey"
+    synonyms:
+      - raw honey
+      - local honey
+      - wildflower honey
+      - manuka honey
+    usda_fdc_id: 169640
+    category: sweetener
+
+  vinegar:
+    display_name: "Vinegar"
+    synonyms:
+      - white vinegar
+      - distilled vinegar
+      - apple cider vinegar
+      - rice vinegar
+      - rice wine vinegar
+      - red wine vinegar
+      - white wine vinegar
+      - balsamic vinegar
+      - balsamic
+      - sherry vinegar
+    usda_fdc_id: 173468
+    category: condiment
+
+  egg:
+    display_name: "Egg"
+    synonyms:
+      - eggs
+      - large egg
+      - large eggs
+      - whole egg
+      - whole eggs
+      - egg yolk
+      - egg yolks
+      - egg white
+      - egg whites
+    usda_fdc_id: 171287
+    category: protein
+
+  chicken_thigh:
+    display_name: "Chicken Thigh"
+    synonyms:
+      - chicken thighs
+      - bone-in chicken thighs
+      - boneless chicken thighs
+      - skin-on chicken thighs
+    usda_fdc_id: 171078
+    category: protein
+
+  ground_beef:
+    display_name: "Ground Beef"
+    synonyms:
+      - minced beef
+      - ground chuck
+      - hamburger meat
+      - beef mince
+      - ground meat
+    usda_fdc_id: 174036
+    category: protein
+
+  romano_cheese:
+    display_name: "Romano Cheese"
+    synonyms:
+      - pecorino
+      - pecorino romano
+      - romano
+      - grated pecorino
+      - finely grated pecorino romano
+      - parmigiano
+      - parmesan
+      - grated parmesan
+      - parmigiano reggiano
+    usda_fdc_id: 171249
+    category: dairy
+    note: "Pecorino Romano and Parmesan are different cheeses but USDA groups by type"
+
+  pasta:
+    display_name: "Pasta"
+    synonyms:
+      - spaghetti
+      - penne
+      - rigatoni
+      - linguine
+      - fettuccine
+      - fusilli
+      - macaroni
+      - elbow macaroni
+      - angel hair
+      - farfalle
+      - dried pasta
+    usda_fdc_id: 168925
+    category: grain
+
+  mirin:
+    display_name: "Mirin"
+    synonyms:
+      - rice wine
+      - sweet rice wine
+      - hon mirin
+      - aji mirin
+    usda_fdc_id: null   # Japanese condiment — not in USDA foundation
+    category: condiment
+    note: "Sweet Japanese rice wine for cooking. Not the same as rice vinegar."
+
+  dashi:
+    display_name: "Dashi"
+    synonyms:
+      - dashi stock
+      - dashi broth
+      - bonito stock
+      - kombu stock
+      - hondashi
+    usda_fdc_id: null   # Japanese stock — not in USDA foundation
+    category: condiment
+    note: "Japanese soup stock made from kelp and bonito flakes"
+
+  vegetable_oil:
+    display_name: "Vegetable Oil"
+    synonyms:
+      - cooking oil
+      - canola oil
+      - neutral oil
+      - sunflower oil
+      - corn oil
+      - peanut oil
+      - avocado oil
+      - grapeseed oil
+    usda_fdc_id: 172336
+    category: fat
+
+  smoked_paprika:
+    display_name: "Smoked Paprika"
+    synonyms:
+      - smoked paprika
+      - pimenton
+      - spanish paprika
+    usda_fdc_id: 171329
+    category: spice
+    note: "Maps to USDA 'Spices, paprika' — USDA doesn't distinguish smoked vs sweet"
+
+  paprika:
+    display_name: "Paprika"
+    synonyms:
+      - sweet paprika
+      - hungarian paprika
+    usda_fdc_id: 171329
+    category: spice
+
+  active_dry_yeast:
+    display_name: "Active Dry Yeast"
+    synonyms:
+      - active dry yeast
+      - dry yeast
+      - yeast
+      - instant yeast
+      - bread yeast
+    usda_fdc_id: 175043
+    category: leavening
+
+  bread_flour:
+    display_name: "Bread Flour"
+    synonyms:
+      - bread flour
+      - strong flour
+      - high gluten flour
+    usda_fdc_id: 169761
+    category: grain
+    note: "Maps to USDA AP flour — USDA doesn't have separate bread flour entry"
+
+  brown_sugar:
+    display_name: "Brown Sugar"
+    synonyms:
+      - brown sugar dark
+      - dark brown sugar
+      - light brown sugar
+      - muscovado
+      - demerara
+    usda_fdc_id: 169656
+    category: sweetener
+
+  heavy_cream:
+    display_name: "Heavy Cream"
+    synonyms:
+      - heavy cream
+      - heavy whipping cream
+      - whipping cream
+      - double cream
+    usda_fdc_id: 170856
+    category: dairy
+
+  mozzarella:
+    display_name: "Mozzarella"
+    synonyms:
+      - fresh mozzarella
+      - mozzarella cheese
+      - shredded mozzarella
+    usda_fdc_id: 171245
+    category: dairy
+
+  brisket:
+    display_name: "Beef Brisket"
+    synonyms:
+      - beef brisket
+      - beef brisket choice
+      - brisket flat
+      - brisket point
+      - whole brisket
+    usda_fdc_id: 174740
+    category: protein
+
+  pork_butt:
+    display_name: "Pork Butt"
+    synonyms:
+      - pork butt boneless
+      - pork shoulder
+      - pork butt
+      - boston butt
+      - pork shoulder butt
+    usda_fdc_id: null
+    category: protein
+
+  baby_back_ribs:
+    display_name: "Baby Back Ribs"
+    synonyms:
+      - baby back ribs
+      - back ribs
+      - loin back ribs
+      - pork ribs
+    usda_fdc_id: 168376
+    category: protein
+
+  bbq_sauce:
+    display_name: "BBQ Sauce"
+    synonyms:
+      - bbq sauce
+      - barbecue sauce
+      - bar-b-que sauce
+      - bar-b-q sauce
+    usda_fdc_id: 174523
+    category: condiment
+
+  worcestershire_sauce:
+    display_name: "Worcestershire Sauce"
+    synonyms:
+      - worcestershire sauce
+      - worcestershire
+      - lea and perrins
+    usda_fdc_id: 171610
+    category: condiment
+
+  chicken_thigh_bone_in:
+    display_name: "Chicken Thighs Bone-In"
+    synonyms:
+      - chicken thighs bone-in
+      - bone in chicken thighs
+      - skin-on bone-in chicken thighs
+    usda_fdc_id: 171078
+    category: protein
+
+# =====================
+# TECHNIQUES
+# =====================
+techniques:
+
+  saute:
+    display_name: "Saut\u00e9"
+    synonyms:
+      - sautee
+      - sauted
+      - pan fry
+      - pan-fry
+      - stir in a pan
+    related_episodes: [5, 8, 12]
+
+  broil:
+    display_name: "Broil"
+    synonyms:
+      - grill          # UK English for broil
+      - salamander     # restaurant term
+      - top-heat
+    note: "US 'broil' = UK 'grill'. US 'grill' = UK 'barbecue'. Always normalize to US terms."
+    related_episodes: [19]
+
+  blanch:
+    display_name: "Blanch"
+    synonyms:
+      - blanching
+      - boil and shock
+      - boil and ice bath
+      - parboil         # similar but not identical — parboil is partial cook, blanch is quick + shock
+    note: "parboil is close but distinct. Flag if source says parboil."
+    ambiguous:
+      - parboil
+    related_episodes: [1, 10]
+
+  dice:
+    display_name: "Dice"
+    synonyms:
+      - diced
+      - cut into cubes
+      - cube
+      - cubed
+      - small dice
+      - medium dice
+      - large dice
+    size_variants:
+      small: "1/4 inch"
+      medium: "1/2 inch"
+      large: "3/4 inch"
+    related_episodes: [3]
+
+  julienne:
+    display_name: "Julienne"
+    synonyms:
+      - matchstick
+      - matchstick cut
+      - julienned
+      - cut into strips
+      - thin strips
+    related_episodes: [2, 3]
+
+  braise:
+    display_name: "Braise"
+    synonyms:
+      - braised
+      - braising
+      - slow cook in liquid
+      - low and slow
+      - pot roast
+    related_episodes: [21]
+
+  roast:
+    display_name: "Roast"
+    synonyms:
+      - roasted
+      - roasting
+      - oven roast
+      - oven roasted
+    related_episodes: [10, 26]
+
+  simmer:
+    display_name: "Simmer"
+    synonyms:
+      - simmered
+      - simmering
+      - gentle boil
+      - low boil
+    related_episodes: [1, 13]
+
+  boil:
+    display_name: "Boil"
+    synonyms:
+      - boiled
+      - boiling
+      - rolling boil
+      - bring to a boil
+    related_episodes: [1]
+
+  stir_fry:
+    display_name: "Stir-Fry"
+    synonyms:
+      - stir fry
+      - stir fried
+      - stir-fried
+      - wok fry
+      - wok toss
+    related_episodes: [20]
+
+  sear:
+    display_name: "Sear"
+    synonyms:
+      - seared
+      - searing
+      - hard sear
+      - pan sear
+      - pan-sear
+      - brown
+      - browning
+    related_episodes: [8, 14]
+
+  fold:
+    display_name: "Fold"
+    synonyms:
+      - folding
+      - fold in
+      - gently fold
+    related_episodes: [18]
+
+  knead:
+    display_name: "Knead"
+    synonyms:
+      - kneading
+      - kneaded
+      - work the dough
+    related_episodes: [27]
+
+  marinate:
+    display_name: "Marinate"
+    synonyms:
+      - marinated
+      - marinating
+      - marinade
+      - let it sit
+      - let sit in
+    related_episodes: [25]
+
+  shred:
+    display_name: "Shred"
+    synonyms:
+      - shredded
+      - shredding
+      - pull apart
+      - pulled
+    related_episodes: [12, 21]
+
+# =====================
+# EQUIPMENT
+# =====================
+equipment:
+
+  sheet_pan:
+    display_name: "Sheet Pan"
+    synonyms:
+      - baking sheet
+      - cookie sheet
+      - sheet tray
+      - half sheet
+      - full sheet
+      - jelly roll pan
+    note: "half sheet (18x13) is standard home size. full sheet doesn't fit home ovens."
+
+  skillet:
+    display_name: "Skillet"
+    synonyms:
+      - frying pan
+      - fry pan
+      - saute pan       # technically different (straight vs sloped sides) but people interchange
+      - cast iron
+      - cast iron skillet
+      - pan
+    ambiguous:
+      - pan              # too generic — could be saucepan, sheet pan, etc.
+
+  dutch_oven:
+    display_name: "Dutch Oven"
+    synonyms:
+      - cocotte          # French term
+      - casserole dish   # UK term for same thing (sometimes)
+      - braiser          # similar but shallower
+      - heavy pot
+      - le creuset       # brand used generically
+
+# =====================
+# MEASUREMENTS
+# =====================
+# Not synonyms per se, but unit normalization is part of the same problem.
+measurements:
+
+  volume:
+    tsp:
+      display: "tsp"
+      synonyms: [teaspoon, teaspoons, t, t.]
+      ml: 4.93
+    tbsp:
+      display: "tbsp"
+      synonyms: [tablespoon, tablespoons, T, T., tbl, tbs]
+      ml: 14.79
+    cup:
+      display: "cup"
+      synonyms: [cups, c, c.]
+      ml: 236.59
+    fl_oz:
+      display: "fl oz"
+      synonyms: [fluid ounce, fluid ounces, fl. oz.]
+      ml: 29.57
+
+  weight:
+    oz:
+      display: "oz"
+      synonyms: [ounce, ounces, oz.]
+      grams: 28.35
+    lb:
+      display: "lb"
+      synonyms: [pound, pounds, lbs, lbs.]
+      grams: 453.59
+    g:
+      display: "g"
+      synonyms: [gram, grams, gm]
+    kg:
+      display: "kg"
+      synonyms: [kilogram, kilograms]
+      grams: 1000
+
+  informal:
+    # These show up in recipes constantly and need conversion guidance
+    pinch:
+      display: "pinch"
+      approx_tsp: 0.0625   # ~1/16 tsp
+    dash:
+      display: "dash"
+      approx_tsp: 0.125    # ~1/8 tsp
+    handful:
+      display: "handful"
+      note: "too variable to normalize — flag for human review"
+    bunch:
+      display: "bunch"
+      note: "varies wildly by store and region — flag for human review"
+
+# =====================
+# INTAKE PIPELINE RULES
+# =====================
+pipeline:
+
+  on_match:
+    # When a synonym matches a canonical term
+    action: replace_with_canonical
+    preserve_original: true    # keep raw text in _original field for audit
+
+  on_ambiguous:
+    # When a term appears in multiple canonical entries' ambiguous lists
+    action: flag_for_review
+    default: null              # don't guess — queue it
+
+  on_unknown:
+    # When no synonym matches at all
+    action: add_to_review_queue
+    auto_suggest: true         # use fuzzy match to suggest canonical
+
+  fuzzy_threshold: 0.85        # Levenshtein similarity threshold for auto-suggest
+
+  regional_variants:
+    # Detect and normalize regional spelling/terminology
+    uk_to_us:
+      aubergine: eggplant
+      courgette: zucchini
+      rocket: arugula
+      caster_sugar: superfine_sugar
+      icing_sugar: powdered_sugar
+      plain_flour: all_purpose_flour
+      strong_flour: bread_flour
+      bicarbonate_of_soda: baking_soda
+      clingfilm: plastic_wrap
+      grill: broil              # the technique, not the equipment
+      hob: stovetop
+      liquidiser: blender
+      bain_marie: double_boiler
+
+  # Where the normalizer sits in the connector chain
+  runs_at: intake
+  # Every connector that reads external input MUST run normalization
+  # before writing to source/. This is not optional.
+  required_for:
+    - csv-import
+    - recipe-card-scan
+    - audio-review
+    - url-scrape
+    - paste-input

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{# === HERO — ALL COPY FROM config.homepage === #}
+<div class="hero">
+    <h1>{{ config.homepage.hero_heading }}</h1>
+    <p>{{ config.homepage.hero_subheading }}</p>
+    <a href="{{ config.homepage.hero_cta_href }}" class="cta">{{ config.homepage.hero_cta_text }}</a>
+</div>
+
+{# === FEATURED EPISODES === #}
+<div class="wide-container">
+    <section>
+        <h2>{{ config.homepage.featured_section_title }}</h2>
+        <div class="episode-grid">
+            {% for ep in featured %}
+            <a href="/recipe/{{ ep.slug }}" class="episode-card">
+                <span class="ep-number">Episode {{ ep.ep_number }}</span>
+                <h3>{{ ep.title }}</h3>
+                <p class="hook">{{ ep.hook }}</p>
+                <div class="meta">
+                    <span>{{ ep.difficulty }}</span>
+                    <span>{{ ep.time_estimate }}</span>
+                    <span>{{ ep.content_tier }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    {# === ENRICHED RECIPES (USDA-backed) === #}
+    {% if recipes %}
+    <section>
+        <h2>Recipes</h2>
+        <div class="episode-grid">
+            {% for r in recipes %}
+            <a href="/r/{{ r.slug }}" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">{{ r.cuisine }}</span>
+                <h3>{{ r.title }}</h3>
+                <div class="meta">
+                    <span>{{ r.ingredients|length }} ingredients</span>
+                    <span>{{ r.techniques|length }} techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# === ALL EPISODES LIST === #}
+    <section>
+        <h2>Season 1 — All 30 Episodes</h2>
+        <ul class="episode-list">
+            {% for ep in episodes %}
+            <li>
+                <span class="num">{{ ep.ep_number }}</span>
+                <a href="/recipe/{{ ep.slug }}">{{ ep.title }}</a>
+                <span class="diff">{{ ep.difficulty }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+
+{# === SUBSCRIBE — ALL COPY FROM config.homepage === #}
+<div class="subscribe" id="subscribe">
+    <h2>{{ config.homepage.subscribe_heading }}</h2>
+    <p>{{ config.homepage.subscribe_subheading }}</p>
+    <form action="/api/subscribe" method="POST">
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <button type="submit">{{ config.homepage.subscribe_cta_text }}</button>
+    </form>
+</div>
+
+{% endblock %}

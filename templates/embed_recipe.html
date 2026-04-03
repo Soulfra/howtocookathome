@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embeddable Recipe Widget — Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; color: #333; background: #f9f9f9; }
+        h1 { font-size: 1.4rem; }
+        p { color: #666; }
+        .demo-note { background: #fff3cd; padding: 1rem; margin: 2rem 0; font-size: 0.9rem; border-left: 4px solid #C4975A; }
+        code { background: #eee; padding: 0.15rem 0.4rem; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<h1>This is someone else's website.</h1>
+<p>The creator already has their own site. They don't need ours. They just drop in a single script tag and the recipe widget appears below.</p>
+
+<div class="demo-note">
+    <strong>Embed code:</strong><br>
+    <code>&lt;div id="htcah-recipe" data-episode="1" data-tenant="htcah"&gt;&lt;/div&gt;</code><br>
+    <code>&lt;script src="https://howtocookathome.com/embed/recipe.js"&gt;&lt;/script&gt;</code>
+</div>
+
+<p>Everything below this line is the embedded widget:</p>
+<hr>
+
+<!-- === THIS IS ALL THE CREATOR ADDS TO THEIR SITE === -->
+<div id="htcah-recipe" data-episode="1" data-tenant="htcah"></div>
+
+<script>
+/**
+ * HTCAH Embeddable Recipe Widget
+ * ==============================
+ * Drop this script + a div on any page. It renders:
+ *   - Recipe title + meta
+ *   - Step-by-step mode (one step at a time, large text)
+ *   - Built-in timers per step
+ *   - Ingredient list with scaling
+ *   - Accessibility: ARIA labels, keyboard nav, reduced motion support
+ *   - Closed captions placeholder
+ *   - Zero external dependencies
+ *
+ * Data comes from the platform API: /api/v1/{tenant}/recipes/{episode}
+ * For this prototype, data is inline. In production, it fetches from the API.
+ */
+
+(function() {
+    // === PROTOTYPE DATA (in production, fetched from API) ===
+    const RECIPE_DATA = {
+        tenant: "htcah",
+        episode: 1,
+        title: "How to Boil Water (Yes, Really)",
+        hook: "You've been boiling water wrong.",
+        what_you_learn: "Rolling boil vs simmer vs poach — and why it matters for everything you'll ever cook.",
+        technique: "Temperature control",
+        difficulty: "★☆☆",
+        time: "3 min",
+        equipment: ["Pot", "Stove", "Thermometer (optional)"],
+        ingredients: [
+            { item: "Water", amount: "4", unit: "cups", scalable: true },
+            { item: "Salt", amount: "1", unit: "tsp", scalable: true, note: "for pasta/blanching" }
+        ],
+        steps: [
+            {
+                instruction: "Fill your pot with cold water. Cold, not hot. Hot tap water can contain more dissolved minerals and contaminants from your pipes.",
+                timer: null,
+                tip: "Use cold water from the tap. It's cleaner than hot."
+            },
+            {
+                instruction: "Place the pot on the burner and turn the heat to HIGH. Put a lid on it — this traps heat and gets you to a boil 25% faster.",
+                timer: null,
+                tip: "Lid on = faster boil. Basic physics."
+            },
+            {
+                instruction: "Watch for the stages. SMALL BUBBLES on the bottom = about 160°F. This is a SIMMER. Good for poaching eggs, cooking delicate fish.",
+                timer: null,
+                tip: "Simmer ≠ boil. This is the most common mistake beginners make."
+            },
+            {
+                instruction: "More activity, steady streams of bubbles = about 185°F. This is a GENTLE BOIL. Good for soups, stews, sauces.",
+                timer: null,
+                tip: "If your soup is erupting like a volcano, turn it down."
+            },
+            {
+                instruction: "Large, aggressive bubbles breaking the surface = 212°F. This is a ROLLING BOIL. This is what you want for pasta, blanching vegetables, boiling potatoes.",
+                timer: { seconds: 180, label: "Watch your rolling boil" },
+                tip: "A rolling boil can't be stirred down. That's how you know."
+            },
+            {
+                instruction: "If you're cooking pasta or blanching, add salt NOW — about 1 tsp per quart. The water should taste like the sea. This is your only chance to season the food from the inside.",
+                timer: null,
+                tip: "Salt the water. Seriously. It makes everything better."
+            }
+        ],
+        seo_keywords: "boil water, how to boil water, simmer vs boil, rolling boil, poaching temperature",
+        accessibility: {
+            lang: "en",
+            captions_available: false,
+            alt_text: "Overhead view of a pot of water on a stove showing different boiling stages"
+        }
+    };
+
+    // === FIND THE CONTAINER ===
+    const container = document.getElementById('htcah-recipe');
+    if (!container) return;
+
+    // === STATE ===
+    let currentStep = -1; // -1 = overview mode
+    let servingScale = 1;
+    let activeTimer = null;
+    let timerInterval = null;
+
+    // === RENDER ===
+    function render() {
+        const colors = {
+            primary: '#1A1A2E',
+            accent: '#C4975A',
+            bg: '#F5F0E8',
+            surface: '#FFFFFF',
+            text: '#333333',
+            textLight: '#666666',
+            success: '#2D6A4F'
+        };
+
+        container.innerHTML = `
+            <div class="htcah-widget" role="article" aria-label="Recipe: ${RECIPE_DATA.title}" style="
+                font-family: Arial, Helvetica, sans-serif;
+                background: ${colors.bg};
+                border: 2px solid ${colors.accent};
+                max-width: 100%;
+                color: ${colors.text};
+                line-height: 1.6;
+            ">
+                <!-- HEADER -->
+                <div style="background: ${colors.primary}; color: ${colors.bg}; padding: 1.5rem;">
+                    <div style="font-size: 0.75rem; color: ${colors.accent}; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Episode ${RECIPE_DATA.episode} — ${RECIPE_DATA.technique}
+                    </div>
+                    <h2 style="font-family: Georgia, serif; font-size: 1.5rem; margin: 0.4rem 0; color: ${colors.bg};">
+                        ${RECIPE_DATA.title}
+                    </h2>
+                    <p style="font-style: italic; opacity: 0.8; margin: 0; font-size: 0.95rem;">
+                        "${RECIPE_DATA.hook}"
+                    </p>
+                    <div style="display: flex; gap: 1.5rem; margin-top: 0.75rem; font-size: 0.85rem; opacity: 0.7;">
+                        <span>${RECIPE_DATA.difficulty}</span>
+                        <span>${RECIPE_DATA.time}</span>
+                        <span>${RECIPE_DATA.steps.length} steps</span>
+                    </div>
+                </div>
+
+                <!-- MODE TOGGLE -->
+                <div style="display: flex; border-bottom: 1px solid #ddd;" role="tablist">
+                    <button onclick="htcahSetMode(-1)" role="tab" aria-selected="${currentStep === -1}"
+                        style="flex: 1; padding: 0.7rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: ${currentStep === -1 ? 'bold' : 'normal'};
+                        background: ${currentStep === -1 ? colors.surface : 'transparent'}; color: ${colors.text}; border-bottom: ${currentStep === -1 ? '3px solid ' + colors.accent : '3px solid transparent'};">
+                        Overview
+                    </button>
+                    <button onclick="htcahSetMode(0)" role="tab" aria-selected="${currentStep >= 0}"
+                        style="flex: 1; padding: 0.7rem; border: none; cursor: pointer; font-size: 0.9rem; font-weight: ${currentStep >= 0 ? 'bold' : 'normal'};
+                        background: ${currentStep >= 0 ? colors.surface : 'transparent'}; color: ${colors.text}; border-bottom: ${currentStep >= 0 ? '3px solid ' + colors.accent : '3px solid transparent'};">
+                        Step-by-Step
+                    </button>
+                </div>
+
+                <!-- CONTENT AREA -->
+                <div style="padding: 1.5rem;">
+                    ${currentStep === -1 ? renderOverview(colors) : renderStep(colors)}
+                </div>
+
+                <!-- FOOTER -->
+                <div style="background: ${colors.primary}; color: ${colors.bg}; padding: 0.75rem 1.5rem; font-size: 0.75rem; opacity: 0.6; text-align: center;">
+                    Powered by <a href="https://death2data.com" style="color: ${colors.accent}; text-decoration: none;">Death2Data</a> Platform
+                </div>
+            </div>
+        `;
+    }
+
+    function renderOverview(c) {
+        const ingredients = RECIPE_DATA.ingredients.map(ing => {
+            const scaled = ing.scalable ? (parseFloat(ing.amount) * servingScale) : ing.amount;
+            const display = scaled % 1 === 0 ? scaled : scaled.toFixed(1);
+            return `<li style="padding: 0.4rem 0; border-bottom: 1px solid #eee;">
+                <strong>${display} ${ing.unit}</strong> ${ing.item}
+                ${ing.note ? `<span style="color: ${c.textLight}; font-size: 0.85rem;"> — ${ing.note}</span>` : ''}
+            </li>`;
+        }).join('');
+
+        const steps = RECIPE_DATA.steps.map((step, i) => {
+            return `<li style="padding: 0.6rem 0; border-bottom: 1px solid #eee; cursor: pointer;" onclick="htcahSetMode(${i})">
+                <strong style="color: ${c.accent};">Step ${i + 1}.</strong> ${step.instruction.substring(0, 80)}...
+                ${step.timer ? `<span style="color: ${c.success}; font-size: 0.8rem;"> ⏱ ${step.timer.seconds}s</span>` : ''}
+            </li>`;
+        }).join('');
+
+        return `
+            <h3 style="font-family: Georgia, serif; color: ${c.primary}; margin: 0 0 0.5rem;">What You'll Learn</h3>
+            <p>${RECIPE_DATA.what_you_learn}</p>
+
+            <h3 style="font-family: Georgia, serif; color: ${c.primary}; margin: 1.5rem 0 0.5rem;">
+                Equipment
+            </h3>
+            <p>${RECIPE_DATA.equipment.join(' · ')}</p>
+
+            <h3 style="font-family: Georgia, serif; color: ${c.primary}; margin: 1.5rem 0 0.5rem;">
+                Ingredients
+                <span style="font-size: 0.8rem; font-weight: normal; color: ${c.textLight}; margin-left: 0.5rem;">
+                    Scale:
+                    <button onclick="htcahScale(0.5)" style="cursor:pointer; border: 1px solid #ddd; background: ${servingScale === 0.5 ? c.accent : 'white'}; color: ${servingScale === 0.5 ? 'white' : c.text}; padding: 0.15rem 0.5rem; margin: 0 0.15rem;">½x</button>
+                    <button onclick="htcahScale(1)" style="cursor:pointer; border: 1px solid #ddd; background: ${servingScale === 1 ? c.accent : 'white'}; color: ${servingScale === 1 ? 'white' : c.text}; padding: 0.15rem 0.5rem; margin: 0 0.15rem;">1x</button>
+                    <button onclick="htcahScale(2)" style="cursor:pointer; border: 1px solid #ddd; background: ${servingScale === 2 ? c.accent : 'white'}; color: ${servingScale === 2 ? 'white' : c.text}; padding: 0.15rem 0.5rem; margin: 0 0.15rem;">2x</button>
+                    <button onclick="htcahScale(4)" style="cursor:pointer; border: 1px solid #ddd; background: ${servingScale === 4 ? c.accent : 'white'}; color: ${servingScale === 4 ? 'white' : c.text}; padding: 0.15rem 0.5rem; margin: 0 0.15rem;">4x</button>
+                </span>
+            </h3>
+            <ul style="list-style: none; padding: 0;" role="list" aria-label="Ingredients">${ingredients}</ul>
+
+            <h3 style="font-family: Georgia, serif; color: ${c.primary}; margin: 1.5rem 0 0.5rem;">Steps</h3>
+            <ol style="list-style: none; padding: 0;" role="list" aria-label="Recipe steps">${steps}</ol>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button onclick="htcahSetMode(0)" style="background: ${c.accent}; color: ${c.primary}; border: none; padding: 0.8rem 2rem; font-weight: bold; cursor: pointer; font-size: 1rem;" aria-label="Start step-by-step cooking mode">
+                    Start Cooking — Step by Step
+                </button>
+            </div>
+
+            <!-- ACCESSIBILITY: Screen reader summary -->
+            <div class="sr-only" role="note" aria-label="Accessibility information" style="position: absolute; left: -9999px;">
+                This recipe has ${RECIPE_DATA.steps.length} steps and takes approximately ${RECIPE_DATA.time}.
+                Difficulty level: ${RECIPE_DATA.difficulty}.
+                ${RECIPE_DATA.accessibility.captions_available ? 'Closed captions are available for the video.' : 'Closed captions coming soon.'}
+            </div>
+        `;
+    }
+
+    function renderStep(c) {
+        const step = RECIPE_DATA.steps[currentStep];
+        const progress = ((currentStep + 1) / RECIPE_DATA.steps.length) * 100;
+
+        let timerHTML = '';
+        if (step.timer) {
+            const remaining = activeTimer !== null ? activeTimer : step.timer.seconds;
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            const display = `${mins}:${secs.toString().padStart(2, '0')}`;
+            const isRunning = timerInterval !== null;
+
+            timerHTML = `
+                <div style="background: ${c.primary}; color: ${c.bg}; padding: 1.5rem; text-align: center; margin: 1rem 0; border-radius: 4px;" role="timer" aria-live="polite" aria-label="Cooking timer">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: ${c.accent}; letter-spacing: 0.05em;">${step.timer.label}</div>
+                    <div style="font-family: Georgia, serif; font-size: 3rem; margin: 0.5rem 0; color: ${remaining <= 10 && remaining > 0 ? '#F4D35E' : c.bg};">
+                        ${display}
+                    </div>
+                    <button onclick="htcahToggleTimer(${step.timer.seconds})"
+                        style="background: ${isRunning ? '#B5382A' : c.success}; color: white; border: none; padding: 0.5rem 1.5rem; cursor: pointer; font-size: 0.9rem;"
+                        aria-label="${isRunning ? 'Pause timer' : 'Start timer'}">
+                        ${isRunning ? 'Pause' : (activeTimer !== null && activeTimer < step.timer.seconds ? 'Resume' : 'Start Timer')}
+                    </button>
+                    ${activeTimer !== null ? `<button onclick="htcahResetTimer()" style="background: transparent; color: ${c.accent}; border: 1px solid ${c.accent}; padding: 0.5rem 1rem; cursor: pointer; margin-left: 0.5rem; font-size: 0.9rem;" aria-label="Reset timer">Reset</button>` : ''}
+                </div>
+            `;
+        }
+
+        return `
+            <!-- PROGRESS BAR -->
+            <div style="background: #ddd; height: 4px; margin-bottom: 1.5rem;" role="progressbar" aria-valuenow="${currentStep + 1}" aria-valuemin="1" aria-valuemax="${RECIPE_DATA.steps.length}" aria-label="Step ${currentStep + 1} of ${RECIPE_DATA.steps.length}">
+                <div style="background: ${c.accent}; height: 100%; width: ${progress}%; transition: width 0.3s;"></div>
+            </div>
+
+            <!-- STEP NUMBER -->
+            <div style="color: ${c.accent}; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                Step ${currentStep + 1} of ${RECIPE_DATA.steps.length}
+            </div>
+
+            <!-- INSTRUCTION (large, readable, accessible) -->
+            <p style="font-size: 1.25rem; line-height: 1.7; margin: 1rem 0;" aria-live="polite">
+                ${step.instruction}
+            </p>
+
+            <!-- TIP -->
+            ${step.tip ? `
+            <div style="background: ${c.surface}; border-left: 3px solid ${c.accent}; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.9rem;" role="note" aria-label="Cooking tip">
+                <strong style="color: ${c.accent};">Tip:</strong> ${step.tip}
+            </div>
+            ` : ''}
+
+            <!-- TIMER -->
+            ${timerHTML}
+
+            <!-- NAVIGATION -->
+            <div style="display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem;">
+                <button onclick="htcahPrev()" ${currentStep === 0 ? 'disabled' : ''}
+                    style="padding: 0.7rem 1.5rem; border: 1px solid ${c.accent}; background: transparent; color: ${c.accent}; cursor: ${currentStep === 0 ? 'default' : 'pointer'}; opacity: ${currentStep === 0 ? '0.3' : '1'}; font-size: 0.95rem;"
+                    aria-label="Previous step">
+                    Previous
+                </button>
+                ${currentStep < RECIPE_DATA.steps.length - 1 ? `
+                <button onclick="htcahNext()"
+                    style="padding: 0.7rem 1.5rem; background: ${c.accent}; color: ${c.primary}; border: none; cursor: pointer; font-weight: bold; font-size: 0.95rem;"
+                    aria-label="Next step">
+                    Next Step
+                </button>
+                ` : `
+                <button onclick="htcahSetMode(-1)"
+                    style="padding: 0.7rem 1.5rem; background: ${c.success}; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 0.95rem;"
+                    aria-label="Finished cooking">
+                    Done!
+                </button>
+                `}
+            </div>
+
+            <!-- KEYBOARD HINT -->
+            <p style="text-align: center; font-size: 0.75rem; color: ${c.textLight}; margin-top: 1rem;" aria-hidden="true">
+                Keyboard: ← → to navigate, Space to start/pause timer
+            </p>
+        `;
+    }
+
+    // === GLOBAL FUNCTIONS (attached to window for onclick) ===
+    window.htcahSetMode = function(step) {
+        htcahClearTimer();
+        currentStep = step;
+        activeTimer = null;
+        render();
+    };
+
+    window.htcahNext = function() {
+        htcahClearTimer();
+        activeTimer = null;
+        if (currentStep < RECIPE_DATA.steps.length - 1) currentStep++;
+        render();
+    };
+
+    window.htcahPrev = function() {
+        htcahClearTimer();
+        activeTimer = null;
+        if (currentStep > 0) currentStep--;
+        render();
+    };
+
+    window.htcahScale = function(scale) {
+        servingScale = scale;
+        render();
+    };
+
+    window.htcahToggleTimer = function(totalSeconds) {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            render();
+            return;
+        }
+        if (activeTimer === null) activeTimer = totalSeconds;
+        timerInterval = setInterval(function() {
+            activeTimer--;
+            if (activeTimer <= 0) {
+                activeTimer = 0;
+                clearInterval(timerInterval);
+                timerInterval = null;
+                // Audio alert (if available)
+                try { new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Tqa2slZB7b3J8jZ+wtrCkjHhscoCTqLO2saSPe3B0g5WorLKpmYp8cn2KnKuztKmZi3xye4udq7SzqpmLfHJ7').play(); } catch(e) {}
+            }
+            render();
+        }, 1000);
+        render();
+    };
+
+    window.htcahResetTimer = function() {
+        htcahClearTimer();
+        activeTimer = null;
+        render();
+    };
+
+    function htcahClearTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    // === KEYBOARD NAVIGATION ===
+    document.addEventListener('keydown', function(e) {
+        if (currentStep < 0) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); htcahNext(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); htcahPrev(); }
+        if (e.key === ' ' && RECIPE_DATA.steps[currentStep].timer) {
+            e.preventDefault();
+            htcahToggleTimer(RECIPE_DATA.steps[currentStep].timer.seconds);
+        }
+    });
+
+    // === INITIAL RENDER ===
+    render();
+})();
+</script>
+
+</body>
+</html>

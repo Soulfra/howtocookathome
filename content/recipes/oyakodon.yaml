@@ -1,0 +1,184 @@
+# Recipe: Oyakodon
+# Ingested: 2026-03-27T11:59:45.368483
+# Pipeline: parse → normalize → profile → enrich → store
+
+recipe_id: oyakodon
+slug: oyakodon
+title: Oyakodon
+source:
+  type: text
+  language: en
+  region: null
+  attribution: Manual entry
+  ingested_at: '2026-03-27T11:59:45.368483'
+cuisine: japanese
+cuisine_confidence: 0.5
+ingredients:
+- item: chicken
+  display_name: chicken
+  amount: '2'
+  unit: ''
+  prep: ''
+  original: 2 boneless skinless chicken thighs
+  _match_source: usda_foundation
+  usda_fdc_id: 2646224
+  usda_name: chicken, thighs, boneless, skinless
+  usda_category: Poultry Products
+- item: egg
+  display_name: Egg
+  amount: '3'
+  unit: ''
+  prep: ''
+  original: 3 large eggs
+  _match_source: normalization
+  usda_fdc_id: 171287
+- item: onion
+  display_name: Onion
+  amount: '1'
+  unit: ''
+  prep: thinly sliced
+  original: 1 medium onion, thinly sliced
+  _match_source: normalization
+  usda_fdc_id: 169226
+- item: dashi
+  display_name: Dashi
+  amount: '1'
+  unit: cup
+  prep: ''
+  original: 1 cup dashi stock
+  _match_source: normalization
+- item: soy_sauce
+  display_name: Soy Sauce
+  amount: '3'
+  unit: tbsp
+  prep: ''
+  original: 3 tablespoons soy sauce
+  _match_source: normalization
+  usda_fdc_id: 173767
+- item: mirin
+  display_name: Mirin
+  amount: '2'
+  unit: tbsp
+  prep: ''
+  original: 2 tablespoons mirin
+  _match_source: normalization
+- item: sugar
+  display_name: Sugar
+  amount: '1'
+  unit: tbsp
+  prep: ''
+  original: 1 tablespoon sugar
+  _match_source: normalization
+  usda_fdc_id: 169655
+- item: wild_rice
+  display_name: Wild rice
+  amount: '2'
+  unit: cup
+  prep: ''
+  original: 2 cups cooked rice
+  _match_source: usda_foundation
+  usda_fdc_id: 168897
+  usda_name: Wild rice, cooked
+  usda_category: Cereal Grains and Pasta
+- item: green_onion
+  display_name: Green Onion
+  amount: '2'
+  unit: ''
+  prep: sliced
+  original: 2 green onions, sliced
+  _match_source: normalization
+steps:
+- Combine dashi, soy sauce, mirin, sugar. Simmer onion and chicken. Pour eggs over.
+  Serve on rice.
+equipment: []
+techniques: &id001
+- simmer
+notes: ''
+flavor_profile:
+  scores:
+    salt: 0
+    acid: 0
+    fat: 0
+    sweet: 6
+    heat: 0
+    umami: 0
+    bitter: 0
+    aromatic: 0
+  detected_cuisine: japanese
+  confidence: 0.5
+  matched_products: &id002
+enrichment:
+  nutrition:
+    source: USDA FoodData Central (public domain)
+    status: enriched
+    usda_matched: 6/9 ingredients have USDA IDs
+    details:
+      chicken:
+        fdc_id: 2646224
+        per_100g:
+          calories: null
+          protein_g: null
+          fat_g: null
+          carbs_g: null
+          sodium_mg: null
+      egg:
+        fdc_id: 171287
+        per_100g:
+          calories: 143.0
+          protein_g: 12.56
+          fat_g: 9.51
+          carbs_g: 0.72
+          sodium_mg: 142.0
+      onion:
+        fdc_id: 169226
+        per_100g:
+          calories: 45.0
+          protein_g: 2.7
+          fat_g: 0.7
+          carbs_g: 9.2
+          sodium_mg: 76.0
+      soy_sauce:
+        fdc_id: 173767
+        per_100g:
+          calories: 47.0
+          protein_g: 2.1
+          fat_g: 0.64
+          carbs_g: 8.24
+          sodium_mg: 46.0
+      sugar:
+        fdc_id: 169655
+        per_100g:
+          calories: 387.0
+          protein_g: 0.0
+          fat_g: 0.0
+          carbs_g: 99.98
+          sodium_mg: 1.0
+      wild_rice:
+        fdc_id: 168897
+        per_100g:
+          calories: 101.0
+          protein_g: 3.99
+          fat_g: 0.34
+          carbs_g: 21.34
+          sodium_mg: 3.0
+  safety:
+    allergens: []
+    status: pending
+  cost:
+    status: pending
+    note: Requires regional pricing data
+references:
+  teaches_techniques: *id001
+  uses_products: *id002
+  similar_recipes: []
+history:
+  created_at: '2026-03-27T11:59:45.683546'
+  created_by: intake_pipeline
+  version: 1
+  changes: []
+license:
+  recipe_data: proprietary
+  nutrition_data: public_domain
+  flavor_profile: proprietary
+  training_restriction: true
+  redistribution: with_attribution

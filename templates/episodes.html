@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}All Episodes | {{ config.brand.name }}{% endblock %}
+
+{% block content %}
+
+<div class="hero" style="padding: 2.5rem 2rem;">
+    <h1>Season 1 — Kitchen Fundamentals</h1>
+    <p>30 episodes. From boiling water to cooking without a recipe.</p>
+</div>
+
+<div class="wide-container">
+    <section>
+        <div class="episode-grid">
+            {% for ep in episodes %}
+            <a href="/recipe/{{ ep.slug }}" class="episode-card">
+                <span class="ep-number">Episode {{ ep.ep_number }}</span>
+                <h3>{{ ep.title }}</h3>
+                <p class="hook">{{ ep.hook }}</p>
+                <div class="meta">
+                    <span>{{ ep.difficulty }}</span>
+                    <span>{{ ep.time_estimate }}</span>
+                    <span>{{ ep.key_technique }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<div class="subscribe" id="subscribe">
+    <h2>{{ config.homepage.subscribe_heading }}</h2>
+    <p>{{ config.homepage.subscribe_subheading }}</p>
+    <form action="/api/subscribe" method="POST">
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <button type="submit">{{ config.homepage.subscribe_cta_text }}</button>
+    </form>
+</div>
+
+{% endblock %}

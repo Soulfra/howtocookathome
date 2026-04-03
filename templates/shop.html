@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Shop | {{ config.brand.name }}{% endblock %}
+
+{% block content %}
+
+<div class="hero" style="padding: 2.5rem 2rem;">
+    <h1>Shop</h1>
+</div>
+
+<div class="container" style="max-width: 960px;">
+    {% if partners %}
+    {% for partner in partners %}
+    <section style="margin-bottom: 3rem;">
+        <h2 style="font-family: var(--font-heading); color: var(--color-primary);">{{ partner.name }}</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        {% for product in partner._products %}
+            <div style="background: var(--color-surface); border: 1px solid #ddd; padding: 1.2rem;">
+                <h3 style="font-family: var(--font-heading); color: var(--color-primary); font-size: 1.1rem;">{{ product.name }}</h3>
+                <p style="font-size: 0.85rem; color: var(--color-text-light);">{{ product.tagline }}</p>
+                <span style="font-weight: bold; color: var(--color-accent);">{{ product.price }}</span>
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+    {% else %}
+    <section style="text-align: center; padding: 4rem 2rem;">
+        <p style="color: var(--color-text-light); font-size: 1.1rem;">No products yet.</p>
+        <p style="color: var(--color-text-light); font-size: 0.9rem; margin-top: 0.5rem;">
+            Products will appear here when defined in the pipeline.
+        </p>
+        <a href="/" style="display: inline-block; margin-top: 2rem; background: var(--color-accent); color: var(--color-primary); padding: 0.8rem 2rem; text-decoration: none; font-weight: bold;">Browse Recipes</a>
+    </section>
+    {% endif %}
+</div>
+
+{% endblock %}

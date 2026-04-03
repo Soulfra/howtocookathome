@@ -1,0 +1,218 @@
+# Recipe: Abuela's Chicken Tinga
+# Ingested: 2026-03-27T11:59:46.229894
+# Pipeline: parse → normalize → profile → enrich → store
+
+recipe_id: abuelas-chicken-tinga
+slug: abuelas-chicken-tinga
+title: Abuela's Chicken Tinga
+source:
+  type: text
+  language: en
+  region: null
+  attribution: Manual entry
+  ingested_at: '2026-03-27T11:59:46.229894'
+cuisine: mexican
+cuisine_confidence: 0.5
+ingredients:
+- item: chicken_thigh
+  display_name: Chicken Thigh
+  amount: '1.5'
+  unit: lb
+  prep: ''
+  original: 1.5 lbs chicken thighs
+  _match_source: normalization
+  usda_fdc_id: 171078
+- item: vegetable_oil
+  display_name: Vegetable Oil
+  amount: '2'
+  unit: tbsp
+  prep: ''
+  original: 2 tablespoons vegetable oil
+  _match_source: normalization
+  usda_fdc_id: 172336
+- item: onion
+  display_name: Onion
+  amount: '1'
+  unit: ''
+  prep: diced
+  original: 1 medium onion, diced
+  _match_source: normalization
+  usda_fdc_id: 169226
+- item: garlic
+  display_name: Garlic
+  amount: '4'
+  unit: cloves
+  prep: minced
+  original: 4 cloves garlic, minced
+  _match_source: normalization
+  usda_fdc_id: 169230
+- item: tomato
+  display_name: Tomato
+  amount: '1'
+  unit: can
+  prep: ''
+  original: 1 can crushed tomatoes
+  _match_source: normalization
+  usda_fdc_id: 170457
+- item: chili
+  display_name: Chili Pepper
+  amount: '3'
+  unit: ''
+  prep: chopped
+  original: 3 chipotle peppers in adobo, chopped
+  _match_source: normalization
+  usda_fdc_id: 170108
+- item: cumin
+  display_name: Cumin
+  amount: '1'
+  unit: tsp
+  prep: ''
+  original: 1 teaspoon ground cumin
+  _match_source: normalization
+  usda_fdc_id: 170923
+- item: oregano
+  display_name: Oregano
+  amount: '1'
+  unit: tsp
+  prep: ''
+  original: 1 teaspoon dried oregano
+  _match_source: normalization
+  usda_fdc_id: 170929
+- item: salt
+  display_name: Salt
+  amount: ''
+  unit: ''
+  prep: ''
+  original: Salt and pepper to taste
+  _match_source: normalization
+- item: coriander_cilantro_leaves
+  display_name: Coriander (cilantro) leaves
+  amount: ''
+  unit: ''
+  prep: ''
+  original: Fresh cilantro for garnish
+  _match_source: usda_foundation
+  usda_fdc_id: 169997
+  usda_name: Coriander (cilantro) leaves, raw
+  usda_category: Vegetables and Vegetable Products
+steps:
+- Sear chicken. Sauté onion and garlic. Add tomatoes, chipotles, cumin, oregano. Simmer.
+  Shred. Serve with cilantro and lime.
+equipment: []
+techniques: &id001
+- simmer
+- sear
+- shred
+notes: ''
+flavor_profile:
+  scores:
+    salt: 3
+    acid: 3
+    fat: 0
+    sweet: 3
+    heat: 3
+    umami: 3
+    bitter: 0
+    aromatic: 9
+  detected_cuisine: mexican
+  confidence: 0.5
+  matched_products: &id002
+enrichment:
+  nutrition:
+    source: USDA FoodData Central (public domain)
+    status: enriched
+    usda_matched: 9/10 ingredients have USDA IDs
+    details:
+      chicken_thigh:
+        fdc_id: 171078
+        per_100g:
+          calories: 187.0
+          protein_g: 33.44
+          fat_g: 4.71
+          carbs_g: 0.51
+          sodium_mg: 79.0
+      vegetable_oil:
+        fdc_id: 172336
+        per_100g:
+          calories: 884.0
+          protein_g: 0.0
+          fat_g: 100.0
+          carbs_g: 0.0
+          sodium_mg: 0.0
+      onion:
+        fdc_id: 169226
+        per_100g:
+          calories: 45.0
+          protein_g: 2.7
+          fat_g: 0.7
+          carbs_g: 9.2
+          sodium_mg: 76.0
+      garlic:
+        fdc_id: 169230
+        per_100g:
+          calories: 149.0
+          protein_g: 6.36
+          fat_g: 0.5
+          carbs_g: 33.06
+          sodium_mg: 17.0
+      tomato:
+        fdc_id: 170457
+        per_100g:
+          calories: 18.0
+          protein_g: 0.88
+          fat_g: 0.2
+          carbs_g: 3.89
+          sodium_mg: 5.0
+      chili:
+        fdc_id: 170108
+        per_100g:
+          calories: 26.0
+          protein_g: 0.99
+          fat_g: 0.3
+          carbs_g: 6.03
+          sodium_mg: 4.0
+      cumin:
+        fdc_id: 170923
+        per_100g:
+          calories: 375.0
+          protein_g: 17.81
+          fat_g: 22.27
+          carbs_g: 44.24
+          sodium_mg: 168.0
+      oregano:
+        fdc_id: 170929
+        per_100g:
+          calories: 508.0
+          protein_g: 26.08
+          fat_g: 36.24
+          carbs_g: 28.09
+          sodium_mg: 13.0
+      coriander_cilantro_leaves:
+        fdc_id: 169997
+        per_100g:
+          calories: 23.0
+          protein_g: 2.13
+          fat_g: 0.52
+          carbs_g: 3.67
+          sodium_mg: 46.0
+  safety:
+    allergens: []
+    status: pending
+  cost:
+    status: pending
+    note: Requires regional pricing data
+references:
+  teaches_techniques: *id001
+  uses_products: *id002
+  similar_recipes: []
+history:
+  created_at: '2026-03-27T11:59:46.372152'
+  created_by: intake_pipeline
+  version: 1
+  changes: []
+license:
+  recipe_data: proprietary
+  nutrition_data: public_domain
+  flavor_profile: proprietary
+  training_restriction: true
+  redistribution: with_attribution

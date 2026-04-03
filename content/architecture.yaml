@@ -1,0 +1,86 @@
+# ============================================================
+# ARCHITECTURE.YAML — How the Layers Work
+# ============================================================
+# Three layers. Public metadata. Private database. Connectors.
+# ============================================================
+
+layers:
+
+  metadata:
+    description: "The public, readable, open-source layer"
+    location: "source/"
+    contains:
+      - "brand.yaml      — WHO (identity, colors, voice, terminology)"
+      - "platform.yaml    — HOW (modules, outputs, pipeline, domains)"
+      - "connectors.yaml  — WHAT BRIDGES exist"
+      - "episodes/        — content schema + seed data"
+      - "products/        — product schema + seed data"
+      - "partners/        — partner schema + seed data"
+    properties:
+      - "Human-readable (YAML)"
+      - "Version controlled (git)"
+      - "Open source — anyone can fork the schema"
+      - "No secrets, no credentials, no user data"
+      - "Defines the SHAPE of data, not the runtime data itself"
+
+  database:
+    description: "The private, runtime data layer"
+    location: "data/"
+    contains:
+      - "platform.db      — SQLite (or Postgres in production)"
+      - "Tables seeded from YAML schema"
+      - "Runtime tables: orders, reviews, taste_tests, subscribers"
+      - "User-submitted content: scanned recipe cards, audio reviews"
+      - "Stripe webhook data: payments, subscriptions"
+    properties:
+      - "Private — never in the git repo"
+      - "Seeded from YAML (schema + initial content)"
+      - "Grows with runtime data (orders, reviews, users)"
+      - "Encrypted at rest"
+      - "Backed up, not version controlled"
+
+  connectors:
+    description: "The bridge layer — reads metadata + database, produces output"
+    location: "connectors/ (each connector is a standalone script or service)"
+    pattern: >
+      Every connector follows the same contract:
+      Read from source/*.yaml and/or data/*.db.
+      Produce one type of output.
+      Never modify the metadata layer.
+      Can write to the database layer (for ingest connectors).
+    types:
+      publisher: "metadata → output (HTML, PDF, JSON, RSS)"
+      ingest: "raw input → metadata or database (CSV import, recipe card scan)"
+      payment: "metadata → Stripe (create products, handle checkout)"
+      api: "database → endpoints (MCP server, REST API)"
+
+# --- How it maps to what we've built ---
+current_state:
+  metadata: "DONE — source/ directory with all YAML files"
+  database: "PARTIAL — had SQLite from earlier, needs reconnection to YAML schema"
+  connectors:
+    static_web: "DONE — publish.py generates output/web/"
+    json_api: "DONE — publish.py generates output/api/"
+    csv_import: "NOT STARTED — would replace manual YAML authoring"
+    stripe: "NOT STARTED — would make checkout real"
+    mcp_server: "NOT STARTED — would let AI query the platform"
+    recipe_scan: "NOT STARTED — would power the handwriting feature"
+
+# --- Why this matters ---
+#
+# Fork the source/ directory. Change brand.yaml.
+# Run publish.py. You have a different website.
+#
+# But more importantly:
+# Fork source/. Point a Stripe connector at it.
+# Point an MCP connector at it. Point a PDF connector at it.
+# Now you have a full business running off YAML files.
+#
+# The YAML is the business definition.
+# The connectors are the business execution.
+# The database is the business memory.
+#
+# This is what makes it like COBOL:
+# COBOL described business logic in English-like syntax.
+# This describes business logic in YAML.
+# Both are verbose on purpose — readability IS the feature.

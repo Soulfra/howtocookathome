@@ -1,0 +1,429 @@
+# ============================================
+# RECIPE INTAKE PIPELINE
+# ============================================
+# A recipe can come from anywhere:
+#   - Typed/pasted text
+#   - Photo of a handwritten card
+#   - XLSX row from a content bible
+#   - Audio ("my grandma used to make...")
+#   - URL scraped from a blog
+#   - Another language entirely
+#
+# This file defines how raw input becomes a
+# normalized, profiled, enriched YAML recipe
+# ready to publish and connect to products.
+#
+# The pipeline: RAW → PARSE → NORMALIZE → PROFILE → ENRICH → STORE
+
+version: 1
+
+# =====================
+# STAGE 1: PARSE
+# =====================
+# Turn any input format into a common intermediate structure.
+# Every parser outputs the SAME shape regardless of source.
+
+parse:
+  input_formats:
+    text:
+      description: "Pasted or typed recipe"
+      parser: "text_to_recipe"
+      extracts: [title, ingredients, steps, notes]
+
+    photo:
+      description: "Photo of handwritten card, cookbook page, or screenshot"
+      parser: "ocr_to_recipe"
+      extracts: [title, ingredients, steps, notes, _image_path]
+      note: "OCR then text_to_recipe. Handwriting needs fuzzy matching."
+
+    xlsx_row:
+      description: "Row from a content bible spreadsheet"
+      parser: "xlsx_to_recipe"
+      extracts: [title, hook, technique, equipment, time, difficulty, keywords]
+      note: "This is how S1 was built. Maps column headers to fields."
+
+    audio:
+      description: "Voice recording or transcription"
+      parser: "audio_to_recipe"
+      extracts: [title, ingredients, steps, notes, _transcript]
+      note: "Whisper/transcription first, then text_to_recipe."
+
+    url:
+      description: "Recipe URL from a blog or website"
+      parser: "url_to_recipe"
+      extracts: [title, ingredients, steps, notes, _source_url, _source_domain]
+      restrictions:
+        - "Never copy verbatim — extract structure only"
+        - "Flag source domain for copyright check"
+        - "Store _source_url for attribution"
+
+    translation:
+      description: "Recipe in another language"
+      parser: "translate_to_recipe"
+      extracts: [title, title_original, ingredients, steps, notes, _source_language, _region]
+      note: "Translate THEN normalize. Regional ingredient names go through normalization."
+
+  # What the parser outputs (same shape for ALL formats):
+  intermediate_schema:
+    title: string             # "Grandma's Chicken Soup"
+    title_original: string    # original if translated, null otherwise
+    source_type: enum         # text | photo | xlsx | audio | url | translation
+    source_language: string   # ISO 639-1 (en, es, ja, etc.)
+    source_region: string     # ISO 3166-1 (US, MX, JP, etc.) or null
+    source_url: string        # if from URL, null otherwise
+    source_attribution: string # "Family recipe" or "Adapted from [source]"
+
+    ingredients_raw: list     # exactly as written: ["2 bunches scallions, chopped"]
+    steps_raw: list           # exactly as written: ["Heat oil in a pan"]
+    notes_raw: string         # any freeform text
+
+    _parse_confidence: float  # 0.0-1.0, how confident the parser is
+    _parse_warnings: list     # anything the parser couldn't figure out
+    _timestamp: datetime      # when this was ingested
+
+
+# =====================
+# STAGE 2: NORMALIZE
+# =====================
+# Run intermediate through source/normalization.yaml
+# Replace synonyms with canonical terms, standardize units,
+# flag ambiguous terms, detect regional variants.
+
+normalize:
+  reads_from: "source/normalization.yaml"
+
+  steps:
+    - id: ingredient_matching
+      description: "Match each raw ingredient to a canonical ingredient"
+      action: |
+        For each ingredient in ingredients_raw:
+          1. Split into: amount, unit, item, prep (e.g. "2 bunches scallions, chopped")
+          2. Look up item in normalization.ingredients[*].synonyms
+          3. If exact match → replace with canonical
+          4. If fuzzy match (>0.85) → replace but flag for review
+          5. If ambiguous → flag for human review
+          6. If unknown → add to review queue
+      output:
+        - canonical_id: "green_onion"
+          display_name: "Green Onion"
+          amount: "2 bunches"
+          prep: "chopped"
+          original: "scallions"    # preserve what they actually wrote
+
+    - id: unit_normalization
+      description: "Standardize measurements"
+      action: |
+        Map all units to canonical forms:
+          teaspoon → tsp, tablespoon → tbsp, etc.
+        Flag informal units (pinch, handful, bunch) for review.
+        Convert between systems if source_region differs from target.
+
+    - id: technique_matching
+      description: "Map techniques to canonical and link to episodes"
+      action: |
+        Scan steps_raw for technique keywords.
+        Match to normalization.techniques[*].synonyms.
+        Link to related_episodes for cross-referencing.
+
+    - id: equipment_matching
+      description: "Identify and normalize equipment references"
+
+    - id: regional_detection
+      description: "Detect UK/AU/regional terms and convert"
+      action: |
+        Run normalization.pipeline.regional_variants.uk_to_us.
+        If source_language != 'en', run translation normalization too.
+
+  output_schema:
+    # Same as intermediate but with normalized fields added:
+    ingredients: list         # canonical ingredients with amounts
+    techniques: list          # canonical techniques found in steps
+    equipment: list           # canonical equipment found
+    _normalized: true
+    _normalization_flags: list  # anything that needs human review
+
+
+# =====================
+# STAGE 3: FLAVOR PROFILE
+# =====================
+# This is where recipes become DATA, not just text.
+# Every ingredient has flavor properties. The combination
+# of ingredients creates a flavor fingerprint for the dish.
+# This fingerprint matches to seasonings we sell.
+
+profile:
+  # Flavor dimensions (based on culinary science)
+  dimensions:
+    - id: salt
+      range: [0, 10]
+      description: "Overall saltiness"
+      sources: ["kosher_salt", "soy_sauce", "fish_sauce", "miso", "cheese"]
+
+    - id: acid
+      range: [0, 10]
+      description: "Brightness, tang"
+      sources: ["lemon", "lime", "vinegar", "tomato", "wine"]
+
+    - id: fat
+      range: [0, 10]
+      description: "Richness, mouthfeel"
+      sources: ["olive_oil", "butter", "cream", "coconut_milk", "avocado"]
+
+    - id: sweet
+      range: [0, 10]
+      description: "Sweetness (natural or added)"
+      sources: ["sugar", "honey", "maple_syrup", "caramelized_onion", "fruit"]
+
+    - id: heat
+      range: [0, 10]
+      description: "Spiciness, capsaicin"
+      sources: ["chili", "cayenne", "jalapeño", "black_pepper", "ginger"]
+
+    - id: umami
+      range: [0, 10]
+      description: "Savory depth"
+      sources: ["mushroom", "soy_sauce", "parmesan", "tomato_paste", "fish_sauce"]
+
+    - id: bitter
+      range: [0, 10]
+      description: "Bitterness (can be positive — coffee, dark chocolate, radicchio)"
+      sources: ["coffee", "dark_chocolate", "kale", "radicchio", "turmeric"]
+
+    - id: aromatic
+      range: [0, 10]
+      description: "Fragrance, herb/spice complexity"
+      sources: ["garlic", "cilantro", "basil", "cumin", "cinnamon", "rosemary"]
+
+  # Cuisine fingerprints — known flavor profiles by region
+  # Used to: auto-detect cuisine, suggest missing elements,
+  # recommend products, find similar recipes across cultures
+  cuisine_signatures:
+    mexican:
+      typical: { salt: 6, acid: 7, fat: 5, sweet: 2, heat: 7, umami: 4, bitter: 1, aromatic: 8 }
+      key_ingredients: [lime, cilantro, chili, cumin, corn, avocado]
+      common_seasonings: [cumin, chili_powder, oregano, coriander, smoked_paprika]
+      region_codes: [MX, US-SW, US-TX, US-CA]
+
+    japanese:
+      typical: { salt: 5, acid: 4, fat: 3, sweet: 4, heat: 2, umami: 9, bitter: 1, aromatic: 5 }
+      key_ingredients: [soy_sauce, mirin, dashi, rice, nori, ginger]
+      common_seasonings: [furikake, shichimi, wasabi, sesame]
+      region_codes: [JP]
+
+    italian:
+      typical: { salt: 5, acid: 6, fat: 7, sweet: 2, heat: 2, umami: 6, bitter: 2, aromatic: 8 }
+      key_ingredients: [olive_oil, garlic, tomato, basil, parmesan, pasta]
+      common_seasonings: [italian_seasoning, red_pepper_flakes, oregano]
+      region_codes: [IT, US-NE, US-NY]
+
+    indian:
+      typical: { salt: 5, acid: 5, fat: 5, sweet: 3, heat: 8, umami: 5, bitter: 3, aromatic: 10 }
+      key_ingredients: [onion, ginger, garlic, tomato, yogurt, ghee]
+      common_seasonings: [garam_masala, turmeric, cumin, coriander, chili_powder]
+      region_codes: [IN, PK, BD, LK]
+
+    korean:
+      typical: { salt: 6, acid: 5, fat: 4, sweet: 4, heat: 7, umami: 8, bitter: 1, aromatic: 7 }
+      key_ingredients: [gochujang, sesame_oil, soy_sauce, garlic, ginger, kimchi]
+      common_seasonings: [gochugaru, sesame, doenjang]
+      region_codes: [KR]
+
+    thai:
+      typical: { salt: 6, acid: 7, fat: 4, sweet: 5, heat: 8, umami: 7, bitter: 1, aromatic: 9 }
+      key_ingredients: [fish_sauce, lime, lemongrass, coconut_milk, chili, basil]
+      common_seasonings: [thai_basil, galangal, kaffir_lime, palm_sugar]
+      region_codes: [TH]
+
+    french:
+      typical: { salt: 5, acid: 5, fat: 8, sweet: 3, heat: 1, umami: 6, bitter: 2, aromatic: 7 }
+      key_ingredients: [butter, shallot, wine, cream, tarragon, thyme]
+      common_seasonings: [herbs_de_provence, dijon, fine_herbs]
+      region_codes: [FR]
+
+    american_south:
+      typical: { salt: 6, acid: 4, fat: 7, sweet: 5, heat: 5, umami: 5, bitter: 1, aromatic: 6 }
+      key_ingredients: [butter, onion, celery, bell_pepper, cornmeal, pork]
+      common_seasonings: [cajun_seasoning, old_bay, paprika, garlic_powder]
+      region_codes: [US-LA, US-MS, US-AL, US-GA, US-SC, US-TN]
+
+    ethiopian:
+      typical: { salt: 5, acid: 4, fat: 5, sweet: 2, heat: 7, umami: 4, bitter: 3, aromatic: 10 }
+      key_ingredients: [berbere, niter_kibbeh, injera, lentils, collard_greens]
+      common_seasonings: [berbere, mitmita, korerima, fenugreek]
+      region_codes: [ET, ER]
+
+    middle_eastern:
+      typical: { salt: 5, acid: 6, fat: 6, sweet: 3, heat: 3, umami: 4, bitter: 2, aromatic: 9 }
+      key_ingredients: [olive_oil, lemon, tahini, chickpea, yogurt, lamb]
+      common_seasonings: [za'atar, sumac, baharat, cumin, cardamom]
+      region_codes: [LB, SY, JO, PS, IQ, IR]
+
+    west_african:
+      typical: { salt: 5, acid: 4, fat: 6, sweet: 3, heat: 7, umami: 6, bitter: 2, aromatic: 8 }
+      key_ingredients: [palm_oil, peanut, tomato, scotch_bonnet, okra, plantain]
+      common_seasonings: [suya_spice, dawadawa, grains_of_paradise]
+      region_codes: [NG, GH, SN, CI]
+
+    caribbean:
+      typical: { salt: 5, acid: 6, fat: 5, sweet: 4, heat: 8, umami: 4, bitter: 1, aromatic: 9 }
+      key_ingredients: [scotch_bonnet, allspice, thyme, lime, coconut, plantain]
+      common_seasonings: [jerk_seasoning, allspice, scotch_bonnet]
+      region_codes: [JM, TT, BB, HT, DO]
+
+  # How profiling connects to products
+  product_matching:
+    description: |
+      After a recipe is profiled, its flavor fingerprint gets compared
+      to our product catalog. If a recipe is high-aromatic + medium-heat,
+      and we sell an "Everything Seasoning" that hits those notes,
+      that's a product match. This is how product placements happen
+      automatically — not manually inserted, but data-driven.
+
+    match_rules:
+      - if_dimension: "aromatic > 7"
+        suggest_products: []  # TODO: wire real HTCAH products
+      - if_dimension: "heat > 6 AND aromatic > 6"
+        suggest_products: []  # TODO: wire real HTCAH products
+      - if_cuisine: "any"
+        suggest_products: []  # TODO: wire real HTCAH products
+
+
+# =====================
+# STAGE 4: ENRICH
+# =====================
+# Pull data from public sources to fill in what the
+# raw recipe didn't include. Nutrition, food safety,
+# portion sizing, cost estimation.
+
+enrich:
+  sources:
+    - id: usda_nutrition
+      api: "https://api.nal.usda.gov/fdc/v1"
+      provides: [calories, protein, fat, carbs, fiber, sodium, vitamins]
+      lookup_by: "usda_fdc_id from normalization.yaml"
+      note: "Public domain. Free. No license needed."
+
+    - id: usda_portions
+      source: "https://www.myplate.gov"
+      provides: [serving_size, servings_per_recipe, portion_scaling]
+      note: "Public domain."
+
+    - id: fda_safety
+      source: "https://www.fda.gov"
+      provides: [safe_internal_temp, storage_guidelines, allergen_flags]
+      note: "Public domain."
+
+    - id: cost_estimation
+      source: "internal + open_food_facts"
+      provides: [estimated_cost_per_serving, ingredient_cost_breakdown]
+      note: |
+        Open Food Facts has product pricing data.
+        Combined with regional grocery cost indices.
+        This feeds into the "budget recipes" feature for SNAP users.
+
+    - id: regional_availability
+      source: "internal"
+      provides: [ingredient_availability_by_region, substitution_suggestions]
+      note: |
+        Some ingredients aren't available everywhere.
+        "Lemongrass" is easy in LA, hard in rural Iowa.
+        Suggest substitutions based on shipping address region.
+
+  # What enrichment adds to the recipe:
+  enriched_fields:
+    nutrition:
+      calories_per_serving: number
+      macros: { protein: g, fat: g, carbs: g, fiber: g }
+      sodium_mg: number
+      source: "USDA FoodData Central (public domain)"
+
+    safety:
+      internal_temp: string   # "165°F for chicken"
+      allergens: list         # [gluten, dairy, tree_nuts, etc.]
+      storage: string         # "Refrigerate within 2 hours"
+
+    cost:
+      estimated_total: number
+      per_serving: number
+      currency: "USD"
+      region: string          # cost varies by region
+
+    portions:
+      servings: number
+      serving_size: string
+      scalable: boolean       # can the recipe scale?
+
+    regional:
+      available_everywhere: boolean
+      hard_to_find: list      # ingredients that may need substitution
+      substitutions: list     # {original: "lemongrass", sub: "lemon zest + ginger"}
+
+
+# =====================
+# STAGE 5: STORE
+# =====================
+# The final recipe YAML gets written to source/recipes/
+# (separate from episodes — an episode TEACHES a technique,
+# a recipe is a specific dish that USES techniques).
+
+store:
+  output_dir: "source/recipes/"
+  filename_pattern: "{slug}.yaml"
+
+  # What the final stored recipe looks like:
+  final_schema:
+    recipe_id: string
+    slug: string
+    title: string
+    title_original: string     # if translated
+    source:
+      type: enum               # text | photo | xlsx | audio | url | translation
+      language: string
+      region: string
+      attribution: string
+      url: string              # if from URL
+      ingested_at: datetime
+
+    cuisine: string            # auto-detected from flavor profile
+    difficulty: string
+    time_estimate: string
+    servings: number
+
+    ingredients: list          # normalized, with canonical IDs
+    steps: list                # normalized technique references
+    equipment: list
+
+    flavor_profile:
+      scores: { salt: n, acid: n, fat: n, sweet: n, heat: n, umami: n, bitter: n, aromatic: n }
+      detected_cuisine: string
+      confidence: float
+      matched_products: list   # auto-suggested from profile
+
+    nutrition: object          # from USDA enrichment
+    safety: object             # from FDA enrichment
+    cost: object               # estimated
+    portions: object           # from USDA MyPlate
+    regional: object           # availability + substitutions
+
+    # Cross-references (the "backlinks")
+    references:
+      teaches_techniques: list   # links to episodes that teach these techniques
+      uses_products: list        # our products that match this recipe
+      similar_recipes: list      # other recipes with similar flavor profiles
+      same_cuisine: list         # other recipes from same cuisine family
+      pairs_with: list           # complementary dishes (main + side + dessert)
+
+    # Version tracking (the changelog Matt asked about)
+    history:
+      created_at: datetime
+      created_by: string        # "intake_pipeline" or "manual"
+      version: number
+      changes: list             # [{date, field, old, new, reason}]
+
+    # Data licensing
+    license:
+      recipe_data: "proprietary"          # the recipe itself, our format
+      nutrition_data: "public_domain"     # from USDA, freely redistributable
+      flavor_profile: "proprietary"       # our profiling algorithm output
+      training_restriction: true          # cannot be used to train AI models
+      redistribution: "with_attribution"  # can share if they credit the source

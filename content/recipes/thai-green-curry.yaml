@@ -1,0 +1,230 @@
+# Recipe: Thai Green Curry
+# Ingested: 2026-03-27T11:59:45.767965
+# Pipeline: parse → normalize → profile → enrich → store
+
+recipe_id: thai-green-curry
+slug: thai-green-curry
+title: Thai Green Curry
+source:
+  type: text
+  language: en
+  region: null
+  attribution: Manual entry
+  ingested_at: '2026-03-27T11:59:45.767965'
+cuisine: thai
+cuisine_confidence: 0.5
+ingredients:
+- item: coconut_milk
+  display_name: Coconut Milk
+  amount: '1'
+  unit: can
+  prep: ''
+  original: 1 can coconut milk
+  _match_source: normalization
+  usda_fdc_id: 170172
+- item: beet_greens
+  display_name: Beet greens
+  amount: '3'
+  unit: tbsp
+  prep: ''
+  original: 3 tablespoons green curry paste
+  _match_source: usda_foundation
+  usda_fdc_id: 170375
+  usda_name: Beet greens, raw
+  usda_category: Vegetables and Vegetable Products
+- item: chicken_breast
+  display_name: Chicken Breast
+  amount: '1'
+  unit: lb
+  prep: sliced
+  original: 1 lb chicken breast, sliced
+  _match_source: normalization
+  usda_fdc_id: 171077
+- item: basil
+  display_name: Basil
+  amount: '1'
+  unit: cup
+  prep: ''
+  original: 1 cup Thai basil leaves
+  _match_source: usda_foundation
+  usda_fdc_id: 172232
+  usda_name: Basil, fresh
+  usda_category: Spices and Herbs
+- item: fish_sauce
+  display_name: Fish Sauce
+  amount: '2'
+  unit: tbsp
+  prep: ''
+  original: 2 tablespoons fish sauce
+  _match_source: normalization
+  usda_fdc_id: 174583
+- item: sugar
+  display_name: Sugar
+  amount: '1'
+  unit: tbsp
+  prep: ''
+  original: 1 tablespoon sugar
+  _match_source: normalization
+  usda_fdc_id: 169655
+- item: bell_pepper
+  display_name: Bell Pepper
+  amount: '1'
+  unit: ''
+  prep: sliced
+  original: 1 red bell pepper, sliced
+  _match_source: normalization
+  usda_fdc_id: 169228
+- item: bamboo_shoots
+  display_name: Bamboo shoots
+  amount: '1'
+  unit: cup
+  prep: ''
+  original: 1 cup bamboo shoots
+  _match_source: usda_foundation
+  usda_fdc_id: 169210
+  usda_name: Bamboo shoots, raw
+  usda_category: Vegetables and Vegetable Products
+- item: limes
+  display_name: Limes
+  amount: '4'
+  unit: ''
+  prep: ''
+  original: 4 kaffir lime leaves
+  _match_source: usda_foundation
+  usda_fdc_id: 168155
+  usda_name: Limes, raw
+  usda_category: Fruits and Fruit Juices
+- item: chili
+  display_name: Chili Pepper
+  amount: '2'
+  unit: ''
+  prep: sliced
+  original: 2 Thai chilies, sliced
+  _match_source: normalization
+  usda_fdc_id: 170108
+steps:
+- Heat coconut cream. Add curry paste, stir-fry. Add chicken. Add coconut milk, fish
+  sauce, sugar. Add vegetables. Serve on rice.
+equipment: []
+techniques: &id001 []
+notes: ''
+flavor_profile:
+  scores:
+    salt: 0
+    acid: 3
+    fat: 0
+    sweet: 3
+    heat: 3
+    umami: 0
+    bitter: 0
+    aromatic: 3
+  detected_cuisine: thai
+  confidence: 0.5
+  matched_products: &id002
+enrichment:
+  nutrition:
+    source: USDA FoodData Central (public domain)
+    status: enriched
+    usda_matched: 10/10 ingredients have USDA IDs
+    details:
+      coconut_milk:
+        fdc_id: 170172
+        per_100g:
+          calories: 230.0
+          protein_g: 2.29
+          fat_g: 23.84
+          carbs_g: 5.54
+          sodium_mg: 15.0
+      beet_greens:
+        fdc_id: 170375
+        per_100g:
+          calories: 22.0
+          protein_g: 2.2
+          fat_g: 0.13
+          carbs_g: 4.33
+          sodium_mg: 226.0
+      chicken_breast:
+        fdc_id: 171077
+        per_100g:
+          calories: 120.0
+          protein_g: 22.5
+          fat_g: 2.62
+          carbs_g: 0.0
+          sodium_mg: 45.0
+      basil:
+        fdc_id: 172232
+        per_100g:
+          calories: 23.0
+          protein_g: 3.15
+          fat_g: 0.64
+          carbs_g: 2.65
+          sodium_mg: 4.0
+      fish_sauce:
+        fdc_id: 174583
+        per_100g:
+          calories: 235.0
+          protein_g: 7.66
+          fat_g: 17.34
+          carbs_g: 11.94
+          sodium_mg: 1013.0
+      sugar:
+        fdc_id: 169655
+        per_100g:
+          calories: 387.0
+          protein_g: 0.0
+          fat_g: 0.0
+          carbs_g: 99.98
+          sodium_mg: 1.0
+      bell_pepper:
+        fdc_id: 169228
+        per_100g:
+          calories: 25.0
+          protein_g: 0.98
+          fat_g: 0.18
+          carbs_g: 5.88
+          sodium_mg: 2.0
+      bamboo_shoots:
+        fdc_id: 169210
+        per_100g:
+          calories: 27.0
+          protein_g: 2.6
+          fat_g: 0.3
+          carbs_g: 5.2
+          sodium_mg: 4.0
+      limes:
+        fdc_id: 168155
+        per_100g:
+          calories: 30.0
+          protein_g: 0.7
+          fat_g: 0.2
+          carbs_g: 10.54
+          sodium_mg: 2.0
+      chili:
+        fdc_id: 170108
+        per_100g:
+          calories: 26.0
+          protein_g: 0.99
+          fat_g: 0.3
+          carbs_g: 6.03
+          sodium_mg: 4.0
+  safety:
+    allergens: []
+    status: pending
+  cost:
+    status: pending
+    note: Requires regional pricing data
+references:
+  teaches_techniques: *id001
+  uses_products: *id002
+  similar_recipes: []
+history:
+  created_at: '2026-03-27T11:59:46.142425'
+  created_by: intake_pipeline
+  version: 1
+  changes: []
+license:
+  recipe_data: proprietary
+  nutrition_data: public_domain
+  flavor_profile: proprietary
+  training_restriction: true
+  redistribution: with_attribution

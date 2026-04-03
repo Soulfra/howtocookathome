@@ -1,0 +1,183 @@
+# Recipe: Oyakodon (Parent-Child Rice Bowl)
+# Ingested: 2026-03-27T11:12:40.916578
+# Pipeline: parse → normalize → profile → enrich → store
+
+recipe_id: oyakodon-parent-child-rice-bowl
+slug: oyakodon-parent-child-rice-bowl
+title: Oyakodon (Parent-Child Rice Bowl)
+source:
+  type: text
+  language: en
+  region: null
+  attribution: Manual entry
+  ingested_at: '2026-03-27T11:12:40.916578'
+cuisine: japanese
+cuisine_confidence: 0.5
+ingredients:
+- item: chicken
+  display_name: Chicken
+  amount: '2'
+  unit: ''
+  prep: cut into bite-size pieces
+  original: 2 boneless skinless chicken thighs, cut into bite-size pieces
+  _match_source: usda_foundation
+  usda_fdc_id: 171077
+  usda_name: Chicken, broilers or fryers, breast, skinless, boneless, meat only, raw
+  usda_category: Poultry Products
+- item: egg
+  display_name: Egg
+  amount: '3'
+  unit: ''
+  prep: ''
+  original: 3 large eggs
+  _match_source: normalization
+  usda_fdc_id: 171287
+- item: onion
+  display_name: Onion
+  amount: '1'
+  unit: ''
+  prep: thinly sliced
+  original: 1 medium onion, thinly sliced
+  _match_source: normalization
+  usda_fdc_id: 169226
+- item: dashi_stock
+  display_name: Dashi Stock
+  amount: '1'
+  unit: cup
+  prep: ''
+  original: 1 cup dashi stock
+  _match_source: null
+- item: soy_sauce
+  display_name: Soy Sauce
+  amount: '3'
+  unit: tbsp
+  prep: ''
+  original: 3 tablespoons soy sauce
+  _match_source: normalization
+  usda_fdc_id: 173767
+- item: mirin
+  display_name: Mirin
+  amount: '2'
+  unit: tbsp
+  prep: ''
+  original: 2 tablespoons mirin
+  _match_source: null
+- item: sugar
+  display_name: Sugar
+  amount: '1'
+  unit: tbsp
+  prep: ''
+  original: 1 tablespoon sugar
+  _match_source: normalization
+  usda_fdc_id: 169655
+- item: rice
+  display_name: Rice
+  amount: '2'
+  unit: cup
+  prep: ''
+  original: 2 cups cooked Japanese short-grain rice
+  _match_source: usda_foundation
+  usda_fdc_id: 169756
+  usda_name: Rice, white, long-grain, regular, raw, unenriched
+  usda_category: Cereal Grains and Pasta
+- item: green_onion
+  display_name: Green Onion
+  amount: '2'
+  unit: ''
+  prep: sliced
+  original: 2 green onions, sliced
+  _match_source: normalization
+steps:
+- Combine dashi, soy sauce, mirin, and sugar.
+- Simmer onion and sauce in a skillet.
+- Add chicken, cook 5 minutes.
+- Pour beaten eggs over chicken.
+- Cover 30 seconds until eggs set.
+- Slide over rice. Garnish with green onion.
+equipment:
+- skillet
+techniques: &id001
+- simmer
+notes: ''
+flavor_profile:
+  scores:
+    salt: 0
+    acid: 0
+    fat: 0
+    sweet: 6
+    heat: 0
+    umami: 0
+    bitter: 0
+    aromatic: 0
+  detected_cuisine: japanese
+  confidence: 0.5
+  matched_products: &id002
+enrichment:
+  nutrition:
+    source: USDA FoodData Central (public domain)
+    status: enriched
+    usda_matched: 6/9 ingredients have USDA IDs
+    details:
+      chicken:
+        fdc_id: 171077
+        per_100g:
+          calories: 120.0
+          protein_g: 22.5
+          fat_g: 2.6
+          carbs_g: 0.0
+      egg:
+        fdc_id: 171287
+        per_100g:
+          calories: 143.0
+          protein_g: 12.6
+          fat_g: 9.5
+          carbs_g: 0.7
+      onion:
+        fdc_id: 169226
+        per_100g:
+          calories: 40.0
+          protein_g: 1.1
+          fat_g: 0.1
+          carbs_g: 9.3
+      soy_sauce:
+        fdc_id: 173767
+        per_100g:
+          calories: 60.0
+          protein_g: 10.5
+          fat_g: 0.1
+          carbs_g: 5.6
+      sugar:
+        fdc_id: 169655
+        per_100g:
+          calories: 387.0
+          protein_g: 0.0
+          fat_g: 0.0
+          carbs_g: 100.0
+      rice:
+        fdc_id: 169756
+        per_100g:
+          calories: 365.0
+          protein_g: 7.1
+          fat_g: 0.7
+          carbs_g: 80.0
+  safety:
+    allergens: []
+    status: pending
+  cost:
+    status: pending
+    note: Requires regional pricing data
+references:
+  teaches_techniques: *id001
+  uses_products: *id002
+  similar_recipes: []
+history:
+  created_at: '2026-03-27T11:12:40.921995'
+  created_by: intake_pipeline
+  version: 1
+  changes: []
+license:
+  recipe_data: proprietary
+  nutrition_data: public_domain
+  flavor_profile: proprietary
+  training_restriction: true
+  redistribution: with_attribution
