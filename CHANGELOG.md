@@ -2,6 +2,8 @@
 
 Auto-generated from commit history.
 
+- **2026-04-03** — Remove demo recipes _(Soulfra)_
+- **2026-04-03** — Update changelog [skip ci] _(github-actions[bot])_
 - **2026-04-03** — Remove push-ready scaffold _(Soulfra)_
 - **2026-04-03** — Update changelog [skip ci] _(github-actions[bot])_
 - **2026-04-03** — Add README, fix changelog workflow permissions _(Soulfra)_
