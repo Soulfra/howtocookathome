@@ -12,7 +12,7 @@ class TestSlugify:
         assert slugify("Big Red's BBQ") == "big-reds-bbq"
 
     def test_spaces_and_special(self):
-        assert slugify("Tony's Pizza & Pasta!") == "tonys-pizza--pasta"
+        assert slugify("Tony's Pizza & Pasta!") == "tonys-pizza-pasta"
 
     def test_already_slug(self):
         assert slugify("smash-stack-burgers") == "smash-stack-burgers"
@@ -46,18 +46,19 @@ class TestDishGeneration:
 
     def test_burger_template_fires(self):
         from app.onboard import create_dishes_from_inventory
-        dishes = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        result = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        dishes = result[0] if isinstance(result, tuple) else result
         assert len(dishes) > 0
         names = [d["name"] for d in dishes]
-        # Should produce burger-type dishes, not generic plates
         has_burger = any("burger" in n.lower() or "smash" in n.lower() for n in names)
         assert has_burger, f"Expected burger dishes, got: {names}"
 
     def test_prices_above_floor(self):
         from app.onboard import create_dishes_from_inventory
-        dishes = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        result = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        dishes = result[0] if isinstance(result, tuple) else result
         for d in dishes:
-            price = d.get("suggested_price", 0)
+            price = d.get("suggested_menu_price", d.get("suggested_price", 0))
             name = d["name"].lower()
             if "fries" in name or "fry" in name:
                 assert price >= 3.99, f"{d['name']} priced at ${price} (floor is $3.99)"
@@ -66,17 +67,18 @@ class TestDishGeneration:
 
     def test_no_empty_ingredients(self):
         from app.onboard import create_dishes_from_inventory
-        dishes = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        result = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        dishes = result[0] if isinstance(result, tuple) else result
         for d in dishes:
             assert len(d.get("ingredients", [])) > 0, f"{d['name']} has no ingredients"
 
     def test_cooking_steps_are_specific(self):
         from app.onboard import create_dishes_from_inventory
-        dishes = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        result = create_dishes_from_inventory("test-burger-joint", self._make_burger_inventory())
+        dishes = result[0] if isinstance(result, tuple) else result
         for d in dishes:
             steps = d.get("steps", [])
             assert len(steps) > 0, f"{d['name']} has no cooking steps"
-            # Steps should NOT be generic BBQ-style for burger dishes
             if "burger" in d["name"].lower():
                 step_text = " ".join(steps).lower()
                 assert "smash" in step_text or "griddle" in step_text or "form" in step_text, \

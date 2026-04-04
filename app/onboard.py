@@ -11,7 +11,7 @@ Privacy-first:
   - Tenant ID in URL path, not session cookies
 """
 import yaml, json, os, re, secrets, sqlite3, hashlib, sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
@@ -984,7 +984,7 @@ def create_tenant_yaml(data, token):
         "zip_code": zip_code,
         "email_hash": hashlib.sha256(data.get("email", "").encode()).hexdigest()[:16],
         "token_hash": hashlib.sha256(token.encode()).hexdigest(),
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(tz=__import__("datetime").timezone.utc).isoformat(),
         "domain": full_domain,
         "base_domain": base_domain,
         "subdomain": subdomain_name,
@@ -1050,7 +1050,7 @@ def create_inventory_yaml(slug, ingredients_enriched):
         "slug": inv_slug,
         "type": "inventory",
         "tenant": slug,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(tz=__import__("datetime").timezone.utc).isoformat(),
         "items": ingredients_enriched,
         "summary": {
             "total_items": len(ingredients_enriched),
@@ -1943,7 +1943,7 @@ def create_dishes_from_inventory(slug, inventory_items, restaurant_type="general
                 "type": "auto_generated",
                 "tenant": slug,
                 "from_inventory": f"{slug}-inventory",
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(tz=__import__("datetime").timezone.utc).isoformat(),
                 "note": "Auto-generated from vendor inventory. Restaurant should refine.",
             },
             "ingredients": dish["ingredients"],
@@ -2001,7 +2001,7 @@ def create_recipe_yaml(slug, title, cuisine, ingredients_enriched, steps):
         "source": {
             "type": "partner_onboard",
             "tenant": slug,
-            "ingested_at": datetime.utcnow().isoformat(),
+            "ingested_at": datetime.now(tz=__import__("datetime").timezone.utc).isoformat(),
         },
         "ingredients": ingredients_enriched,
         "steps": steps or ["(Add your preparation steps here)"],
