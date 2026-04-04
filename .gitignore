@@ -45,3 +45,6 @@ temp/
 docs/*.xlsx
 docs/original/
 archive/
+*.docx
+*.xlsx
+seasonpass-openapi.yaml
