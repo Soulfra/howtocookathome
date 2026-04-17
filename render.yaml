@@ -8,3 +8,33 @@ services:
       - key: PYTHON_VERSION
         value: "3.11"
     healthCheckPath: /api/health
+
+  - type: cron
+    name: yap-draft
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 10 * * 6"
+    command: python3 scripts/build_yap.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+
+  - type: cron
+    name: yap-send
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 14 * * 0"
+    command: python3 scripts/send_yap.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
