@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cook more. Tip better. | HowToCookAtHome</title>
+<meta name="description" content="Cook a few meals at home this week. Turn what you save into a generous tip at your favorite spot.">
+<meta property="og:title" content="Cook more. Tip better.">
+<meta property="og:description" content="The cook-at-home dividend — redirected to the people who feed you.">
+<meta name="theme-color" content="#000000">
+<style>
+    :root {
+        --black: #000000;
+        --ink: #0A0A0A;
+        --red: #D91E18;
+        --red-deep: #B31812;
+        --white: #FFFFFF;
+        --muted: #8A8A8A;
+        --line: #1F1F1F;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: var(--black); color: var(--white); }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-weight: 500;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+    }
+    a { color: var(--red); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* --- NAV --- */
+    nav.top {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1.25rem 2rem; border-bottom: 1px solid var(--line);
+    }
+    nav.top .brand {
+        color: var(--white); font-weight: 900; letter-spacing: -0.02em;
+        font-size: 0.95rem; text-transform: uppercase;
+    }
+    nav.top .brand .dot { color: var(--red); }
+    nav.top a.home { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* --- HERO (echoes the sticker split) --- */
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        min-height: 70vh;
+        align-items: stretch;
+    }
+    .hero .left {
+        padding: 4rem 2rem 3rem 2.5rem;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero h1 {
+        font-weight: 900;
+        font-size: clamp(3.5rem, 11vw, 9.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.035em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+    .hero h1 .red { color: var(--red); }
+    .hero .sub {
+        font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+        color: var(--white);
+        max-width: 44ch; line-height: 1.4; font-weight: 500;
+        opacity: 0.88;
+    }
+    .hero .right {
+        background: var(--red);
+        display: flex; align-items: center; justify-content: center;
+        padding: 2rem;
+    }
+    .qr-echo {
+        background: var(--white);
+        padding: 16px;
+        display: grid;
+        grid-template-columns: repeat(11, 1fr);
+        grid-template-rows: repeat(11, 1fr);
+        gap: 2px;
+        width: 180px; height: 180px;
+    }
+    .qr-echo i { background: var(--black); display: block; }
+    .qr-echo i.b { background: transparent; }
+
+    /* --- CALCULATOR --- */
+    section.calc {
+        padding: 4rem 2rem;
+        border-top: 1px solid var(--line);
+        max-width: 960px; margin: 0 auto;
+    }
+    section.calc .kicker {
+        color: var(--red); font-weight: 900; text-transform: uppercase;
+        letter-spacing: 0.12em; font-size: 0.85rem; margin-bottom: 1rem;
+    }
+    section.calc h2 {
+        font-weight: 900; letter-spacing: -0.02em;
+        font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+        text-transform: uppercase; line-height: 1; margin-bottom: 2rem;
+    }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .field label {
+        display: block; font-size: 0.8rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--muted); margin-bottom: 0.5rem;
+    }
+    .field input {
+        width: 100%; background: transparent; border: 0;
+        border-bottom: 2px solid var(--line);
+        color: var(--white);
+        font-size: 2rem; font-weight: 700; padding: 0.5rem 0;
+        font-family: inherit; outline: none;
+        transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: var(--red); }
+
+    .result {
+        border: 2px solid var(--red);
+        padding: 2rem;
+        background: rgba(217, 30, 24, 0.05);
+    }
+    .result .label {
+        color: var(--muted); font-size: 0.8rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;
+    }
+    .result .big {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 900; letter-spacing: -0.03em; color: var(--red);
+        line-height: 1;
+    }
+    .result .note {
+        margin-top: 1rem; color: var(--white); opacity: 0.85;
+        font-size: 1rem; line-height: 1.45;
+    }
+    .result .note strong { color: var(--red); }
+
+    /* --- SIGNUP --- */
+    section.signup {
+        padding: 4rem 2rem;
+        background: var(--red);
+        color: var(--white);
+    }
+    section.signup .inner { max-width: 960px; margin: 0 auto; }
+    section.signup h2 {
+        font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
+        font-size: clamp(2rem, 5vw, 3.5rem); line-height: 0.95;
+        margin-bottom: 0.75rem;
+    }
+    section.signup p.lede {
+        font-size: 1.1rem; max-width: 52ch; margin-bottom: 2rem; opacity: 0.95;
+    }
+    form.cap {
+        display: flex; gap: 0.75rem; max-width: 540px; flex-wrap: wrap;
+    }
+    form.cap input[type=email] {
+        flex: 1 1 260px; background: var(--black);
+        border: 0; color: var(--white);
+        font: inherit; font-size: 1rem; padding: 1rem 1.25rem;
+        min-width: 0;
+    }
+    form.cap input[type=email]::placeholder { color: var(--muted); }
+    form.cap button {
+        background: var(--black); color: var(--white);
+        border: 0; font: inherit; font-weight: 900;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        padding: 1rem 1.5rem; cursor: pointer;
+        transition: background 0.15s;
+    }
+    form.cap button:hover { background: var(--ink); }
+    form.cap button:disabled { opacity: 0.5; cursor: wait; }
+    .msg { margin-top: 1rem; font-weight: 700; }
+    .msg.ok { color: var(--black); }
+    .msg.err { color: var(--black); background: var(--white); display: inline-block; padding: 0.4rem 0.75rem; }
+
+    /* --- HOW IT WORKS --- */
+    section.how {
+        padding: 4rem 2rem; max-width: 960px; margin: 0 auto;
+    }
+    section.how h2 {
+        font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
+        font-size: clamp(1.75rem, 3.5vw, 2.5rem); margin-bottom: 2rem;
+    }
+    .steps {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .step {
+        border-top: 4px solid var(--red); padding-top: 1.25rem;
+    }
+    .step .n {
+        font-weight: 900; font-size: 2.5rem; color: var(--red);
+        letter-spacing: -0.03em; line-height: 1;
+    }
+    .step h3 {
+        font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
+        letter-spacing: 0.02em; margin: 0.5rem 0 0.5rem;
+    }
+    .step p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+
+    footer {
+        padding: 2.5rem 2rem; border-top: 1px solid var(--line);
+        color: var(--muted); font-size: 0.85rem;
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+
+    @media (max-width: 720px) {
+        .hero { grid-template-columns: 1fr; }
+        .hero .right { padding: 2rem; min-height: 240px; }
+        .calc-grid { grid-template-columns: 1fr; }
+        .steps { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<nav class="top">
+    <a href="/" class="brand">HowToCookAtHome<span class="dot">.</span></a>
+    <a href="/" class="home">Home</a>
+</nav>
+
+<section class="hero">
+    <div class="left">
+        <h1>Cook&nbsp;more.<br><span class="red">Tip&nbsp;better.</span></h1>
+        <p class="sub">A few meals at home this week = real cash in your pocket. Send it back to the people who feed you — bigger tips, more generous nights out, showing up for your spots.</p>
+    </div>
+    <div class="right" aria-hidden="true">
+        <!-- visual echo of the QR on the sticker -->
+        <div class="qr-echo">
+            <i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i class="b"></i><i></i><i></i><i></i><i></i>
+            <i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i>
+            <i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i>
+            <i></i><i></i><i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i>
+            <i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i class="b"></i>
+            <i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i>
+            <i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i>
+            <i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i>
+            <i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i>
+            <i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+    </div>
+</section>
+
+<section class="calc">
+    <div class="kicker">The cook-at-home dividend</div>
+    <h2>Crunch your numbers.</h2>
+    <div class="calc-grid">
+        <div class="field">
+            <label for="eatout">Avg. dinner out ($)</label>
+            <input id="eatout" type="number" inputmode="decimal" value="22" min="0" step="1">
+        </div>
+        <div class="field">
+            <label for="cookhome">Avg. dinner at home ($)</label>
+            <input id="cookhome" type="number" inputmode="decimal" value="6" min="0" step="1">
+        </div>
+        <div class="field">
+            <label for="meals">Meals you'll swap this week</label>
+            <input id="meals" type="number" inputmode="numeric" value="3" min="0" step="1">
+        </div>
+        <div class="field">
+            <label for="tippct">Tip you want to leave (%)</label>
+            <input id="tippct" type="number" inputmode="numeric" value="30" min="0" max="100" step="1">
+        </div>
+    </div>
+    <div class="result">
+        <div class="label">Your weekly dividend</div>
+        <div class="big" id="saving">$48</div>
+        <div class="note" id="note">That's a <strong>30% tip on a $160 dinner</strong>, or four <strong>20% tips</strong> on $20 rounds. Spent once. Felt all week.</div>
+    </div>
+</section>
+
+<section class="signup">
+    <div class="inner">
+        <h2>Get the weekly drop.</h2>
+        <p class="lede">One email per week. What to cook, what you saved, one spot to go be generous at. No gimmicks, no tracking, unsubscribe any time.</p>
+        <form class="cap" id="sub">
+            <input type="email" name="email" placeholder="you@wherever.com" required>
+            <button type="submit">Sign me up</button>
+        </form>
+        <div class="msg" id="msg" aria-live="polite"></div>
+    </div>
+</section>
+
+<section class="how">
+    <h2>How it works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="n">01</div>
+            <h3>Cook 2–4 meals</h3>
+            <p>We send a simple plan each Sunday — ingredients, cost, what to prep. Built for busy, not bougie.</p>
+        </div>
+        <div class="step">
+            <div class="n">02</div>
+            <h3>Bank the difference</h3>
+            <p>Every swap from $20 out to $6 home stacks up fast. Track it in the email or just feel it in your checking account.</p>
+        </div>
+        <div class="step">
+            <div class="n">03</div>
+            <h3>Tip like royalty</h3>
+            <p>One night that week, go out and leave a tip that means something. Be the regular your favorite spot tells stories about.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div>© HowToCookAtHome</div>
+    <div><a href="/">howtocookathome.com</a> · <a href="/next-show">fund your next show</a></div>
+</footer>
+
+<script>
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => "$" + Math.round(n).toLocaleString();
+
+    function recalc() {
+        const out = parseFloat($("eatout").value) || 0;
+        const home = parseFloat($("cookhome").value) || 0;
+        const meals = parseInt($("meals").value) || 0;
+        const tip = parseFloat($("tippct").value) || 0;
+        const saving = Math.max(0, (out - home) * meals);
+        $("saving").textContent = fmt(saving);
+        // reverse the tip: how big a check does the weekly saving cover at the given %?
+        const checkCovered = tip > 0 ? (saving / (tip / 100)) : 0;
+        $("note").innerHTML = saving > 0
+            ? `That's a <strong>${tip}% tip on a ${fmt(checkCovered)} dinner</strong>. Same money, way better night.`
+            : `Type real numbers and watch your dividend grow.`;
+        window.__saving = saving;
+    }
+    ["eatout","cookhome","meals","tippct"].forEach(id => $(id).addEventListener("input", recalc));
+    recalc();
+
+    $("sub").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector("button");
+        const email = e.target.email.value.trim();
+        const msg = $("msg");
+        msg.className = "msg"; msg.textContent = "";
+        btn.disabled = true;
+        try {
+            const r = await fetch("/api/subscribe", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    email, bucket: "patron",
+                    weekly_saving: window.__saving || 0,
+                    source: "tip-better"
+                })
+            });
+            const data = await r.json();
+            if (data.ok) {
+                msg.className = "msg ok";
+                msg.textContent = "You're in. First drop this Sunday.";
+                e.target.reset();
+            } else {
+                msg.className = "msg err";
+                msg.textContent = data.error || "Something went sideways. Try again?";
+            }
+        } catch (err) {
+            msg.className = "msg err";
+            msg.textContent = "Network hiccup. Try again in a sec.";
+        } finally {
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>

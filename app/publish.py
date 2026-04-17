@@ -789,6 +789,17 @@ def build_platform_pages(tenants, usda):
     with open(os.path.join(web_dir, "restaurants.html"), "w") as outf:
         outf.write(html)
 
+    # Copy static landing pages (tip-better, next-show, index, etc.)
+    import shutil
+    static_web = os.path.join(BASE_DIR, "static", "web")
+    if os.path.isdir(static_web):
+        count = 0
+        for fname in os.listdir(static_web):
+            if fname.endswith(".html"):
+                shutil.copy2(os.path.join(static_web, fname), os.path.join(web_dir, fname))
+                count += 1
+        return 1 + count
+
     return 1  # number of pages generated
 
 

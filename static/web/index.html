@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HowToCookAtHome — Learn to Cook with Confidence</title>
+    <meta name="description" content="Step-by-step cooking tutorials for complete beginners. Every episode answers a real search query. No fluff, no gimmicks.">
+
+    
+    <style>
+        :root {
+            --color-primary: #1A1A2E;
+            --color-accent: #C4975A;
+            --color-bg: #F5F0E8;
+            --color-surface: #FFFFFF;
+            --color-text: #333333;
+            --color-text-light: #666666;
+            --color-success: #2D6A4F;
+            --font-heading: Georgia, &#39;Times New Roman&#39;, serif;
+            --font-body: Arial, Helvetica, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background: var(--color-bg);
+            line-height: 1.6;
+        }
+
+        /* --- NAV --- */
+        nav {
+            background: var(--color-primary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav .brand {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            font-size: 1.3rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav .links { display: flex; gap: 1.5rem; }
+        nav .links a {
+            color: var(--color-bg);
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+        nav .links a:hover { opacity: 1; }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+        .wide-container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+        /* --- HERO --- */
+        .hero {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+        }
+        .hero p {
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        .hero .cta {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* --- SECTIONS --- */
+        section { padding: 3rem 0; }
+        section h2 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        /* --- EPISODE GRID --- */
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .episode-card {
+            background: var(--color-surface);
+            border: 1px solid #ddd;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .episode-card:hover {
+            border-color: var(--color-accent);
+        }
+        .episode-card .ep-number {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .episode-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: var(--color-primary);
+        }
+        .episode-card .hook {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            font-style: italic;
+        }
+        .episode-card .meta {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--color-text-light);
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* --- EPISODE LIST (compact) --- */
+        .episode-list { list-style: none; }
+        .episode-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+        .episode-list .num {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+            font-size: 0.85rem;
+            min-width: 2rem;
+        }
+        .episode-list a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .episode-list a:hover { color: var(--color-accent); }
+        .episode-list .diff {
+            margin-left: auto;
+            font-size: 0.85rem;
+        }
+
+        /* --- SUBSCRIBE BLOCK --- */
+        .subscribe {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .subscribe h2 {
+            font-family: var(--font-heading);
+            color: var(--color-accent);
+        }
+        .subscribe p {
+            max-width: 500px;
+            margin: 0.75rem auto 1.5rem;
+            opacity: 0.85;
+        }
+        .subscribe form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .subscribe input[type="email"] {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: none;
+            font-size: 1rem;
+            font-family: var(--font-body);
+        }
+        .subscribe button {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        /* --- RECIPE PAGE --- */
+        .recipe-header {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 3rem 2rem;
+        }
+        .recipe-header .ep-label {
+            color: var(--color-accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .recipe-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            margin: 0.5rem 0;
+            color: var(--color-bg);
+        }
+        .recipe-header .hook-text {
+            font-style: italic;
+            opacity: 0.85;
+            font-size: 1.1rem;
+        }
+        .recipe-body { padding: 2rem; max-width: 720px; margin: 0 auto; }
+        .recipe-body h2 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--color-primary);
+            margin: 2rem 0 0.75rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--color-accent);
+        }
+        .recipe-body p { margin-bottom: 1rem; }
+        .recipe-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .meta-item {
+            background: var(--color-surface);
+            border: 1px solid #ddd;
+            padding: 1rem;
+            text-align: center;
+        }
+        .meta-item .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--color-text-light);
+            letter-spacing: 0.05em;
+        }
+        .meta-item .value {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            color: var(--color-primary);
+            margin-top: 0.25rem;
+        }
+
+        /* --- NAV BETWEEN EPISODES --- */
+        .episode-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ddd;
+        }
+        .episode-nav a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .episode-nav a:hover { text-decoration: underline; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        footer a { color: var(--color-accent); text-decoration: none; }
+
+        /* --- SEO KEYWORDS (hidden, for reference) --- */
+        .seo-keywords { display: none; }
+    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* === Design system upgrade === */
+:root {
+  --color-primary: #1A1A2E;
+  --color-accent: #C4975A;
+  --color-bg: #FFFBF5;
+  --color-surface: #FFFFFF;
+  --color-text: #1C1917;
+  --color-text-light: #57534E;
+  --color-success: #2D6A4F;
+  --font-heading: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 16px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  line-height: 1.7;
+  background: var(--color-bg);
+}
+h1,h2,h3,h4 { letter-spacing: -0.02em; line-height: 1.25; }
+a { transition: color var(--transition); }
+::selection { background: var(--color-accent); color: white; }
+
+/* Upgraded nav */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+}
+nav .links a {
+  transition: all var(--transition);
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+nav .links a:hover {
+  opacity: 1;
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* Upgraded cards */
+.episode-card {
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.episode-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(0,0,0,0.04);
+}
+
+/* Upgraded hero */
+.hero { padding: 5rem 2rem 4rem; }
+.hero h1 { font-size: 2.6rem; letter-spacing: -0.03em; font-weight: 700; }
+.hero .cta {
+  border-radius: 8px;
+  transition: opacity var(--transition);
+}
+.hero .cta:hover { opacity: 0.9; }
+
+/* Upgraded footer */
+footer {
+  padding: 2.5rem 2rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+
+/* Recipe page upgrades */
+.recipe-header { padding: 4rem 2rem; }
+.recipe-header h1 { font-size: 2.2rem; letter-spacing: -0.03em; }
+.meta-item {
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Subscribe block */
+.subscribe { padding: 4rem 2rem; }
+.subscribe button { border-radius: 6px; transition: opacity var(--transition); }
+.subscribe button:hover { opacity: 0.9; }
+.subscribe input[type="email"] { border-radius: 6px 0 0 6px; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.8rem; }
+  .hero { padding: 3rem 1.5rem 2.5rem; }
+  nav { padding: 0.75rem 1rem; }
+  nav .links { gap: 0.8rem; }
+  nav .links a { font-size: 0.75rem; }
+}
+</style>
+
+</head>
+<body>
+
+
+<nav>
+    <a href="index.html" class="brand">HowToCookAtHome</a>
+    <div class="links">
+        
+        <a href="episodes.html">Episodes</a>
+        
+        <a href="#recipes">Recipes</a>
+        
+        <a href="/restaurants">Restaurants</a>
+        <a href="/about">About</a>
+        
+        <a href="/onboard">Get Your Site</a>
+        
+    </div>
+</nav>
+
+
+
+
+<div class="hero">
+    <h1>Learn to cook. For real this time.</h1>
+    <p>30 episodes. From boiling water to cooking without a recipe. No culinary school required.</p>
+    <a href="recipe_how-to-boil-water.html" class="cta">Start with Episode 1</a>
+</div>
+
+
+<div class="wide-container">
+    <section>
+        <h2>Start Here</h2>
+        <div class="episode-grid">
+            
+            <a href="recipe_how-to-boil-water.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Boil Water (Yes, Really)</h3>
+                <p class="hook">You&#39;ve been boiling water wrong.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>3 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+            <a href="recipe_how-to-hold-a-knife.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Hold a Kitchen Knife Safely</h3>
+                <p class="hook">This grip will change everything.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>2 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+            <a href="recipe_how-to-dice-an-onion.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Dice an Onion Without Crying</h3>
+                <p class="hook">Here&#39;s the trick no one tells you.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>3 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+            <a href="recipe_how-to-make-rice.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Make Perfect Rice Every Time</h3>
+                <p class="hook">Throw away your rice cooker instructions.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>5 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+            <a href="recipe_how-to-scramble-eggs.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Scramble Eggs Like a Chef</h3>
+                <p class="hook">Low and slow. That&#39;s it.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>3 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+            <a href="recipe_how-to-season-food.html" class="episode-card">
+                <span class="ep-number">Episode </span>
+                <h3>How to Season Food (The #1 Beginner Mistake)</h3>
+                <p class="hook">If your food tastes bland, this is why.</p>
+                <div class="meta">
+                    <span>★☆☆</span>
+                    <span>4 min</span>
+                    <span>Short</span>
+                </div>
+            </a>
+            
+        </div>
+    </section>
+
+    
+    
+    <section>
+        <h2>Recipes</h2>
+        <div class="episode-grid">
+            
+            <a href="r_abuelas-chicken-tinga.html" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">mexican</span>
+                <h3>Abuela&#39;s Chicken Tinga</h3>
+                <div class="meta">
+                    <span>10 ingredients</span>
+                    <span>3 techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            
+            <a href="r_cacio-e-pepe.html" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">italian</span>
+                <h3>Cacio e Pepe</h3>
+                <div class="meta">
+                    <span>4 ingredients</span>
+                    <span>1 techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            
+            <a href="r_oyakodon-parent-child-rice-bowl.html" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">japanese</span>
+                <h3>Oyakodon (Parent-Child Rice Bowl)</h3>
+                <div class="meta">
+                    <span>9 ingredients</span>
+                    <span>1 techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            
+            <a href="r_oyakodon.html" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">japanese</span>
+                <h3>Oyakodon</h3>
+                <div class="meta">
+                    <span>9 ingredients</span>
+                    <span>1 techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            
+            <a href="r_thai-green-curry.html" class="episode-card">
+                <span class="ep-number" style="color: var(--color-success);">thai</span>
+                <h3>Thai Green Curry</h3>
+                <div class="meta">
+                    <span>10 ingredients</span>
+                    <span>0 techniques</span>
+                    <span style="color: var(--color-success);">USDA-enriched</span>
+                </div>
+            </a>
+            
+        </div>
+    </section>
+    
+
+    
+    <section>
+        <h2>Season 1 — All 30 Episodes</h2>
+        <ul class="episode-list">
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-boil-water.html">How to Boil Water (Yes, Really)</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-hold-a-knife.html">How to Hold a Kitchen Knife Safely</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-dice-an-onion.html">How to Dice an Onion Without Crying</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-rice.html">How to Make Perfect Rice Every Time</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-scramble-eggs.html">How to Scramble Eggs Like a Chef</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-season-food.html">How to Season Food (The #1 Beginner Mistake)</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-pasta.html">How to Cook Pasta That Doesn&#39;t Suck</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-sear-meat.html">How to Sear Meat Without Ruining It</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-read-a-recipe.html">How to Read a Recipe (Like a Pro)</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-roast-vegetables.html">How to Roast Vegetables That Actually Taste Good</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-pan-sauce.html">How to Make a Pan Sauce in 5 Minutes</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-chicken-breast.html">How to Cook Chicken Breast That Isn&#39;t Dry</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-soup.html">How to Make Soup From Literally Anything</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-steak.html">How to Cook Steak at Home (Better Than a Restaurant)</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-a-salad.html">How to Make a Salad You Actually Want to Eat</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-saute.html">How to Sauté Like You Know What You&#39;re Doing</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-fried-rice.html">How to Make Fried Rice (Better Than Takeout)</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-bake.html">How to Bake Without Fear</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-fish.html">How to Cook Fish Without Stinking Up Your House</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-stir-fry.html">How to Make a Stir Fry in Under 10 Minutes</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-braise.html">How to Braise (The Set-It-and-Forget-It Method)</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-meal-prep.html">How to Meal Prep Without Hating Your Life</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-eggs.html">How to Cook Eggs 7 Ways</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-pasta.html">How to Make Homemade Pasta (It&#39;s Easier Than You Think)</a>
+                <span class="diff">★★★</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-grill.html">How to Grill (Even If You&#39;ve Never Touched a Grill)</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-roast-chicken.html">How to Roast a Whole Chicken (The One Recipe Everyone Needs)</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-make-bread.html">How to Make Bread With No Experience</a>
+                <span class="diff">★★★</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-build-a-pantry.html">How to Build a Pantry That Cooks for You</a>
+                <span class="diff">★☆☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-taste-like-a-chef.html">How to Taste Like a Chef</a>
+                <span class="diff">★★☆</span>
+            </li>
+            
+            <li>
+                <span class="num"></span>
+                <a href="recipe_how-to-cook-without-a-recipe.html">How to Cook Without a Recipe</a>
+                <span class="diff">★★★</span>
+            </li>
+            
+        </ul>
+    </section>
+</div>
+
+
+<div class="subscribe" id="subscribe">
+    <h2>New episode every week.</h2>
+    <p>Join the list. We&#39;ll send you one new technique every week — no spam, no fluff.</p>
+    <form action="/api/subscribe" method="POST">
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <button type="submit">Subscribe</button>
+    </form>
+</div>
+
+
+
+
+<footer>
+    &copy; 2026 HowToCookAtHome.
+    Built by <a href="https://death2data.com">Death2Data</a>.
+</footer>
+
+</body>
+</html>
