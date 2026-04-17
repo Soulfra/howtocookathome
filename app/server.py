@@ -24,6 +24,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import sys; sys.path.insert(0, BASE_DIR)
 from app.onboard import process_onboard
 from app.cookbook import build_cookbook
+from app.checkout import (
+    create_library_checkout, create_tier_checkout,
+    handle_webhook, verify_webhook_signature,
+    verify_download_token, get_checkout_status,
+)
 WEB_DIR = os.path.join(BASE_DIR, "output", "web")
 API_DIR = os.path.join(BASE_DIR, "output", "api")
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
@@ -49,6 +54,43 @@ RESERVED_SLUGS = {
     "ns1", "ns2", "mx", "spf", "dkim", "dmarc", "autoconfig", "autodiscover",
     "platform", "htcah", "howtocookathome",
 }
+
+
+def _unsubscribe_html(result):
+    """Tiny branded HTML page confirming unsubscribe. result is dict from
+    DB.unsubscribe_by_token(). We don't expose whether the token was valid
+    vs already-used — that's a small privacy property."""
+    count = int(result.get("count", 0)) if result.get("ok") else 0
+    if count > 0:
+        msg_h = "You're unsubscribed."
+        msg_p = ("We pulled your email from the weekly drop. "
+                 "No more yap. No more emails.")
+    else:
+        msg_h = "All set."
+        msg_p = ("That link has already been used, or never was active. "
+                 "Either way — you're not on the list.")
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsubscribed | HowToCookAtHome</title>
+<style>
+html,body{{background:#000;color:#fff;margin:0;padding:0;min-height:100vh;
+font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+display:flex;align-items:center;justify-content:center;}}
+.card{{max-width:520px;padding:3rem 2rem;text-align:left;}}
+h1{{font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;
+font-size:clamp(2rem,6vw,3.25rem);line-height:1;margin:0 0 1rem;}}
+h1 .r{{color:#D91E18;}}
+p{{font-size:1.05rem;line-height:1.5;opacity:0.88;}}
+a{{color:#D91E18;text-decoration:none;font-weight:700;}}
+a:hover{{text-decoration:underline;}}
+.tag{{margin-top:2rem;font-size:0.85rem;color:#8A8A8A;}}
+</style></head><body>
+<div class="card">
+<h1>{msg_h.replace("unsubscribed.", "<span class='r'>unsubscribed.</span>")}</h1>
+<p>{msg_p}</p>
+<p class="tag">Changed your mind? <a href="/tip-better">Tip better</a> or <a href="/next-show">fund your next show</a>.</p>
+</div></body></html>"""
 
 
 def _extract_tenant_from_host(host_header):
@@ -114,6 +156,22 @@ class HTCAHHandler(SimpleHTTPRequestHandler):
             self._serve_tenant(tenant_slug, tenant_path)
             return
 
+        # --- Unsubscribe: GET /unsubscribe/<token> ---
+        if path.startswith("/unsubscribe/") and len(path) > len("/unsubscribe/"):
+            token = path[len("/unsubscribe/"):]
+            from app.db import DB
+            db = DB()
+            res = db.unsubscribe_by_token(token)
+            db.close()
+            body = _unsubscribe_html(res).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            for k, v in SECURITY_HEADERS.items():
+                self.send_header(k, v)
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
         # --- Live API: slug availability check ---
         if path == "/api/check-slug":
             from urllib.parse import parse_qs
@@ -139,6 +197,62 @@ class HTCAHHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(response)
             except Exception as e:
                 self._json_error(500, str(e))
+            return
+
+        # --- Checkout routes (dev server) ---
+        if path == "/api/checkout":
+            from urllib.parse import parse_qs
+            qs = parse_qs(urlparse(self.path).query)
+            product = qs.get("product", [""])[0]
+            email = qs.get("email", [""])[0] or None
+            if product == "library":
+                result = create_library_checkout(customer_email=email)
+            elif product in ("sprout", "harvest"):
+                result = create_tier_checkout(product, customer_email=email)
+            else:
+                self._json_error(400, "product must be library, sprout, or harvest")
+                return
+            if "error" in result:
+                self._json_error(400, result["error"])
+                return
+            self.send_response(303)
+            self.send_header("Location", result["url"])
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            return
+
+        if path == "/api/checkout/status":
+            result = get_checkout_status()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(result).encode())
+            return
+
+        if path.startswith("/dl/"):
+            token = path[4:]
+            valid, info = verify_download_token(token)
+            if not valid:
+                self._json_error(403, info.get("error", "Invalid token"))
+                return
+            product = info.get("product", "library")
+            library_file = os.path.join(BASE_DIR, "downloads", f"{product}.zip")
+            if not os.path.isfile(library_file):
+                library_file = os.path.join(BASE_DIR, "docs", f"{product}.zip")
+            if not os.path.isfile(library_file):
+                self._json_error(404, "Download file not found. Contact support.")
+                return
+            self._serve_file(library_file, "application/zip")
+            return
+
+        if path in ("/checkout/success", "/checkout/cancel"):
+            msg = "Thank you! Check your email for the download link." if "success" in path else "Checkout cancelled. You weren't charged."
+            body = f"<html><body style='font-family:Arial;max-width:600px;margin:80px auto;text-align:center'><h1>{msg}</h1><p><a href='/'>Back to HowToCookAtHome</a></p></body></html>".encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(body)
             return
 
         # --- Platform pages (served from templates/, not pre-rendered) ---
@@ -267,6 +381,24 @@ class HTCAHHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         path = unquote(urlparse(self.path).path)
 
+        if path == "/api/webhook":
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+            sig = self.headers.get("Stripe-Signature", "")
+            if not verify_webhook_signature(body.decode(), sig):
+                self._json_error(401, "Invalid signature")
+                return
+            try:
+                event = json.loads(body)
+                result = handle_webhook(event)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
+            except Exception as e:
+                self._json_error(500, str(e))
+            return
+
         if path == "/api/onboard":
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length)
@@ -283,8 +415,43 @@ class HTCAHHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(response)
             except Exception as e:
                 self._json_error(500, str(e))
-        else:
-            self._json_error(404, "Not found")
+            return
+
+        if path == "/api/subscribe":
+            content_length = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(content_length) if content_length else b"{}"
+            try:
+                ctype_in = self.headers.get("Content-Type", "")
+                if "application/json" in ctype_in:
+                    data = json.loads(body.decode("utf-8") or "{}")
+                else:
+                    from urllib.parse import parse_qs
+                    parsed = parse_qs(body.decode("utf-8"))
+                    data = {k: v[0] for k, v in parsed.items()}
+                from app.db import DB
+                db = DB()
+                result = db.add_subscriber(
+                    email=data.get("email", ""),
+                    bucket=data.get("bucket", ""),
+                    goal=data.get("goal", ""),
+                    weekly_saving=data.get("weekly_saving", 0),
+                    source=data.get("source", ""),
+                )
+                db.close()
+                status = 200 if result.get("ok") else 400
+                response = json.dumps(result).encode()
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                for k, v in SECURITY_HEADERS.items():
+                    self.send_header(k, v)
+                self.end_headers()
+                self.wfile.write(response)
+            except Exception as e:
+                self._json_error(500, str(e))
+            return
+
+        self._json_error(404, "Not found")
 
     def _serve_tenant(self, tenant_slug, sub_path=""):
         """Serve a tenant page — works for both subdomain and /t/<slug>/ routing."""
@@ -475,8 +642,189 @@ def app(environ, start_response):
             start_response("500 Internal Server Error", h)
             return [json.dumps({"error": str(e)}).encode()]
 
-    # --- POST /api/onboard ---
+    # --- Checkout routes ---
     method = environ.get("REQUEST_METHOD", "GET")
+    query_string = query_string or environ.get("QUERY_STRING", "")
+
+    # GET /api/checkout?product=library|sprout|harvest[&email=...]
+    if method == "GET" and path == "/api/checkout":
+        from urllib.parse import parse_qs
+        qs = parse_qs(query_string)
+        product = qs.get("product", [""])[0]
+        email = qs.get("email", [""])[0] or None
+
+        if product == "library":
+            result = create_library_checkout(customer_email=email)
+        elif product in ("sprout", "harvest"):
+            result = create_tier_checkout(product, customer_email=email)
+        else:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("400 Bad Request", h)
+            return [json.dumps({"error": "product must be library, sprout, or harvest"}).encode()]
+
+        if "error" in result:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("400 Bad Request", h)
+            return [json.dumps(result).encode()]
+
+        # Redirect to Stripe Checkout
+        h = list(headers)
+        h.append(("Location", result["url"]))
+        h.append(("Content-Type", "application/json"))
+        start_response("303 See Other", h)
+        return [json.dumps(result).encode()]
+
+    # GET /api/checkout/status — system health
+    if method == "GET" and path == "/api/checkout/status":
+        result = get_checkout_status()
+        h = list(headers)
+        h.append(("Content-Type", "application/json"))
+        start_response("200 OK", h)
+        return [json.dumps(result).encode()]
+
+    # POST /api/webhook — Stripe webhook receiver
+    if method == "POST" and path == "/api/webhook":
+        try:
+            content_length = int(environ.get("CONTENT_LENGTH", 0))
+            body = environ["wsgi.input"].read(content_length)
+            sig = environ.get("HTTP_STRIPE_SIGNATURE", "")
+
+            # Verify signature
+            if not verify_webhook_signature(body.decode(), sig):
+                h = list(headers)
+                h.append(("Content-Type", "application/json"))
+                start_response("401 Unauthorized", h)
+                return [json.dumps({"error": "Invalid signature"}).encode()]
+
+            event = json.loads(body)
+            result = handle_webhook(event)
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("200 OK", h)
+            return [json.dumps(result).encode()]
+        except Exception as e:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("500 Internal Server Error", h)
+            return [json.dumps({"error": str(e)}).encode()]
+
+    # GET /dl/<token> — Token-based download
+    if method == "GET" and path.startswith("/dl/"):
+        token = path[4:]
+        valid, info = verify_download_token(token)
+        if not valid:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("403 Forbidden", h)
+            return [json.dumps(info).encode()]
+
+        # Serve the library ZIP/PDF based on product
+        product = info.get("product", "library")
+        # Look for library files in docs/ or a dedicated downloads/ dir
+        library_dir = os.path.join(BASE_DIR, "downloads")
+        os.makedirs(library_dir, exist_ok=True)
+        library_file = os.path.join(library_dir, f"{product}.zip")
+        if not os.path.isfile(library_file):
+            # Fallback: check docs/
+            library_file = os.path.join(BASE_DIR, "docs", f"{product}.zip")
+        if not os.path.isfile(library_file):
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("404 Not Found", h)
+            return [json.dumps({"error": f"Download file not found. Contact support.", "uses_remaining": info.get("uses_remaining")}).encode()]
+
+        with open(library_file, "rb") as f:
+            content = f.read()
+        h = list(headers)
+        h.append(("Content-Type", "application/zip"))
+        h.append(("Content-Length", str(len(content))))
+        h.append(("Content-Disposition", f'attachment; filename="howtocookathome-{product}.zip"'))
+        start_response("200 OK", h)
+        return [content]
+
+    # GET /checkout/success — Thank you page
+    if method == "GET" and path == "/checkout/success":
+        body = b"""<!DOCTYPE html>
+<html><head><title>Thank You | HowToCookAtHome</title>
+<style>body{font-family:Arial,sans-serif;max-width:600px;margin:80px auto;text-align:center;color:#333}
+h1{color:#2D6A4F}a{color:#C4975A}</style></head>
+<body><h1>Thank you!</h1>
+<p>Your purchase is confirmed. Check your email for the download link.</p>
+<p>If you don't see it within a few minutes, check your spam folder.</p>
+<p><a href="/">Back to HowToCookAtHome</a></p>
+</body></html>"""
+        h = list(headers)
+        h.append(("Content-Type", "text/html; charset=utf-8"))
+        start_response("200 OK", h)
+        return [body]
+
+    # GET /checkout/cancel — Cancelled page
+    if method == "GET" and path == "/checkout/cancel":
+        body = b"""<!DOCTYPE html>
+<html><head><title>Checkout Cancelled | HowToCookAtHome</title>
+<style>body{font-family:Arial,sans-serif;max-width:600px;margin:80px auto;text-align:center;color:#333}
+a{color:#C4975A}</style></head>
+<body><h1>Checkout cancelled</h1>
+<p>No worries. You weren't charged.</p>
+<p><a href="/">Back to HowToCookAtHome</a></p>
+</body></html>"""
+        h = list(headers)
+        h.append(("Content-Type", "text/html; charset=utf-8"))
+        start_response("200 OK", h)
+        return [body]
+
+    # --- GET /unsubscribe/<token> ---
+    if method == "GET" and path.startswith("/unsubscribe/") and len(path) > len("/unsubscribe/"):
+        token = path[len("/unsubscribe/"):]
+        from app.db import DB
+        db = DB()
+        res = db.unsubscribe_by_token(token)
+        db.close()
+        body = _unsubscribe_html(res).encode("utf-8")
+        h = list(headers)
+        h.append(("Content-Type", "text/html; charset=utf-8"))
+        start_response("200 OK", h)
+        return [body]
+
+    # --- POST /api/subscribe ---
+    # Captures email signups from /tip-better and /next-show landing pages.
+    # Body: {"email": "...", "bucket": "patron"|"experience", "goal": "...", "weekly_saving": 47}
+    if method == "POST" and path == "/api/subscribe":
+        try:
+            content_length = int(environ.get("CONTENT_LENGTH", 0) or 0)
+            raw = environ["wsgi.input"].read(content_length) if content_length else b"{}"
+            ctype_in = environ.get("CONTENT_TYPE", "")
+            if "application/json" in ctype_in:
+                data = json.loads(raw.decode("utf-8") or "{}")
+            else:
+                from urllib.parse import parse_qs
+                parsed = parse_qs(raw.decode("utf-8"))
+                data = {k: v[0] for k, v in parsed.items()}
+            from app.db import DB
+            db = DB()
+            result = db.add_subscriber(
+                email=data.get("email", ""),
+                bucket=data.get("bucket", ""),
+                goal=data.get("goal", ""),
+                weekly_saving=data.get("weekly_saving", 0),
+                source=data.get("source", ""),
+            )
+            db.close()
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            h.append(("Access-Control-Allow-Origin", "*"))
+            status = "200 OK" if result.get("ok") else "400 Bad Request"
+            start_response(status, h)
+            return [json.dumps(result).encode()]
+        except Exception as e:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("500 Internal Server Error", h)
+            return [json.dumps({"ok": False, "error": str(e)}).encode()]
+
+    # --- POST /api/onboard ---
     if method == "POST" and path == "/api/onboard":
         try:
             content_length = int(environ.get("CONTENT_LENGTH", 0))
@@ -547,16 +895,119 @@ def app(environ, start_response):
     return serve(filepath, ctype) if filepath else not_found()
 
 
+def _load_identity():
+    """Load identity.yaml — the mise en place for the whole platform."""
+    import yaml
+    identity_path = os.path.join(BASE_DIR, "content", "identity.yaml")
+    if os.path.isfile(identity_path):
+        with open(identity_path) as f:
+            return yaml.safe_load(f)
+    return {}
+
+
+def _cli_version(identity):
+    v = identity.get("version", "unknown")
+    codename = identity.get("codename", "")
+    dba = identity.get("entity", {}).get("dba", "HowToCookAtHome")
+    owner = identity.get("entity", {}).get("owner", "")
+    entity = identity.get("entity", {}).get("name", "")
+    print(f"\n  {dba} v{v} ({codename})")
+    print(f"  {owner} — {entity}")
+    print(f"  Type --help for commands, --license for terms, --credits for attribution.\n")
+
+
+def _cli_license(identity):
+    lics = identity.get("licenses", {})
+    print(f"\n  Licenses")
+    print(f"  ========")
+    for key in ("code", "content", "service", "data"):
+        lic = lics.get(key, {})
+        if not lic:
+            continue
+        print(f"  {key.title():10s} {lic.get('type', 'unknown'):25s} ({lic.get('spdx', '')})")
+        applies = lic.get("applies_to", "")
+        if applies:
+            print(f"             Applies to: {applies}")
+        summary = lic.get("summary", "").strip().split("\n")[0]
+        print(f"             {summary}")
+    print()
+
+
+def _cli_credits(identity):
+    print(f"\n  Credits")
+    print(f"  =======")
+    founder = identity.get("credits", {}).get("founder", {})
+    if founder:
+        print(f"  Founder:  {founder.get('name', '')} ({founder.get('role', '')})")
+    for collab in identity.get("credits", {}).get("collaborators", []):
+        status = f" [{collab.get('status', '')}]" if collab.get("status") else ""
+        print(f"  Collab:   {collab.get('name', '')}{status}")
+    for ai in identity.get("credits", {}).get("ai_tools", []):
+        print(f"  AI:       {ai.get('name', '')} — {ai.get('role', '')}")
+    for ds in identity.get("credits", {}).get("data_sources", []):
+        print(f"  Data:     {ds.get('name', '')} ({ds.get('license', '')})")
+    print()
+
+
+def _cli_help(identity):
+    dba = identity.get("entity", {}).get("dba", "HowToCookAtHome")
+    v = identity.get("version", "?")
+    print(f"\n  {dba} v{v}")
+    print(f"  {'='*40}")
+    print(f"  Usage: python3 -m app.<module> [options]\n")
+    commands = identity.get("cli", {}).get("commands", {})
+    for name, cmd in commands.items():
+        desc = cmd.get("description", "")
+        usage = cmd.get("usage", "")
+        print(f"  {name:12s} {desc}")
+        if usage:
+            print(f"  {'':12s} $ {usage}")
+    contact = identity.get("contact", {})
+    print(f"\n  Website:  {contact.get('website', '')}")
+    print(f"  GitHub:   {contact.get('github', '')}")
+    print(f"  Support:  {contact.get('support', '')}")
+    open_qs = identity.get("open_questions", [])
+    if open_qs:
+        print(f"\n  Open questions ({len(open_qs)}):")
+        for q in open_qs:
+            print(f"    ? {q.get('question', '')}  [{q.get('status', '')}]")
+    print()
+
+
 if __name__ == "__main__":
+    identity = _load_identity()
+
+    # --- CLI decision tree (mise en place) ---
+    if "--version" in sys.argv or "-V" in sys.argv:
+        _cli_version(identity)
+        exit(0)
+    if "--license" in sys.argv:
+        _cli_license(identity)
+        exit(0)
+    if "--credits" in sys.argv:
+        _cli_credits(identity)
+        exit(0)
+    if "--help" in sys.argv or "-h" in sys.argv:
+        _cli_help(identity)
+        exit(0)
+    if "--identity" in sys.argv:
+        # Dump the full mise en place
+        _cli_version(identity)
+        _cli_license(identity)
+        _cli_credits(identity)
+        _cli_help(identity)
+        exit(0)
+
     if not os.path.isdir(WEB_DIR):
         print(f"\n  ERROR: output/web/ not found. Run publish.py first.\n")
         exit(1)
 
+    # Print the banner (like python3 interactive mode)
+    _cli_version(identity)
+
     api_health = os.path.join(API_DIR, "health.json")
     if os.path.isfile(api_health):
         h = json.load(open(api_health))
-        print(f"\n  HTCAH Server")
-        print(f"  ============")
         usda_foods = h.get('usda', {}).get('foods', 0)
         usda_str = f"{usda_foods:,}" if isinstance(usda_foods, (int, float)) else str(usda_foods)
         print(f"  Recipes:    {h.get('recipes', 0)} (USDA-enriched)")

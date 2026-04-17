@@ -283,6 +283,25 @@ class DB:
             PRIMARY KEY (blend_name, tenant_slug)
         );
 
+        -- ==========================================
+        -- SUBSCRIBERS (weekly cook-at-home dividend list)
+        -- Captured from /tip-better and /next-show landing pages.
+        -- bucket = 'patron' (tip-better) | 'experience' (next-show)
+        -- ==========================================
+        CREATE TABLE IF NOT EXISTS subscribers (
+            email               TEXT NOT NULL,
+            bucket              TEXT NOT NULL,
+            goal                TEXT DEFAULT '',
+            weekly_saving       REAL DEFAULT 0,
+            source              TEXT DEFAULT '',
+            unsubscribe_token   TEXT DEFAULT '',
+            unsubscribed_at     TEXT DEFAULT NULL,
+            created_at          TEXT DEFAULT (datetime('now')),
+            PRIMARY KEY (email, bucket)
+        );
+        CREATE INDEX IF NOT EXISTS idx_sub_bucket ON subscribers(bucket);
+        CREATE INDEX IF NOT EXISTS idx_sub_token ON subscribers(unsubscribe_token);
+
         """)
         self.conn.commit()
 
@@ -300,6 +319,14 @@ class DB:
         for col, typedef in migrations:
             if col not in existing:
                 self.conn.execute(f"ALTER TABLE tenants ADD COLUMN {col} {typedef}")
+        # subscribers migration (added with unsubscribe flow)
+        sub_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(subscribers)").fetchall()}
+        for col, typedef in [
+            ("unsubscribe_token", "TEXT DEFAULT ''"),
+            ("unsubscribed_at",   "TEXT DEFAULT NULL"),
+        ]:
+            if sub_cols and col not in sub_cols:
+                self.conn.execute(f"ALTER TABLE subscribers ADD COLUMN {col} {typedef}")
         self.conn.commit()
 
     # --------------------------------------------------
@@ -900,6 +927,97 @@ class DB:
 
     def close(self):
         self.conn.close()
+
+
+    # --------------------------------------------------
+    # SUBSCRIBERS (landing page capture)
+    # --------------------------------------------------
+    def add_subscriber(self, email, bucket, goal="", weekly_saving=0, source=""):
+        """Insert a subscriber (or update fields if they re-submit).
+
+        Generates a stable unsubscribe_token on first insert. A re-subscribe
+        (after unsubscribing) clears unsubscribed_at and keeps the same token.
+
+        bucket: 'patron' (/tip-better) or 'experience' (/next-show).
+        Returns dict with status.
+        """
+        import secrets as _secrets
+        email = (email or "").strip().lower()
+        bucket = (bucket or "").strip().lower()
+        if "@" not in email or "." not in email.split("@")[-1]:
+            return {"ok": False, "error": "invalid email"}
+        if bucket not in ("patron", "experience"):
+            return {"ok": False, "error": "invalid bucket"}
+        token = _secrets.token_urlsafe(18)
+        try:
+            self.conn.execute("""
+                INSERT INTO subscribers
+                    (email, bucket, goal, weekly_saving, source, unsubscribe_token)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(email, bucket) DO UPDATE SET
+                    goal=excluded.goal,
+                    weekly_saving=excluded.weekly_saving,
+                    source=excluded.source,
+                    unsubscribed_at=NULL
+            """, (email, bucket, goal, float(weekly_saving or 0), source, token))
+            self.conn.commit()
+            row = self.conn.execute(
+                "SELECT unsubscribe_token FROM subscribers WHERE email=? AND bucket=?",
+                (email, bucket)
+            ).fetchone()
+            return {
+                "ok": True,
+                "email": email,
+                "bucket": bucket,
+                "unsubscribe_token": row["unsubscribe_token"] if row else token,
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def get_active_subscribers(self, bucket=None):
+        """Return active (not unsubscribed) subscribers as list of dicts."""
+        if bucket:
+            rows = self.conn.execute(
+                "SELECT email, bucket, goal, weekly_saving, source, unsubscribe_token, created_at "
+                "FROM subscribers WHERE unsubscribed_at IS NULL AND bucket=? "
+                "ORDER BY created_at",
+                (bucket,)
+            ).fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT email, bucket, goal, weekly_saving, source, unsubscribe_token, created_at "
+                "FROM subscribers WHERE unsubscribed_at IS NULL "
+                "ORDER BY created_at"
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def unsubscribe_by_token(self, token):
+        """Mark any subscriber rows with this token as unsubscribed.
+
+        Same token can map to both buckets for the same person if they
+        signed up for both; we unsubscribe them from all of them.
+        """
+        token = (token or "").strip()
+        if not token or len(token) < 8:
+            return {"ok": False, "error": "invalid token"}
+        cur = self.conn.execute(
+            "UPDATE subscribers SET unsubscribed_at=datetime('now') "
+            "WHERE unsubscribe_token=? AND unsubscribed_at IS NULL",
+            (token,)
+        )
+        self.conn.commit()
+        if cur.rowcount == 0:
+            # token unknown OR already unsubscribed — don't leak which
+            return {"ok": True, "count": 0}
+        return {"ok": True, "count": cur.rowcount}
+
+    def subscriber_counts(self):
+        """Quick stats for eval/health dashboards. Only counts active subs."""
+        rows = self.conn.execute(
+            "SELECT bucket, COUNT(*) FROM subscribers "
+            "WHERE unsubscribed_at IS NULL GROUP BY bucket"
+        ).fetchall()
+        return {b: c for b, c in rows}
 
 
 # --------------------------------------------------

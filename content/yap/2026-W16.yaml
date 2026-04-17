@@ -1,0 +1,31 @@
+week: 2026-W16
+week_of: '2026-04-13'
+subject: Yap — Week of Apr 13
+headline: Cook three. Fund one.
+dek: Three honest meals this week. Turn the dinner-out money into something better than a
+  receipt you'll throw out.
+recipes:
+- slug: test-burger-joint-the-deluxe-double
+  title: The Deluxe Double
+  why: ''
+- slug: mazzaros-grilled-caprese
+  title: '#8 Grilled Caprese'
+  why: ''
+- slug: cacio-e-pepe
+  title: Cacio e Pepe
+  why: ''
+savings_math:
+  dinner_out: 22
+  dinner_home: 6
+  meals_per_week: 3
+  commentary: At $22 out vs $6 home × 3 meals, that's $48 this week. Pointed anywhere, that's
+    a night out with actual teeth.
+cta_patron:
+  headline: If you're cooking to tip better
+  body: Pick one spot this week. Go in Friday. Leave 30%. Learn your server's name. Be the
+    regular they tell stories about.
+cta_experience:
+  headline: If you're cooking to fund the show
+  body: Name the ticket. Set the tab. Watch the $48 stack into $192 by month's end. Buy the
+    thing before it sells out.
+closing: One email a week. That's the whole deal. — Matt

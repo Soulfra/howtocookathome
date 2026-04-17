@@ -1,0 +1,210 @@
+# ============================================================
+# IDENTITY.YAML — The Mise en Place
+# ============================================================
+# This file answers the questions people ask BEFORE they cook.
+# Who made this? Can I use it? Where do I get help?
+#
+# Every document, CLI output, API response, and deck
+# pulls from this file. Change it here, it changes everywhere.
+#
+# Think of this as mise en place for trust:
+# everything prepped and in its place before the heat turns on.
+# ============================================================
+
+version: "0.1.0"
+codename: "first-light"
+
+# --- WHO ---
+# Legal identity. Who picks up the phone.
+entity:
+  name: "Soulfra"
+  dba: "HowToCookAtHome"
+  type: "sole proprietorship"  # update when you incorporate
+  owner: "Matt Mauer"
+  state: "FL"                  # jurisdiction
+
+contact:
+  email: "matt@howtocookathome.com"       # public-facing
+  support: "help@howtocookathome.com"     # support queue
+  personal: "lolztex@gmail.com"           # founder direct (not public)
+  github: "https://github.com/Soulfra/howtocookathome"
+  website: "https://howtocookathome.com"
+  parent: "https://death2data.com"
+
+# --- WHAT CAN YOU DO WITH THIS ---
+# Three separate licenses for three separate things.
+licenses:
+  code:
+    type: "MIT"
+    spdx: "MIT"
+    applies_to: "app/*.py, scripts/, templates/, tests/"
+    summary: >
+      The platform code is MIT licensed.
+      Fork it. Modify it. Sell it. Just keep the copyright notice.
+    full_text: "LICENSE"
+
+  content:
+    type: "CC BY-NC-SA 4.0"
+    spdx: "CC-BY-NC-SA-4.0"
+    applies_to: "content/recipes/, docs/, companion library, guides"
+    summary: >
+      Recipes, guides, the 130-page library, and educational content
+      are Creative Commons Attribution-NonCommercial-ShareAlike.
+      Share and adapt for non-commercial use with attribution.
+    url: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+
+  service:
+    type: "Proprietary"
+    spdx: "LicenseRef-Proprietary"
+    applies_to: "hosted platform at howtocookathome.com — tenant management, billing, subdomain provisioning"
+    summary: >
+      The hosted multi-tenant SaaS is proprietary. The code is MIT,
+      but the service (infrastructure, Stripe billing, tenant ops)
+      may not be replicated as a competing commercial service
+      without written permission.
+    note: >
+      This is the business model: code is open, service is not.
+      Like WordPress (GPL) vs WordPress.com (proprietary hosting).
+
+  data:
+    type: "Public Domain"
+    spdx: "CC0-1.0"
+    applies_to: "data/usda/"
+    summary: >
+      USDA FoodData Central is US government work — public domain.
+      No license needed. No attribution required. Taxpayer-funded.
+    source: "https://fdc.nal.usda.gov/"
+    database: "data/usda/foundation.db"
+    note: "66MB SQLite, 84K+ foods, ~2.4M nutrient records"
+
+# --- WHO HELPED BUILD THIS ---
+credits:
+  founder:
+    name: "Matt Mauer"
+    role: "Everything"
+    github: "Soulfra"
+
+  collaborators:
+    - name: "Dreydrey9000"
+      role: "Collaborator"
+      github: "Dreydrey9000"
+      status: "invite-pending"
+
+  ai_tools:
+    - name: "Claude (Anthropic)"
+      role: "Code generation, content structuring, GTM strategy"
+      disclosure: >
+        AI-assisted development. All AI-generated content
+        is tagged in YAML source files. Human reviews everything.
+
+  data_sources:
+    - name: "USDA FoodData Central"
+      role: "Nutrition data (84K+ foods)"
+      license: "Public domain"
+      url: "https://fdc.nal.usda.gov/"
+
+    - name: "FDA Daily Values"
+      role: "Percent daily value calculations"
+      license: "Public domain"
+
+  frameworks:
+    - name: "Jinja2"
+      role: "HTML template rendering"
+    - name: "ReportLab"
+      role: "PDF generation"
+    - name: "Gunicorn"
+      role: "WSGI HTTP server"
+
+# --- WHERE DO I GET HELP ---
+help:
+  docs:
+    readme: "README.md"
+    architecture: "content/architecture.yaml"
+    human_verification: "docs/HUMAN_VERIFICATION.md"
+    claude_prompt: "CLAUDE_CODE_PROMPT_V2.md"
+    gtm: "docs/HTCAH-Go-To-Market-Strategy.pptx"
+
+  quickstart: |
+    pip install -r requirements.txt
+    ./scripts/build_db.sh
+    python3 -m app.publish
+    python3 -m app.server
+
+  health_check: "/api/health"
+  eval: "python3 -m app.eval"
+  tests: "python3 tests/run_tests.py"
+
+  community:
+    type: "github-issues"
+    url: "https://github.com/Soulfra/howtocookathome/issues"
+
+# --- DECISION TREE ---
+# What shows when you run `python3 -m app.server --help`
+# Mirrors the python3 interactive banner philosophy.
+cli:
+  banner: |
+    HowToCookAtHome v{version} ({codename})
+    {entity.dba} by {entity.owner} — {entity.name}
+    Type --help for commands, --license for terms, --credits for attribution.
+
+  commands:
+    serve:
+      description: "Start the development server"
+      usage: "python3 -m app.server [--port PORT]"
+      default_port: 3050
+
+    publish:
+      description: "Build all tenant sites to output/"
+      usage: "python3 -m app.publish [tenant-slug | --list | --all]"
+
+    eval:
+      description: "Run platform health checks (30 checks, 8 categories)"
+      usage: "python3 -m app.eval [--quick]"
+
+    onboard:
+      description: "Process a new restaurant submission"
+      usage: "python3 -m app.onboard <form-data.yaml>"
+
+    version:
+      description: "Print version and exit"
+      output: "howtocookathome v{version} ({codename})"
+
+    license:
+      description: "Print license summary and exit"
+      output: |
+        Code:    MIT License
+        Content: CC BY-NC-SA 4.0
+        Data:    Public Domain (USDA)
+
+    credits:
+      description: "Print credits and exit"
+      output: |
+        Built by {entity.owner} ({entity.name})
+        Data: USDA FoodData Central (public domain)
+        AI: Claude by Anthropic (disclosed in source)
+
+    help:
+      description: "Print this help and exit"
+
+# --- WHAT'S NOT DECIDED YET ---
+# Honest list of things that need a decision before v1.0
+open_questions:
+  - question: "Should we incorporate as LLC?"
+    impact: "Liability protection, tax treatment"
+    status: "not-started"
+
+  - question: "Custom domain email (matt@howtocookathome.com) vs Gmail?"
+    impact: "Professional contact vs current setup"
+    status: "not-started"
+
+  - question: "Which CC license for the companion library specifically?"
+    impact: "130-page library might warrant different terms than recipes"
+    status: "not-started"
+
+  - question: "Terms of Service for tenant restaurants?"
+    impact: "What happens to their data if they cancel"
+    status: "not-started"
+
+  - question: "Privacy policy — what do we actually collect?"
+    impact: "No cookies currently, but need a policy page"
+    status: "not-started"
