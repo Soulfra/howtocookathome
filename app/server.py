@@ -883,6 +883,26 @@ a{color:#C4975A}</style></head>
             return serve(docx_path, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
         return not_found()
 
+    # --- Debug: show what the server can find ---
+    if path == "/api/debug-paths":
+        import glob
+        info = {
+            "BASE_DIR": BASE_DIR,
+            "WEB_DIR": WEB_DIR,
+            "WEB_DIR_exists": os.path.isdir(WEB_DIR),
+            "WEB_DIR_files": os.listdir(WEB_DIR) if os.path.isdir(WEB_DIR) else [],
+            "STATIC_WEB_DIR": STATIC_WEB_DIR,
+            "STATIC_WEB_DIR_exists": os.path.isdir(STATIC_WEB_DIR),
+            "STATIC_WEB_DIR_files": os.listdir(STATIC_WEB_DIR) if os.path.isdir(STATIC_WEB_DIR) else [],
+            "find_tip_better": _find_web_file("tip-better.html"),
+            "find_index": _find_web_file("index.html"),
+        }
+        body = json.dumps(info, indent=2).encode()
+        h = list(headers)
+        h.append(("Content-Type", "application/json"))
+        start_response("200 OK", h)
+        return [body]
+
     # --- Platform routes ---
     def resolve_platform(path):
         if path.startswith("/api/"):
