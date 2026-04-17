@@ -30,9 +30,21 @@ from app.checkout import (
     verify_download_token, get_checkout_status,
 )
 WEB_DIR = os.path.join(BASE_DIR, "output", "web")
+STATIC_WEB_DIR = os.path.join(BASE_DIR, "static", "web")
 API_DIR = os.path.join(BASE_DIR, "output", "api")
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+
+def _find_web_file(filename):
+    """Look for a file in output/web/ first, then fall back to static/web/."""
+    primary = os.path.join(WEB_DIR, filename)
+    if os.path.isfile(primary):
+        return primary
+    fallback = os.path.join(STATIC_WEB_DIR, filename)
+    if os.path.isfile(fallback):
+        return fallback
+    return None
 PORT = int(os.environ.get("PORT", 3050))
 
 # Domains that host the main platform (not tenant subdomains)
@@ -878,18 +890,18 @@ a{color:#C4975A}</style></head>
             f = os.path.join(API_DIR, f"{endpoint}.json")
             return (f, "application/json") if os.path.isfile(f) else (None, None)
         if path.startswith("/r/"):
-            f = os.path.join(WEB_DIR, f"r_{path[3:]}.html")
-            return (f, "text/html") if os.path.isfile(f) else (None, None)
+            f = _find_web_file(f"r_{path[3:]}.html")
+            return (f, "text/html") if f else (None, None)
         if path.startswith("/recipe/"):
-            f = os.path.join(WEB_DIR, f"recipe_{path[8:]}.html")
-            return (f, "text/html") if os.path.isfile(f) else (None, None)
+            f = _find_web_file(f"recipe_{path[8:]}.html")
+            return (f, "text/html") if f else (None, None)
         if path == "/":
-            f = os.path.join(WEB_DIR, "index.html")
+            f = _find_web_file("index.html")
         elif path.endswith(".html"):
-            f = os.path.join(WEB_DIR, os.path.basename(path))
+            f = _find_web_file(os.path.basename(path))
         else:
-            f = os.path.join(WEB_DIR, f"{os.path.basename(path)}.html")
-        return (f, "text/html") if os.path.isfile(f) else (None, None)
+            f = _find_web_file(f"{os.path.basename(path)}.html")
+        return (f, "text/html") if f else (None, None)
 
     filepath, ctype = resolve_platform(path)
     return serve(filepath, ctype) if filepath else not_found()
