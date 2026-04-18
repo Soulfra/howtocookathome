@@ -360,7 +360,11 @@
                 if (emailInput && !emailInput.value) emailInput.focus();
             }, 500);
         }
-        history.replaceState(null, "", `#step=${idx+1}`);
+        if (idx > 0) {
+            history.replaceState(null, "", `#step=${idx+1}`);
+        } else if (location.hash) {
+            history.replaceState(null, "", location.pathname);
+        }
     }
     function next() { gotoCard(currentIdx + 1); }
     function back() { gotoCard(currentIdx - 1); }

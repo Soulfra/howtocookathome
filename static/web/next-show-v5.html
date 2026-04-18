@@ -406,8 +406,14 @@
                 if (emailInput && !emailInput.value) emailInput.focus();
             }, 500);
         }
-        // Keep URL in sync for deep-link / refresh
-        history.replaceState(null, "", `#step=${idx+1}`);
+        // Keep URL in sync for deep-link / refresh. Only write a hash when
+        // we're past the default state — otherwise the URL stays clean
+        // on first load (`/next-show` instead of `/next-show#step=1`).
+        if (idx > 0) {
+            history.replaceState(null, "", `#step=${idx+1}`);
+        } else if (location.hash) {
+            history.replaceState(null, "", location.pathname);
+        }
     }
 
     function next() { gotoCard(currentIdx + 1); }
