@@ -607,6 +607,21 @@ def app(environ, start_response):
             f = os.path.join(tenant_dir, f"{sub_path}.html")
         return (f, "text/html") if os.path.isfile(f) else (None, None)
 
+    # --- CORS preflight (OPTIONS) for cross-origin POSTs from landing pages ---
+    # The landing pages live on howtocookathome.com (Cloudflare Pages) and POST
+    # to this API on howtocookathome.onrender.com. Browsers send an OPTIONS
+    # preflight for POST with Content-Type: application/json.
+    method = environ.get("REQUEST_METHOD", "GET")
+    if method == "OPTIONS":
+        h = list(headers)
+        h.append(("Access-Control-Allow-Origin", "*"))
+        h.append(("Access-Control-Allow-Methods", "GET, POST, OPTIONS"))
+        h.append(("Access-Control-Allow-Headers", "Content-Type"))
+        h.append(("Access-Control-Max-Age", "86400"))
+        h.append(("Content-Length", "0"))
+        start_response("204 No Content", h)
+        return [b""]
+
     # --- Subdomain routing (production) ---
     tenant_from_subdomain = _extract_tenant_from_host(host)
     if tenant_from_subdomain:
@@ -655,7 +670,6 @@ def app(environ, start_response):
             return [json.dumps({"error": str(e)}).encode()]
 
     # --- Checkout routes ---
-    method = environ.get("REQUEST_METHOD", "GET")
     query_string = query_string or environ.get("QUERY_STRING", "")
 
     # GET /api/checkout?product=library|sprout|harvest[&email=...]

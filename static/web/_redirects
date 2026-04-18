@@ -1,0 +1,6 @@
+# Cloudflare Pages → Render proxy.
+# Landing pages (tip-better, next-show) POST to /api/subscribe. Cloudflare
+# serves the HTML; Render runs the Python API. These rules keep the
+# subscribe flow same-origin so no CORS preflight is required in the browser.
+/api/* https://howtocookathome.onrender.com/api/:splat 200
+/unsubscribe/* https://howtocookathome.onrender.com/unsubscribe/:splat 200

@@ -8,6 +8,10 @@ services:
       - key: PYTHON_VERSION
         value: "3.11"
     healthCheckPath: /api/health
+    disk:
+      name: htcah-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
 
   - type: cron
     name: yap-draft

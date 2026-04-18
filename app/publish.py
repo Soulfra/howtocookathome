@@ -789,13 +789,15 @@ def build_platform_pages(tenants, usda):
     with open(os.path.join(web_dir, "restaurants.html"), "w") as outf:
         outf.write(html)
 
-    # Copy static landing pages (tip-better, next-show, index, etc.)
+    # Copy static landing pages (tip-better, next-show, index, etc.) plus
+    # Cloudflare Pages control files (_redirects, _headers) used to proxy
+    # /api/* to the Render backend.
     import shutil
     static_web = os.path.join(BASE_DIR, "static", "web")
     if os.path.isdir(static_web):
         count = 0
         for fname in os.listdir(static_web):
-            if fname.endswith(".html"):
+            if fname.endswith(".html") or fname in ("_redirects", "_headers"):
                 shutil.copy2(os.path.join(static_web, fname), os.path.join(web_dir, fname))
                 count += 1
         return 1 + count
