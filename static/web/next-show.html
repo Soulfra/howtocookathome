@@ -396,7 +396,16 @@
         });
         const backBtn = document.getElementById("back-btn");
         backBtn.disabled = (idx === 0);
-        if (CARDS[idx] === "verdict") renderVerdict();
+        if (CARDS[idx] === "verdict") {
+            renderVerdict();
+            // Auto-focus email after the card-slide animation completes (0.4s).
+            // On iOS this surfaces the Safari autofill chip above the keyboard
+            // (for users who've saved an email to Keychain / Contacts).
+            setTimeout(() => {
+                const emailInput = document.querySelector("#sub-form input[name=email]");
+                if (emailInput && !emailInput.value) emailInput.focus();
+            }, 500);
+        }
         // Keep URL in sync for deep-link / refresh
         history.replaceState(null, "", `#step=${idx+1}`);
     }

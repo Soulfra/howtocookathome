@@ -351,7 +351,15 @@
             else if (i === idx) d.classList.add("active");
         });
         document.getElementById("back-btn").disabled = (idx === 0);
-        if (CARDS[idx] === "verdict") renderVerdict();
+        if (CARDS[idx] === "verdict") {
+            renderVerdict();
+            // Auto-focus email after the slide animation completes (0.4s).
+            // Surfaces iOS Safari autofill chip for saved emails.
+            setTimeout(() => {
+                const emailInput = document.querySelector("#sub-form input[name=email]");
+                if (emailInput && !emailInput.value) emailInput.focus();
+            }, 500);
+        }
         history.replaceState(null, "", `#step=${idx+1}`);
     }
     function next() { gotoCard(currentIdx + 1); }
