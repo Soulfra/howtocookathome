@@ -135,6 +135,42 @@ def _extract_tenant_from_host(host_header):
     return None
 
 
+# --- Rate limiter (in-memory, per-IP, sliding window) ---
+# Prevents someone from POSTing /api/subscribe in a loop with fake emails.
+# Resets when the process restarts (fine for a single-worker starter tier).
+_RATE_STATE = {}  # ip -> [timestamp1, timestamp2, ...]
+_RATE_WINDOW_SEC = 60
+_RATE_MAX_REQUESTS = 5
+
+def _rate_limit_check(ip):
+    """Returns True if request is allowed, False if rate-limited."""
+    import time as _time
+    now = _time.time()
+    cutoff = now - _RATE_WINDOW_SEC
+    history = [t for t in _RATE_STATE.get(ip, []) if t > cutoff]
+    if len(history) >= _RATE_MAX_REQUESTS:
+        _RATE_STATE[ip] = history  # don't add this one
+        return False
+    history.append(now)
+    _RATE_STATE[ip] = history
+    # Periodic cleanup so the dict doesn't grow forever
+    if len(_RATE_STATE) > 5000:
+        for k in list(_RATE_STATE.keys()):
+            if not _RATE_STATE[k] or _RATE_STATE[k][-1] < cutoff:
+                del _RATE_STATE[k]
+    return True
+
+def _client_ip(environ):
+    """Pull the client IP from CF/Render forwarding headers, falling back to
+    REMOTE_ADDR. Render/Cloudflare always set one of these."""
+    for key in ("HTTP_CF_CONNECTING_IP", "HTTP_X_FORWARDED_FOR", "HTTP_X_REAL_IP"):
+        v = environ.get(key, "")
+        if v:
+            # XFF may be a comma-separated list; first entry is original client
+            return v.split(",")[0].strip()
+    return environ.get("REMOTE_ADDR", "unknown")
+
+
 # Security headers applied to every response
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
@@ -814,10 +850,34 @@ a{color:#C4975A}</style></head>
         start_response("200 OK", h)
         return [body]
 
+    # --- DELETE /api/subscribers/<token> — GDPR right-to-deletion ---
+    # Unsubscribe marks the row; this fully removes it. Subscriber clicks
+    # a link in their own email to trigger this.
+    if method in ("DELETE", "POST") and path.startswith("/api/subscribers/") and len(path) > len("/api/subscribers/"):
+        token = path[len("/api/subscribers/"):]
+        from app.db import DB
+        db = DB()
+        res = db.delete_subscriber_by_token(token)
+        db.close()
+        h = list(headers)
+        h.append(("Content-Type", "application/json"))
+        h.append(("Access-Control-Allow-Origin", "*"))
+        start_response("200 OK" if res.get("ok") else "400 Bad Request", h)
+        return [json.dumps(res).encode()]
+
     # --- POST /api/subscribe ---
     # Captures email signups from /tip-better and /next-show landing pages.
     # Body: {"email": "...", "bucket": "patron"|"experience", "goal": "...", "weekly_saving": 47}
     if method == "POST" and path == "/api/subscribe":
+        # --- Rate limit first, before even parsing the body ---
+        ip = _client_ip(environ)
+        if not _rate_limit_check(ip):
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            h.append(("Access-Control-Allow-Origin", "*"))
+            h.append(("Retry-After", str(_RATE_WINDOW_SEC)))
+            start_response("429 Too Many Requests", h)
+            return [json.dumps({"ok": False, "error": "slow down — try again in a minute"}).encode()]
         try:
             content_length = int(environ.get("CONTENT_LENGTH", 0) or 0)
             raw = environ["wsgi.input"].read(content_length) if content_length else b"{}"
@@ -897,25 +957,8 @@ a{color:#C4975A}</style></head>
             return serve(docx_path, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
         return not_found()
 
-    # --- Debug: show what the server can find ---
-    if path == "/api/debug-paths":
-        import glob
-        info = {
-            "BASE_DIR": BASE_DIR,
-            "WEB_DIR": WEB_DIR,
-            "WEB_DIR_exists": os.path.isdir(WEB_DIR),
-            "WEB_DIR_files": os.listdir(WEB_DIR) if os.path.isdir(WEB_DIR) else [],
-            "STATIC_WEB_DIR": STATIC_WEB_DIR,
-            "STATIC_WEB_DIR_exists": os.path.isdir(STATIC_WEB_DIR),
-            "STATIC_WEB_DIR_files": os.listdir(STATIC_WEB_DIR) if os.path.isdir(STATIC_WEB_DIR) else [],
-            "find_tip_better": _find_web_file("tip-better.html"),
-            "find_index": _find_web_file("index.html"),
-        }
-        body = json.dumps(info, indent=2).encode()
-        h = list(headers)
-        h.append(("Content-Type", "application/json"))
-        start_response("200 OK", h)
-        return [body]
+    # /api/debug-paths removed — it exposed filesystem layout to any caller.
+    # Was useful during the deploy debug session (commit 27d9e29). Now gone.
 
     # --- Platform routes ---
     def resolve_platform(path):

@@ -932,6 +932,19 @@ class DB:
     # --------------------------------------------------
     # SUBSCRIBERS (landing page capture)
     # --------------------------------------------------
+    _EMAIL_RE = None
+    @classmethod
+    def _valid_email(cls, email):
+        """Strict-enough email validation: local@domain.tld, TLD >= 2 chars,
+        no whitespace, no control chars. Not RFC-complete, but rejects the
+        obvious garbage (`a@b.c`, `foo`, `x y@z.com`)."""
+        import re as _re
+        if cls._EMAIL_RE is None:
+            cls._EMAIL_RE = _re.compile(r"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
+        if not email or len(email) > 254:
+            return False
+        return bool(cls._EMAIL_RE.match(email))
+
     def add_subscriber(self, email, bucket, goal="", weekly_saving=0, source=""):
         """Insert a subscriber (or update fields if they re-submit).
 
@@ -944,7 +957,7 @@ class DB:
         import secrets as _secrets
         email = (email or "").strip().lower()
         bucket = (bucket or "").strip().lower()
-        if "@" not in email or "." not in email.split("@")[-1]:
+        if not self._valid_email(email):
             return {"ok": False, "error": "invalid email"}
         if bucket not in ("patron", "experience"):
             return {"ok": False, "error": "invalid bucket"}
@@ -1009,6 +1022,20 @@ class DB:
         if cur.rowcount == 0:
             # token unknown OR already unsubscribed — don't leak which
             return {"ok": True, "count": 0}
+        return {"ok": True, "count": cur.rowcount}
+
+    def delete_subscriber_by_token(self, token):
+        """Permanently remove subscriber rows with this token (GDPR right-to-deletion).
+        Unlike unsubscribe (which marks `unsubscribed_at`), this fully deletes the row.
+        """
+        token = (token or "").strip()
+        if not token or len(token) < 8:
+            return {"ok": False, "error": "invalid token"}
+        cur = self.conn.execute(
+            "DELETE FROM subscribers WHERE unsubscribe_token=?",
+            (token,)
+        )
+        self.conn.commit()
         return {"ok": True, "count": cur.rowcount}
 
     def subscriber_counts(self):
