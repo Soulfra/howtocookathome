@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fund your next show. | HowToCookAtHome</title>
-<meta name="description" content="Cook more meals at home, stack the savings, and fund the shows, trips, and nights out you actually care about.">
+<meta name="description" content="Pick a goal, pick a dinner tier, pick a home tier. Luck rolls your weekly dividend — watch it add up to tickets, flights, festivals.">
 <meta property="og:title" content="Fund your next show.">
 <meta property="og:description" content="The cook-at-home dividend — redirected to tickets, travel, and the shows you don't want to miss.">
 <meta name="theme-color" content="#000000">
@@ -22,10 +22,8 @@
     html, body { background: var(--black); color: var(--white); }
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
-        font-weight: 500;
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-        min-height: 100vh;
+        font-weight: 500; line-height: 1.5;
+        -webkit-font-smoothing: antialiased; min-height: 100vh;
     }
     a { color: var(--red); text-decoration: none; }
     a:hover { text-decoration: underline; }
@@ -34,196 +32,173 @@
         display: flex; justify-content: space-between; align-items: center;
         padding: 1.25rem 2rem; border-bottom: 1px solid var(--line);
     }
-    nav.top .brand {
-        color: var(--white); font-weight: 900; letter-spacing: -0.02em;
-        font-size: 0.95rem; text-transform: uppercase;
-    }
+    nav.top .brand { color: var(--white); font-weight: 900; letter-spacing: -0.02em; font-size: 0.95rem; text-transform: uppercase; }
     nav.top .brand .dot { color: var(--red); }
     nav.top a.home { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
 
-    .hero {
-        display: grid;
-        grid-template-columns: 1fr 280px;
-        min-height: 70vh;
-        align-items: stretch;
-    }
-    .hero .left {
-        padding: 4rem 2rem 3rem 2.5rem;
-        display: flex; flex-direction: column; justify-content: center;
-    }
+    .hero { padding: 3rem 2rem 2.5rem; border-bottom: 1px solid var(--line); }
     .hero h1 {
         font-weight: 900;
-        font-size: clamp(3.5rem, 11vw, 9.5rem);
-        line-height: 0.92;
-        letter-spacing: -0.035em;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
+        font-size: clamp(2.75rem, 9vw, 7rem);
+        line-height: 0.92; letter-spacing: -0.035em;
+        text-transform: uppercase; margin-bottom: 1rem;
     }
     .hero h1 .red { color: var(--red); }
     .hero .sub {
-        font-size: clamp(1.05rem, 1.6vw, 1.35rem);
-        color: var(--white);
-        max-width: 44ch; line-height: 1.4; font-weight: 500;
-        opacity: 0.88;
+        font-size: clamp(1rem, 1.5vw, 1.2rem);
+        max-width: 48ch; line-height: 1.45;
+        opacity: 0.88; margin-bottom: 2rem;
     }
-    .hero .right {
-        background: var(--red);
-        display: flex; align-items: center; justify-content: center;
-        padding: 2rem;
+    form.hero-cap {
+        display: flex; gap: 0.5rem; max-width: 640px; flex-wrap: wrap;
     }
-    .qr-echo {
-        background: var(--white);
-        padding: 16px;
-        display: grid;
-        grid-template-columns: repeat(11, 1fr);
-        grid-template-rows: repeat(11, 1fr);
-        gap: 2px;
-        width: 180px; height: 180px;
+    form.hero-cap input[type=email], form.hero-cap input[type=text] {
+        flex: 1 1 200px; background: var(--ink);
+        border: 2px solid var(--line); color: var(--white);
+        font: inherit; font-size: 1rem; padding: 0.9rem 1rem;
+        min-height: 48px; min-width: 0; transition: border-color 0.15s;
     }
-    .qr-echo i { background: var(--black); display: block; }
-    .qr-echo i.b { background: transparent; }
-
-    section.calc {
-        padding: 4rem 2rem;
-        border-top: 1px solid var(--line);
-        max-width: 960px; margin: 0 auto;
-    }
-    section.calc .kicker {
-        color: var(--red); font-weight: 900; text-transform: uppercase;
-        letter-spacing: 0.12em; font-size: 0.85rem; margin-bottom: 1rem;
-    }
-    section.calc h2 {
-        font-weight: 900; letter-spacing: -0.02em;
-        font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-        text-transform: uppercase; line-height: 1; margin-bottom: 2rem;
-    }
-    .calc-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem 2rem;
-        margin-bottom: 2.5rem;
-    }
-    .field label {
-        display: block; font-size: 0.8rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        color: var(--muted); margin-bottom: 0.5rem;
-    }
-    .field input, .field select {
-        width: 100%; background: transparent; border: 0;
-        border-bottom: 2px solid var(--line);
-        color: var(--white);
-        font-size: 1.5rem; font-weight: 700; padding: 0.5rem 0;
-        font-family: inherit; outline: none;
-        transition: border-color 0.15s;
-        appearance: none; -webkit-appearance: none;
-    }
-    .field input { font-size: 2rem; }
-    .field input:focus, .field select:focus { border-color: var(--red); }
-    .field select option { background: var(--black); color: var(--white); }
-
-    .result {
-        border: 2px solid var(--red);
-        padding: 2rem;
-        background: rgba(217, 30, 24, 0.05);
-    }
-    .result .label {
-        color: var(--muted); font-size: 0.8rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;
-    }
-    .result .big {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 900; letter-spacing: -0.03em; color: var(--red);
-        line-height: 1;
-    }
-    .result .note {
-        margin-top: 1rem; color: var(--white); opacity: 0.85;
-        font-size: 1rem; line-height: 1.45;
-    }
-    .result .note strong { color: var(--red); }
-
-    .progress-wrap {
-        margin-top: 1.25rem;
-        height: 12px; background: var(--line); position: relative;
-    }
-    .progress-wrap i {
-        display: block; height: 100%; background: var(--red); width: 0;
-        transition: width 0.3s ease;
-    }
-    .progress-meta {
-        display: flex; justify-content: space-between; margin-top: 0.5rem;
-        font-size: 0.85rem; color: var(--muted);
-    }
-
-    section.signup {
-        padding: 4rem 2rem;
-        background: var(--red);
-        color: var(--white);
-    }
-    section.signup .inner { max-width: 960px; margin: 0 auto; }
-    section.signup h2 {
-        font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
-        font-size: clamp(2rem, 5vw, 3.5rem); line-height: 0.95;
-        margin-bottom: 0.75rem;
-    }
-    section.signup p.lede {
-        font-size: 1.1rem; max-width: 52ch; margin-bottom: 2rem; opacity: 0.95;
-    }
-    form.cap {
-        display: flex; gap: 0.75rem; max-width: 640px; flex-wrap: wrap;
-    }
-    form.cap input[type=email], form.cap input[type=text] {
-        flex: 1 1 220px; background: var(--black);
-        border: 0; color: var(--white);
-        font: inherit; font-size: 1rem; padding: 1rem 1.25rem;
-        min-width: 0;
-    }
-    form.cap input::placeholder { color: var(--muted); }
-    form.cap button {
-        background: var(--black); color: var(--white);
+    form.hero-cap input:focus { outline: none; border-color: var(--red); }
+    form.hero-cap input::placeholder { color: var(--muted); }
+    form.hero-cap button {
+        background: var(--red); color: var(--white);
         border: 0; font: inherit; font-weight: 900;
         text-transform: uppercase; letter-spacing: 0.06em;
-        padding: 1rem 1.5rem; cursor: pointer;
+        padding: 0.9rem 1.5rem; cursor: pointer; min-height: 48px;
         transition: background 0.15s;
     }
-    form.cap button:hover { background: var(--ink); }
-    form.cap button:disabled { opacity: 0.5; cursor: wait; }
-    .msg { margin-top: 1rem; font-weight: 700; }
-    .msg.ok { color: var(--black); }
-    .msg.err { color: var(--black); background: var(--white); display: inline-block; padding: 0.4rem 0.75rem; }
+    form.hero-cap button:hover { background: var(--red-deep); }
+    form.hero-cap button:disabled { opacity: 0.55; cursor: wait; }
+    .msg { margin-top: 0.85rem; font-weight: 700; font-size: 0.95rem; min-height: 1.2em; }
+    .msg.ok { color: var(--red); }
+    .msg.err { color: #FF6B64; }
+
+    section.pairing { padding: 3rem 2rem; max-width: 960px; margin: 0 auto; }
+    section.pairing .kicker {
+        color: var(--red); font-weight: 900; text-transform: uppercase;
+        letter-spacing: 0.12em; font-size: 0.8rem; margin-bottom: 0.75rem;
+    }
+    section.pairing h2 {
+        font-weight: 900; letter-spacing: -0.02em;
+        font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+        text-transform: uppercase; line-height: 1; margin-bottom: 2rem;
+    }
+
+    .pair-columns {
+        display: grid; grid-template-columns: 1fr auto 1fr;
+        gap: 1rem; align-items: start; margin-bottom: 2rem;
+    }
+    .pair-col { display: flex; flex-direction: column; gap: 0.5rem; }
+    .pair-col .col-label {
+        color: var(--muted); font-size: 0.7rem;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        font-weight: 700; margin-bottom: 0.25rem;
+    }
+    .pair-columns .x {
+        font-weight: 900; font-size: 2rem; color: var(--red);
+        align-self: center; padding-top: 1.5rem;
+    }
+
+    .pill {
+        background: var(--black); color: var(--white);
+        border: 2px solid var(--line);
+        padding: 0.7rem 0.9rem;
+        font: inherit; font-size: 0.9rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        cursor: pointer; transition: all 0.15s;
+        min-height: 44px; text-align: left;
+    }
+    .pill:hover { border-color: var(--red); }
+    .pill.active { background: var(--red); border-color: var(--red); }
+    .pill .range {
+        display: block; font-size: 0.7rem; font-weight: 500;
+        color: var(--muted); text-transform: none; letter-spacing: 0;
+        margin-top: 0.15rem;
+    }
+    .pill.active .range { color: rgba(255,255,255,0.85); }
+
+    .row { margin-bottom: 1.5rem; }
+    .row .row-label {
+        color: var(--muted); font-size: 0.7rem;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .row .pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .row .pills .pill { text-align: center; min-width: 64px; }
+    .row .pills .pill.goal-pill { min-width: 120px; text-align: left; }
+
+    .dividend {
+        border: 2px solid var(--red);
+        background: rgba(217, 30, 24, 0.05);
+        padding: 2rem; text-align: center; margin-top: 1.5rem;
+    }
+    .dividend .label {
+        color: var(--muted); font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        margin-bottom: 0.75rem;
+    }
+    .dividend .big {
+        font-size: clamp(3rem, 10vw, 5rem);
+        font-weight: 900; letter-spacing: -0.03em;
+        color: var(--red); line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+    .dividend .formula {
+        margin-top: 0.85rem;
+        color: var(--muted); font-size: 0.8rem;
+        font-variant-numeric: tabular-nums;
+    }
+    .progress-wrap {
+        margin-top: 1.25rem;
+        height: 6px; background: var(--line);
+        border-radius: 3px; overflow: hidden;
+    }
+    .progress-wrap i {
+        display: block; height: 100%;
+        background: var(--red); width: 0%;
+        transition: width 0.3s ease-out;
+    }
+    .progress-meta {
+        display: flex; justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.75rem; color: var(--muted);
+        text-transform: uppercase; letter-spacing: 0.08em;
+        font-variant-numeric: tabular-nums;
+    }
+    .reroll {
+        display: inline-block; margin-top: 1rem;
+        background: transparent; color: var(--white);
+        border: 2px solid var(--white);
+        padding: 0.55rem 1.15rem;
+        font: inherit; font-weight: 700; font-size: 0.8rem;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        cursor: pointer; transition: all 0.15s;
+    }
+    .reroll:hover { background: var(--white); color: var(--black); }
 
     section.how {
-        padding: 4rem 2rem; max-width: 960px; margin: 0 auto;
+        padding: 3rem 2rem; max-width: 960px; margin: 0 auto;
+        border-top: 1px solid var(--line);
     }
     section.how h2 {
         font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
-        font-size: clamp(1.75rem, 3.5vw, 2.5rem); margin-bottom: 2rem;
+        font-size: clamp(1.5rem, 3vw, 2.25rem); margin-bottom: 2rem;
     }
-    .steps {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-    }
-    .step {
-        border-top: 4px solid var(--red); padding-top: 1.25rem;
-    }
-    .step .n {
-        font-weight: 900; font-size: 2.5rem; color: var(--red);
-        letter-spacing: -0.03em; line-height: 1;
-    }
-    .step h3 {
-        font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
-        letter-spacing: 0.02em; margin: 0.5rem 0 0.5rem;
-    }
-    .step p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .step { border-top: 4px solid var(--red); padding-top: 1.25rem; }
+    .step .n { font-weight: 900; font-size: 2.25rem; color: var(--red); letter-spacing: -0.03em; line-height: 1; }
+    .step h3 { font-weight: 900; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.02em; margin: 0.5rem 0; }
+    .step p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
 
     footer {
-        padding: 2.5rem 2rem; border-top: 1px solid var(--line);
-        color: var(--muted); font-size: 0.85rem;
+        padding: 2rem; border-top: 1px solid var(--line);
+        color: var(--muted); font-size: 0.8rem;
         display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
     }
 
-    @media (max-width: 720px) {
-        .hero { grid-template-columns: 1fr; }
-        .hero .right { padding: 2rem; min-height: 240px; }
-        .calc-grid { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+        .pair-columns { grid-template-columns: 1fr; }
+        .pair-columns .x { padding: 0; }
         .steps { grid-template-columns: 1fr; }
     }
 </style>
@@ -236,77 +211,71 @@
 </nav>
 
 <section class="hero">
-    <div class="left">
-        <h1>Fund&nbsp;your<br><span class="red">next&nbsp;show.</span></h1>
-        <p class="sub">Cook a few meals at home this week. Watch the dinner-out money turn into tickets, flights, festival wristbands, and the stuff you'll still be talking about in five years.</p>
-    </div>
-    <div class="right" aria-hidden="true">
-        <div class="qr-echo">
-            <i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i class="b"></i><i></i><i></i><i></i><i></i>
-            <i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i>
-            <i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i>
-            <i></i><i></i><i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i>
-            <i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i class="b"></i>
-            <i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i>
-            <i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i class="b"></i><i></i>
-            <i class="b"></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i>
-            <i></i><i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i>
-            <i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="b"></i><i class="b"></i><i></i>
-            <i></i><i></i><i></i><i class="b"></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i>
-        </div>
-    </div>
+    <h1>Fund&nbsp;your<br><span class="red">next&nbsp;show.</span></h1>
+    <p class="sub">Cook a few meals at home. Watch the dinner-out money turn into tickets, flights, festival wristbands — the stuff you'll still be talking about in five years.</p>
+    <form class="hero-cap" id="sub" autocomplete="on">
+        <input type="email" name="email" placeholder="you@wherever.com" required
+               autocomplete="email" inputmode="email" spellcheck="false">
+        <input type="text" name="goalname" placeholder="I'm saving for…" maxlength="60"
+               autocomplete="off">
+        <button type="submit">Start stacking</button>
+    </form>
+    <div class="msg" id="msg" aria-live="polite"></div>
 </section>
 
-<section class="calc">
+<section class="pairing">
     <div class="kicker">The cook-at-home dividend</div>
-    <h2>What are you saving for?</h2>
-    <div class="calc-grid">
-        <div class="field">
-            <label for="eatout">Avg. dinner out ($)</label>
-            <input id="eatout" type="number" inputmode="decimal" value="22" min="0" step="1">
-        </div>
-        <div class="field">
-            <label for="cookhome">Avg. dinner at home ($)</label>
-            <input id="cookhome" type="number" inputmode="decimal" value="6" min="0" step="1">
-        </div>
-        <div class="field">
-            <label for="meals">Meals you'll swap per week</label>
-            <input id="meals" type="number" inputmode="numeric" value="4" min="0" step="1">
-        </div>
-        <div class="field">
-            <label for="goal">What it's for</label>
-            <select id="goal">
-                <option value="concert:90">Concert ticket (~$90)</option>
-                <option value="festival:350">Festival pass (~$350)</option>
-                <option value="flight:220">Weekend flight (~$220)</option>
-                <option value="trip:800">A real trip (~$800)</option>
-                <option value="date:60">Great date night (~$60)</option>
-                <option value="custom:200">Custom — I'll tell you</option>
-            </select>
+    <h2>Pick your show. Luck rolls the math.</h2>
+
+    <div class="row">
+        <div class="row-label">What are you saving for?</div>
+        <div class="pills" id="goal-pills">
+            <button class="pill goal-pill active" data-goal="concert"  data-cost="90">Concert <span class="range">~$90</span></button>
+            <button class="pill goal-pill"        data-goal="festival" data-cost="350">Festival <span class="range">~$350</span></button>
+            <button class="pill goal-pill"        data-goal="flight"   data-cost="220">Flight  <span class="range">~$220</span></button>
+            <button class="pill goal-pill"        data-goal="trip"     data-cost="800">Trip    <span class="range">~$800</span></button>
+            <button class="pill goal-pill"        data-goal="date"     data-cost="60">Date night <span class="range">~$60</span></button>
         </div>
     </div>
-    <div class="result">
+
+    <div class="pair-columns">
+        <div class="pair-col" id="out-col">
+            <div class="col-label">Dinner out</div>
+            <button class="pill"           data-out="cheap">Cheap   <span class="range">$8–14</span></button>
+            <button class="pill active"    data-out="normal">Normal <span class="range">$18–28</span></button>
+            <button class="pill"           data-out="fancy">Fancy   <span class="range">$35–55</span></button>
+            <button class="pill"           data-out="splurge">Splurge<span class="range">$70–120</span></button>
+        </div>
+        <div class="x">×</div>
+        <div class="pair-col" id="home-col">
+            <div class="col-label">Cook at home</div>
+            <button class="pill"           data-home="stove">Stove   <span class="range">$3–5</span></button>
+            <button class="pill active"    data-home="pantry">Pantry <span class="range">$6–9</span></button>
+            <button class="pill"           data-home="home">Home    <span class="range">$12–18</span></button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="row-label">Meals you'll swap per week</div>
+        <div class="pills" id="meals-pills">
+            <button class="pill"        data-meals="2">2</button>
+            <button class="pill"        data-meals="3">3</button>
+            <button class="pill active" data-meals="4">4</button>
+            <button class="pill"        data-meals="5">5</button>
+            <button class="pill"        data-meals="6">6</button>
+        </div>
+    </div>
+
+    <div class="dividend">
         <div class="label">Your weekly dividend</div>
         <div class="big" id="saving">$64</div>
-        <div class="note" id="note">That's <strong>one concert ticket in under 2 weeks</strong>. The money's already in your budget — just redirecting it.</div>
+        <div class="formula" id="formula">Normal ($22) × Pantry ($6) × 4 meals</div>
         <div class="progress-wrap"><i id="bar"></i></div>
         <div class="progress-meta">
-            <span id="weeks">~2 weeks to goal</span>
+            <span id="weeks">~2 weeks to concert</span>
             <span id="goalcost">Goal: $90</span>
         </div>
-    </div>
-</section>
-
-<section class="signup">
-    <div class="inner">
-        <h2>Get the weekly drop.</h2>
-        <p class="lede">One email per week: a simple cook-at-home plan + your running tally. When the tally hits your goal, you buy the ticket. Simple. No tracking, no spam.</p>
-        <form class="cap" id="sub">
-            <input type="email" name="email" placeholder="you@wherever.com" required>
-            <input type="text" name="goalname" placeholder="I'm saving for…" maxlength="60">
-            <button type="submit">Start stacking</button>
-        </form>
-        <div class="msg" id="msg" aria-live="polite"></div>
+        <button class="reroll" type="button" id="reroll">Re-roll</button>
     </div>
 </section>
 
@@ -316,69 +285,125 @@
         <div class="step">
             <div class="n">01</div>
             <h3>Name the show</h3>
-            <p>Tell us what you're saving for — the gig, the flight, the festival. Giving it a name makes the math feel real.</p>
+            <p>Tell us what you're saving for — the gig, the flight, the festival. Giving it a name makes the math real.</p>
         </div>
         <div class="step">
             <div class="n">02</div>
             <h3>Cook the week</h3>
-            <p>Simple meals, honest cost. We send the plan every Sunday — takes the decision fatigue out of eating well.</p>
+            <p>Simple meals, honest cost. Sunday drop with the plan — decision fatigue out, flavor in.</p>
         </div>
         <div class="step">
             <div class="n">03</div>
             <h3>Buy the ticket</h3>
-            <p>When the tally lands, pull the trigger without guilt. That money was always yours — just pointed at the right thing now.</p>
+            <p>When the tally lands, pull the trigger without guilt. The money was always yours — just pointed at the right thing.</p>
         </div>
     </div>
 </section>
 
 <footer>
     <div>© HowToCookAtHome</div>
-    <div><a href="/">howtocookathome.com</a> · <a href="/tip-better">cook more, tip better</a></div>
+    <div><a href="/">howtocookathome.com</a></div>
 </footer>
 
 <script>
-    const $ = (id) => document.getElementById(id);
-    const fmt = (n) => "$" + Math.round(n).toLocaleString();
-
-    const LABELS = {
-        concert: "concert ticket",
-        festival: "festival pass",
-        flight: "weekend flight",
-        trip: "real trip",
-        date: "great date night",
-        custom: "goal"
+    const OUT_TIERS = {
+        cheap:   { label: "Cheap",   min: 8,  max: 14 },
+        normal:  { label: "Normal",  min: 18, max: 28 },
+        fancy:   { label: "Fancy",   min: 35, max: 55 },
+        splurge: { label: "Splurge", min: 70, max: 120 },
+    };
+    const HOME_TIERS = {
+        stove:   { label: "Stove",  min: 3,  max: 5 },
+        pantry:  { label: "Pantry", min: 6,  max: 9 },
+        home:    { label: "Home",   min: 12, max: 18 },
+    };
+    const GOAL_LABELS = {
+        concert: "concert",
+        festival: "festival",
+        flight: "flight",
+        trip: "trip",
+        date: "date night",
     };
 
-    function recalc() {
-        const out = parseFloat($("eatout").value) || 0;
-        const home = parseFloat($("cookhome").value) || 0;
-        const meals = parseInt($("meals").value) || 0;
-        const [goalKey, goalCostStr] = $("goal").value.split(":");
-        const goalCost = parseFloat(goalCostStr) || 0;
-        const saving = Math.max(0, (out - home) * meals);
-        $("saving").textContent = fmt(saving);
-        const weeks = saving > 0 && goalCost > 0 ? Math.ceil(goalCost / saving) : 0;
-        const label = LABELS[goalKey] || "goal";
-        $("note").innerHTML = saving > 0
-            ? `That's <strong>one ${label} in ${weeks} week${weeks===1?"":"s"}</strong>. The money's already in your budget — just redirecting it.`
-            : `Type real numbers and watch the show come into focus.`;
-        const pct = saving > 0 && goalCost > 0 ? Math.min(100, (saving / goalCost) * 100) : 0;
-        $("bar").style.width = pct + "%";
-        $("weeks").textContent = weeks ? `~${weeks} week${weeks===1?"":"s"} to goal` : "—";
-        $("goalcost").textContent = goalCost ? `Goal: ${fmt(goalCost)}` : "—";
+    const state = {
+        outKey: "normal",
+        homeKey: "pantry",
+        meals: 4,
+        goalKey: "concert",
+        goalCost: 90,
+        outRoll: 22,
+        homeRoll: 6,
+    };
+
+    const rollInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    function reroll() {
+        state.outRoll  = rollInt(OUT_TIERS[state.outKey].min,  OUT_TIERS[state.outKey].max);
+        state.homeRoll = rollInt(HOME_TIERS[state.homeKey].min, HOME_TIERS[state.homeKey].max);
+        render();
+    }
+
+    function render() {
+        const saving = Math.max(0, (state.outRoll - state.homeRoll) * state.meals);
+        const weeks = saving > 0 && state.goalCost > 0 ? Math.ceil(state.goalCost / saving) : 0;
+        const label = GOAL_LABELS[state.goalKey] || "goal";
+        document.getElementById("saving").textContent = "$" + saving;
+        document.getElementById("formula").textContent =
+            `${OUT_TIERS[state.outKey].label} ($${state.outRoll}) × ${HOME_TIERS[state.homeKey].label} ($${state.homeRoll}) × ${state.meals}`;
+        document.getElementById("weeks").textContent = weeks
+            ? `~${weeks} week${weeks===1?"":"s"} to ${label}`
+            : "—";
+        document.getElementById("goalcost").textContent = state.goalCost
+            ? `Goal: $${state.goalCost}`
+            : "—";
+        const pct = saving > 0 && state.goalCost > 0
+            ? Math.min(100, (saving / state.goalCost) * 100) : 0;
+        document.getElementById("bar").style.width = pct + "%";
         window.__saving = saving;
         window.__goal = label;
     }
-    ["eatout","cookhome","meals","goal"].forEach(id => $(id).addEventListener("input", recalc));
-    $("goal").addEventListener("change", recalc);
-    recalc();
 
-    $("sub").addEventListener("submit", async (e) => {
+    function setActive(container, activeEl) {
+        container.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+        activeEl.classList.add("active");
+    }
+
+    document.getElementById("goal-pills").addEventListener("click", (e) => {
+        const p = e.target.closest(".pill[data-goal]"); if (!p) return;
+        state.goalKey = p.dataset.goal;
+        state.goalCost = parseFloat(p.dataset.cost) || 0;
+        setActive(document.getElementById("goal-pills"), p);
+        render();
+    });
+    document.getElementById("out-col").addEventListener("click", (e) => {
+        const p = e.target.closest(".pill[data-out]"); if (!p) return;
+        state.outKey = p.dataset.out;
+        setActive(document.getElementById("out-col"), p);
+        reroll();
+    });
+    document.getElementById("home-col").addEventListener("click", (e) => {
+        const p = e.target.closest(".pill[data-home]"); if (!p) return;
+        state.homeKey = p.dataset.home;
+        setActive(document.getElementById("home-col"), p);
+        reroll();
+    });
+    document.getElementById("meals-pills").addEventListener("click", (e) => {
+        const p = e.target.closest(".pill[data-meals]"); if (!p) return;
+        state.meals = parseInt(p.dataset.meals, 10);
+        setActive(document.getElementById("meals-pills"), p);
+        render();
+    });
+    document.getElementById("reroll").addEventListener("click", reroll);
+
+    reroll();
+
+    // --- Email submit (UNCHANGED FLOW — same-origin POST, proxied to Render) ---
+    document.getElementById("sub").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector("button");
         const email = e.target.email.value.trim();
         const goalname = e.target.goalname.value.trim() || window.__goal || "";
-        const msg = $("msg");
+        const msg = document.getElementById("msg");
         msg.className = "msg"; msg.textContent = "";
         btn.disabled = true;
         try {
@@ -389,7 +414,7 @@
                     email, bucket: "experience",
                     goal: goalname,
                     weekly_saving: window.__saving || 0,
-                    source: "next-show"
+                    source: "next-show-v2"
                 })
             });
             const data = await r.json();
