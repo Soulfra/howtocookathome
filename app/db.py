@@ -1028,6 +1028,77 @@ class DB:
             return {"ok": True, "count": 0}
         return {"ok": True, "count": cur.rowcount}
 
+    # --------------------------------------------------
+    # TENANT CLAIM FLOW
+    # A tenant's page exists (auto-generated from public info + YAML).
+    # Owner claims ownership by receiving a token via email.
+    # --------------------------------------------------
+    def generate_claim_token(self, slug, email):
+        """Start a claim on tenant <slug>. Store a hashed token in the tenants row;
+        return the *unhashed* token so the caller can email it. Caller never sees
+        the hash. Only the hash is stored.
+
+        Returns: {ok, token} on success, {ok:false, error} on failure.
+        """
+        import secrets as _secrets, hashlib as _hashlib
+        slug = (slug or "").strip().lower()
+        email = (email or "").strip().lower()
+        if not slug:
+            return {"ok": False, "error": "missing slug"}
+        if not self._valid_email(email):
+            return {"ok": False, "error": "invalid email"}
+
+        row = self.conn.execute(
+            "SELECT slug, claimed FROM tenants WHERE slug=?", (slug,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "error": "tenant not found"}
+        if row["claimed"]:
+            # Already claimed — don't leak that we already know
+            return {"ok": False, "error": "already claimed"}
+
+        token = _secrets.token_urlsafe(24)
+        token_hash = _hashlib.sha256(token.encode()).hexdigest()
+        email_hash = _hashlib.sha256(email.encode()).hexdigest()
+        self.conn.execute(
+            "UPDATE tenants SET token_hash=?, email_hash=?, updated_at=datetime('now') WHERE slug=?",
+            (token_hash, email_hash, slug)
+        )
+        self.conn.commit()
+        return {"ok": True, "token": token, "slug": slug}
+
+    def verify_claim_token(self, slug, token):
+        """Consume a claim token: mark tenant as claimed if token matches.
+        Token can only be used once — after success, token_hash is cleared.
+        """
+        import hashlib as _hashlib
+        slug = (slug or "").strip().lower()
+        token = (token or "").strip()
+        if not slug or not token or len(token) < 8:
+            return {"ok": False, "error": "invalid request"}
+        token_hash = _hashlib.sha256(token.encode()).hexdigest()
+        row = self.conn.execute(
+            "SELECT slug, claimed, token_hash FROM tenants WHERE slug=?", (slug,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "error": "tenant not found"}
+        if row["claimed"]:
+            return {"ok": False, "error": "already claimed"}
+        if not row["token_hash"] or row["token_hash"] != token_hash:
+            return {"ok": False, "error": "invalid or expired token"}
+        self.conn.execute(
+            "UPDATE tenants SET claimed=1, claimed_at=datetime('now'), token_hash=NULL, updated_at=datetime('now') WHERE slug=?",
+            (slug,)
+        )
+        self.conn.commit()
+        return {"ok": True, "slug": slug}
+
+    def is_tenant_claimed(self, slug):
+        row = self.conn.execute(
+            "SELECT claimed FROM tenants WHERE slug=?", ((slug or "").strip().lower(),)
+        ).fetchone()
+        return bool(row and row["claimed"])
+
     def delete_subscriber_by_token(self, token):
         """Permanently remove subscriber rows with this token (GDPR right-to-deletion).
         Unlike unsubscribe (which marks `unsubscribed_at`), this fully deletes the row.

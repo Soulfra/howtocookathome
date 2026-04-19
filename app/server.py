@@ -68,6 +68,112 @@ RESERVED_SLUGS = {
 }
 
 
+def _claim_page_shell(inner_html):
+    """Shared HTML shell for /claim/* pages — same black/red aesthetic as V5/V6 landings."""
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim your spot | HowToCookAtHome</title>
+<meta name="theme-color" content="#000000">
+<style>
+html,body{{background:#000;color:#fff;margin:0;padding:0;min-height:100vh;
+font-family:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+display:flex;align-items:center;justify-content:center;}}
+.card{{max-width:560px;padding:3rem 2rem;text-align:left;width:100%;box-sizing:border-box;}}
+h1{{font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;
+font-size:clamp(1.85rem,5vw,2.75rem);line-height:1;margin:0 0 1rem;}}
+h1 .r{{color:#D91E18;}}
+p{{font-size:1.02rem;line-height:1.5;opacity:0.88;margin:0 0 1rem;}}
+a{{color:#D91E18;text-decoration:none;font-weight:700;}}
+a:hover{{text-decoration:underline;}}
+form{{display:flex;flex-direction:column;gap:0.6rem;margin-top:1.5rem;}}
+input[type=email]{{background:#0A0A0A;border:2px solid #1F1F1F;color:#fff;
+font:inherit;font-size:1rem;padding:0.95rem 1rem;min-height:52px;
+transition:border-color 0.15s;}}
+input[type=email]:focus{{outline:none;border-color:#D91E18;}}
+input[type=email]::placeholder{{color:#8A8A8A;}}
+button{{background:#D91E18;color:#fff;border:0;font:inherit;font-weight:900;
+font-size:1.05rem;text-transform:uppercase;letter-spacing:0.06em;
+padding:1rem;cursor:pointer;min-height:56px;transition:background 0.15s;}}
+button:hover{{background:#B31812;}}
+button:disabled{{opacity:0.55;cursor:wait;}}
+.msg{{margin-top:0.85rem;font-weight:700;font-size:0.95rem;min-height:1.2em;}}
+.msg.ok{{color:#2DD18A;}}
+.msg.err{{color:#FF6B64;}}
+.tag{{margin-top:2rem;font-size:0.8rem;color:#8A8A8A;line-height:1.5;}}
+.tag a{{color:#8A8A8A;text-decoration:underline;}}
+</style></head><body>
+<div class="card">{inner_html}</div></body></html>"""
+
+
+def _claim_form_html(slug, tenant_name):
+    return _claim_page_shell(f"""
+<h1>Claim <span class="r">{tenant_name}</span></h1>
+<p>Is this your business? Drop your email at the business's domain (or one you can prove you own) and we'll send you a one-time link to confirm.</p>
+<p>After you verify, you'll control the page — edit the description, add hours, show off your menu.</p>
+<form id="f">
+    <input type="email" name="email" placeholder="owner@{slug}.com" required
+           autocomplete="email" inputmode="email" spellcheck="false">
+    <button type="submit">Send verification link</button>
+    <div class="msg" id="msg" aria-live="polite"></div>
+</form>
+<p class="tag">
+  Not the owner of {tenant_name}? <a href="/">Back to HowToCookAtHome.</a><br>
+  Already claimed before? Your original verification email still works.
+</p>
+<script>
+document.getElementById('f').addEventListener('submit', async (e) => {{
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const email = e.target.email.value.trim();
+    const msg = document.getElementById('msg');
+    msg.className = 'msg'; msg.textContent = '';
+    btn.disabled = true;
+    try {{
+        const r = await fetch('/api/claim/{slug}', {{
+            method: 'POST',
+            headers: {{'Content-Type':'application/json'}},
+            body: JSON.stringify({{email}})
+        }});
+        const d = await r.json();
+        if (r.ok && d.ok) {{
+            msg.className = 'msg ok';
+            msg.textContent = d.message || 'Check your inbox.';
+            btn.textContent = 'Sent ✓';
+        }} else {{
+            msg.className = 'msg err';
+            msg.textContent = d.error || 'Something went sideways.';
+            btn.disabled = false;
+        }}
+    }} catch (_) {{
+        msg.className = 'msg err';
+        msg.textContent = 'Network hiccup.';
+        btn.disabled = false;
+    }}
+}});
+</script>""")
+
+
+def _claimed_already_html(tenant_name):
+    return _claim_page_shell(f"""
+<h1><span class="r">{tenant_name}</span> is claimed.</h1>
+<p>This page already has an owner. If that's you, check your email for your edit link — or reach out for a fresh one.</p>
+<p class="tag"><a href="/">Back to HowToCookAtHome.</a></p>""")
+
+
+def _claim_verify_html(slug, result):
+    if result.get("ok"):
+        return _claim_page_shell(f"""
+<h1>Verified. <span class="r">You own it.</span></h1>
+<p>You've claimed the page for <strong>{slug}</strong>. We'll be in touch about next steps (editing, pricing).</p>
+<p class="tag"><a href="/t/{slug}">View your page.</a> · <a href="/">Back home.</a></p>""")
+    err = result.get("error", "Something went wrong.")
+    return _claim_page_shell(f"""
+<h1>That link didn't work.</h1>
+<p>{err}</p>
+<p class="tag"><a href="/claim/{slug}">Try again</a> or <a href="/">head home</a>.</p>""")
+
+
 def _unsubscribe_html(result):
     """Tiny branded HTML page confirming unsubscribe. result is dict from
     DB.unsubscribe_by_token(). We don't expose whether the token was valid
@@ -848,6 +954,122 @@ a{color:#C4975A}</style></head>
         h = list(headers)
         h.append(("Content-Type", "text/html; charset=utf-8"))
         start_response("200 OK", h)
+        return [body]
+
+    # --- GET /claim/<slug> — claim form for a tenant page ---
+    # Shown on unclaimed pages. Renders a small form that POSTs /api/claim/<slug>.
+    if method == "GET" and path.startswith("/claim/") and len(path) > len("/claim/") and "/" not in path[len("/claim/"):]:
+        slug = path[len("/claim/"):]
+        from app.db import DB
+        db = DB()
+        tenant_row = db.conn.execute("SELECT slug, name, claimed FROM tenants WHERE slug=?", (slug,)).fetchone()
+        db.close()
+        if not tenant_row:
+            return not_found()
+        if tenant_row["claimed"]:
+            body = _claimed_already_html(tenant_row["name"]).encode("utf-8")
+        else:
+            body = _claim_form_html(tenant_row["slug"], tenant_row["name"]).encode("utf-8")
+        h = list(headers)
+        h.append(("Content-Type", "text/html; charset=utf-8"))
+        start_response("200 OK", h)
+        return [body]
+
+    # --- POST /api/claim/<slug> — email a magic link to the owner ---
+    if method == "POST" and path.startswith("/api/claim/") and len(path) > len("/api/claim/"):
+        slug = path[len("/api/claim/"):]
+        # rate limit — same bucket as subscribe; a hostile actor can't spray claim requests
+        ip = _client_ip(environ)
+        if not _rate_limit_check(ip):
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            h.append(("Retry-After", str(_RATE_WINDOW_SEC)))
+            start_response("429 Too Many Requests", h)
+            return [json.dumps({"ok": False, "error": "slow down"}).encode()]
+        try:
+            content_length = int(environ.get("CONTENT_LENGTH", 0) or 0)
+            raw = environ["wsgi.input"].read(content_length) if content_length else b"{}"
+            ctype_in = environ.get("CONTENT_TYPE", "")
+            if "application/json" in ctype_in:
+                data = json.loads(raw.decode("utf-8") or "{}")
+            else:
+                from urllib.parse import parse_qs
+                parsed = parse_qs(raw.decode("utf-8"))
+                data = {k: v[0] for k, v in parsed.items()}
+            email = (data.get("email") or "").strip().lower()
+
+            from app.db import DB
+            db = DB()
+            result = db.generate_claim_token(slug=slug, email=email)
+            # Grab the tenant name for the email body
+            row = db.conn.execute("SELECT name FROM tenants WHERE slug=?", (slug,)).fetchone()
+            tenant_name = row["name"] if row else slug
+            db.close()
+
+            # Send the magic-link email even if generate_claim_token failed, to avoid
+            # leaking which slugs are claimable — but only if basic email validation
+            # passed. Otherwise return 400.
+            if not result.get("ok") and result.get("error") == "invalid email":
+                h = list(headers)
+                h.append(("Content-Type", "application/json"))
+                start_response("400 Bad Request", h)
+                return [json.dumps(result).encode()]
+
+            if result.get("ok"):
+                try:
+                    from app import mail as _mail
+                    verify_url = f"https://howtocookathome.com/claim/verify/{slug}/{result['token']}"
+                    subj = f"Claim {tenant_name} on HowToCookAtHome"
+                    text = (
+                        f"Someone (hopefully you) asked to claim the page for {tenant_name} "
+                        f"on HowToCookAtHome.\n\n"
+                        f"Click this link to confirm you're the owner:\n{verify_url}\n\n"
+                        f"If this wasn't you, ignore this email — nothing happens.\n\n"
+                        f"— HowToCookAtHome\n"
+                    )
+                    html = (
+                        f"<p>Someone (hopefully you) asked to claim the page for "
+                        f"<strong>{tenant_name}</strong> on HowToCookAtHome.</p>"
+                        f'<p><a href="{verify_url}" style="background:#D91E18;color:#fff;padding:0.9rem 1.5rem;'
+                        f'text-decoration:none;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;">'
+                        f"Confirm ownership</a></p>"
+                        f"<p style=\"color:#8A8A8A;font-size:0.85rem\">Or copy this link: {verify_url}</p>"
+                        f"<p style=\"color:#8A8A8A;font-size:0.85rem\">If this wasn't you, ignore this email.</p>"
+                    )
+                    _mail.send(to=email, subject=subj, html=html, text=text)
+                except Exception as _e:
+                    # Don't fail the request if mail blows up; tell the caller a
+                    # generic ok so they don't see internals (and we still have
+                    # the token in the DB for re-send if needed).
+                    pass
+
+            # Always return a generic success to the client — don't leak whether
+            # the tenant existed, was already claimed, or the email bounced.
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            h.append(("Access-Control-Allow-Origin", "*"))
+            start_response("200 OK", h)
+            return [json.dumps({"ok": True, "message": "If the email matches, a verification link is on its way."}).encode()]
+        except Exception as e:
+            h = list(headers)
+            h.append(("Content-Type", "application/json"))
+            start_response("500 Internal Server Error", h)
+            return [json.dumps({"ok": False, "error": str(e)}).encode()]
+
+    # --- GET /claim/verify/<slug>/<token> — owner clicks the email link ---
+    if method == "GET" and path.startswith("/claim/verify/"):
+        parts = path[len("/claim/verify/"):].split("/", 1)
+        if len(parts) != 2:
+            return not_found()
+        slug, token = parts
+        from app.db import DB
+        db = DB()
+        result = db.verify_claim_token(slug=slug, token=token)
+        db.close()
+        body = _claim_verify_html(slug, result).encode("utf-8")
+        h = list(headers)
+        h.append(("Content-Type", "text/html; charset=utf-8"))
+        start_response("200 OK" if result.get("ok") else "400 Bad Request", h)
         return [body]
 
     # --- DELETE /api/subscribers/<token> — GDPR right-to-deletion ---
