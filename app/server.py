@@ -963,6 +963,22 @@ a{color:#C4975A}</style></head>
         from app.db import DB
         db = DB()
         tenant_row = db.conn.execute("SELECT slug, name, claimed FROM tenants WHERE slug=?", (slug,)).fetchone()
+        # Lazy-sync: if the tenant YAML exists in the repo but the row isn't in
+        # the DB yet (common on fresh deploys — publish.py builds HTML but
+        # doesn't populate the tenants table), upsert from YAML on demand.
+        if not tenant_row:
+            yaml_path = os.path.join(BASE_DIR, "content", "tenants", f"{slug}.yaml")
+            if os.path.isfile(yaml_path):
+                try:
+                    import yaml as _yaml
+                    data = _yaml.safe_load(open(yaml_path)) or {}
+                    if data.get("slug"):
+                        db.upsert_tenant(data)
+                        tenant_row = db.conn.execute(
+                            "SELECT slug, name, claimed FROM tenants WHERE slug=?", (slug,)
+                        ).fetchone()
+                except Exception:
+                    pass
         db.close()
         if not tenant_row:
             return not_found()
@@ -1000,8 +1016,19 @@ a{color:#C4975A}</style></head>
 
             from app.db import DB
             db = DB()
+            # Lazy-sync from YAML if the tenant row isn't in DB yet
+            row = db.conn.execute("SELECT name FROM tenants WHERE slug=?", (slug,)).fetchone()
+            if not row:
+                yaml_path = os.path.join(BASE_DIR, "content", "tenants", f"{slug}.yaml")
+                if os.path.isfile(yaml_path):
+                    try:
+                        import yaml as _yaml
+                        data = _yaml.safe_load(open(yaml_path)) or {}
+                        if data.get("slug"):
+                            db.upsert_tenant(data)
+                    except Exception:
+                        pass
             result = db.generate_claim_token(slug=slug, email=email)
-            # Grab the tenant name for the email body
             row = db.conn.execute("SELECT name FROM tenants WHERE slug=?", (slug,)).fetchone()
             tenant_name = row["name"] if row else slug
             db.close()
