@@ -42,7 +42,11 @@ import os
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "data", "htcah.db")
+# HTCAH_DATA_DIR lets ops point the app at a persistent disk mount
+# (Render: /var/data; local dev: the repo's data/ folder by default).
+DATA_DIR = os.environ.get("HTCAH_DATA_DIR") or os.path.join(BASE_DIR, "data")
+DB_PATH = os.path.join(DATA_DIR, "htcah.db")
+# USDA stays bundled with the code (read-only reference, built via scripts/build_db.sh)
 USDA_PATH = os.path.join(BASE_DIR, "data", "usda", "foundation.db")
 
 
