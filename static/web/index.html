@@ -193,7 +193,20 @@
     }
     .overlay .tag a { color: var(--red); text-decoration: none; }
 
-    /* Install hint (shown once, briefly, on iOS Safari if not installed) */
+    /* Install button — shown on Android/Chrome/Edge when beforeinstallprompt fires */
+    .install-btn {
+        position: fixed; bottom: calc(1rem + var(--safe-bot)); right: 1.25rem;
+        background: var(--red); color: var(--white);
+        border: 0; font: inherit; font-weight: 900; font-size: 0.85rem;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        padding: 0.75rem 1rem; min-height: 44px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        z-index: 50;
+    }
+    .install-btn:hover { background: var(--red-deep); }
+
+    /* iOS install hint — shown when we know iOS + not installed + no programmatic prompt available */
     .install-hint {
         position: fixed; bottom: calc(1rem + var(--safe-bot)); left: 1.25rem; right: 1.25rem;
         background: var(--ink); border: 1px solid var(--line);
@@ -282,9 +295,14 @@
     </p>
 </div>
 
-<!-- iOS install hint (shown once, dismissible) -->
+<!-- Install prompt — programmatic on Android/Chrome (real 1-tap install),
+     falls back to iOS-specific instructions on Safari. -->
+<button class="install-btn" id="install-btn" aria-label="Install as app" hidden>
+    ⤓ Install as app
+</button>
+
 <div class="install-hint" id="install-hint">
-    Install this as an app: tap <strong>Share</strong> → <strong>Add to Home Screen</strong>
+    Install this as an app: tap <strong>Share</strong> ⎋ → <strong>Add to Home Screen</strong>
     <button onclick="dismissInstallHint()" style="float:right;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem;padding:0 0.25rem;line-height:1;" aria-label="Dismiss">✕</button>
 </div>
 
@@ -344,12 +362,44 @@
     document.getElementById("info-link").addEventListener("click", (e) => { e.preventDefault(); openOverlay(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
 
-    // --- iOS install hint (shown once per device, only on iOS Safari not already installed) ---
+    // --- Install flow: programmatic on Android/Chrome/Edge, fallback on iOS ---
+    // beforeinstallprompt fires on Chromium-based browsers when PWA criteria are met
+    // (has manifest, has service worker or similar, HTTPS, etc.). iOS Safari does not
+    // support this event — Apple requires users to use the Share menu manually.
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById("install-btn");
+    const installHint = document.getElementById("install-hint");
+
     function dismissInstallHint() {
-        document.getElementById("install-hint").classList.remove("show");
+        installHint.classList.remove("show");
         try { localStorage.setItem("htcah.installhint.dismissed", "1"); } catch (_) {}
     }
     window.dismissInstallHint = dismissInstallHint;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        installBtn.hidden = false;
+    });
+
+    installBtn.addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installBtn.hidden = true;
+        if (outcome === "accepted") {
+            try { localStorage.setItem("htcah.installhint.dismissed", "1"); } catch (_) {}
+        }
+    });
+
+    window.addEventListener("appinstalled", () => {
+        installBtn.hidden = true;
+        installHint.classList.remove("show");
+    });
+
+    // iOS fallback: if we're on iOS Safari, not installed, and haven't dismissed,
+    // show the manual-instructions banner instead (Apple disallows programmatic install).
     (function () {
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isStandalone = window.matchMedia("(display-mode: standalone)").matches
@@ -357,7 +407,7 @@
         let dismissed = false;
         try { dismissed = localStorage.getItem("htcah.installhint.dismissed") === "1"; } catch (_) {}
         if (isIOS && !isStandalone && !dismissed) {
-            setTimeout(() => document.getElementById("install-hint").classList.add("show"), 4000);
+            setTimeout(() => installHint.classList.add("show"), 4000);
         }
     })();
 </script>
