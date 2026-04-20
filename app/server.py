@@ -1211,6 +1211,23 @@ a{color:#C4975A}</style></head>
 
     # --- Platform routes ---
     def resolve_platform(path):
+        # Direct static assets at the apex: manifest.json, icon-*.svg, robots.txt,
+        # sitemap.xml, etc. Served without the .html-append fallback below.
+        if path and "." in os.path.basename(path) and not path.endswith(".html"):
+            f = _find_web_file(os.path.basename(path))
+            if f:
+                ext = path.rsplit(".", 1)[-1].lower()
+                CTYPE = {
+                    "json": "application/json",
+                    "svg":  "image/svg+xml",
+                    "png":  "image/png",
+                    "ico":  "image/vnd.microsoft.icon",
+                    "txt":  "text/plain",
+                    "xml":  "application/xml",
+                    "js":   "application/javascript",
+                    "webmanifest": "application/manifest+json",
+                }
+                return (f, CTYPE.get(ext, "application/octet-stream"))
         if path.startswith("/api/"):
             endpoint = path.split("/api/")[1].split("?")[0]
             f = os.path.join(API_DIR, f"{endpoint}.json")

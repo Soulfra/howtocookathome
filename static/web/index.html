@@ -3,189 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>HowToCookAtHome — cook more, keep the savings</title>
-<meta name="description" content="Cook a few meals at home each week. Keep the savings. One email a week tracks the tally — and what you'll do with it.">
+<title>HowToCookAtHome</title>
+<meta name="description" content="Cook more. Keep the savings. One email a week.">
 <meta property="og:title" content="HowToCookAtHome">
 <meta property="og:description" content="Cook more. Keep the savings. Put them somewhere that means something.">
+
+<!-- PWA: installable as an app on iOS/Android home screen -->
+<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HTCAH">
+<link rel="apple-touch-icon" href="/icon-192.svg">
+<link rel="icon" type="image/svg+xml" href="/icon-192.svg">
+
 <style>
     :root {
         --black: #000000; --ink: #0A0A0A; --red: #D91E18; --red-deep: #B31812;
-        --white: #FFFFFF; --muted: #8A8A8A; --line: #1F1F1F;
-        --ok: #2DD18A;
+        --white: #FFFFFF; --muted: #8A8A8A; --line: #1F1F1F; --ok: #2DD18A;
         --safe-top: env(safe-area-inset-top, 0px);
         --safe-bot: env(safe-area-inset-bottom, 0px);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { background: var(--black); color: var(--white); }
+    html, body {
+        background: var(--black); color: var(--white);
+        height: 100%; overflow: hidden;
+    }
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Arial, sans-serif;
         font-weight: 500; line-height: 1.5;
-        -webkit-font-smoothing: antialiased; min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior: none;
     }
     a { color: var(--red); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    nav.top {
+    /* --- Top bar: text brand + info toggle --- */
+    .topbar {
+        position: fixed; top: var(--safe-top); left: 0; right: 0;
         display: flex; justify-content: space-between; align-items: center;
-        padding: calc(1.25rem + var(--safe-top)) 1.5rem 1rem;
-        border-bottom: 1px solid var(--line);
+        padding: 1rem 1.25rem; z-index: 10;
     }
-    nav.top .brand {
-        color: var(--white); font-weight: 900; letter-spacing: -0.02em;
-        font-size: 0.95rem; text-transform: uppercase;
+    .brand {
+        font-weight: 900; letter-spacing: -0.02em;
+        font-size: 1rem; text-transform: uppercase;
+        color: var(--white);
     }
-    nav.top .brand .dot { color: var(--red); }
-    nav.top .links { display: flex; gap: 1rem; align-items: center; }
-    nav.top .links a {
-        color: var(--muted); font-size: 0.8rem;
-        text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+    .brand .dot { color: var(--red); }
+    .info-btn {
+        background: transparent; color: var(--muted); border: 0;
+        font: inherit; font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        cursor: pointer; padding: 0.3rem 0.5rem;
     }
-    nav.top .links a:hover { color: var(--white); }
+    .info-btn:hover { color: var(--white); }
 
-    .hero {
-        padding: 3rem 1.5rem 2.5rem;
-        min-height: calc(100vh - 4rem - var(--safe-top));
-        display: flex; flex-direction: column; justify-content: center;
-        max-width: 720px;
+    /* --- Single-viewport card --- */
+    .card {
+        position: fixed; inset: 0;
+        padding: calc(3.25rem + var(--safe-top)) 1.5rem calc(1rem + var(--safe-bot));
+        display: flex; flex-direction: column;
+        justify-content: center;
+        max-width: 640px; margin: 0 auto;
     }
-    .hero h1 {
+    .card h1 {
         font-weight: 900;
-        font-size: clamp(2.75rem, 10vw, 6rem);
-        line-height: 0.92; letter-spacing: -0.035em;
-        text-transform: uppercase; margin-bottom: 1.25rem;
+        font-size: clamp(2.25rem, 9vw, 4rem);
+        line-height: 0.95; letter-spacing: -0.035em;
+        text-transform: uppercase; margin-bottom: 1rem;
     }
-    .hero h1 .red { color: var(--red); }
-    .hero .sub {
-        font-size: clamp(1.05rem, 1.6vw, 1.2rem);
-        max-width: 44ch; line-height: 1.5;
-        opacity: 0.9; margin-bottom: 2rem;
+    .card h1 .red { color: var(--red); }
+    .card .sub {
+        font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+        max-width: 38ch; line-height: 1.5;
+        opacity: 0.88; margin-bottom: 1.5rem;
     }
-    .hero .kicker {
-        color: var(--muted); font-size: 0.75rem;
+    .card .kicker {
+        color: var(--muted); font-size: 0.7rem;
         text-transform: uppercase; letter-spacing: 0.12em;
-        font-weight: 700; margin-bottom: 0.75rem;
+        font-weight: 700; margin-bottom: 0.5rem;
     }
 
     .pick-row {
-        display: flex; flex-direction: column; gap: 0.6rem;
-        max-width: 540px;
-        margin-bottom: 2rem;
+        display: flex; flex-direction: column; gap: 0.5rem;
+        margin-bottom: 1.25rem;
     }
     .pick {
         background: var(--black); color: var(--white);
         border: 2px solid var(--line);
-        padding: 1rem 1.25rem;
-        font: inherit; font-size: 1rem; font-weight: 700;
+        padding: 0.85rem 1rem;
+        font: inherit; font-size: 0.95rem; font-weight: 700;
         text-align: left;
         cursor: pointer; transition: all 0.15s;
-        min-height: 56px;
+        min-height: 52px;
         display: flex; align-items: center; gap: 0.75rem;
     }
     .pick:hover { border-color: var(--red); }
-    .pick.active {
-        background: var(--red); border-color: var(--red);
-    }
+    .pick.active { background: var(--red); border-color: var(--red); }
     .pick .dot {
         width: 10px; height: 10px; border-radius: 50%;
-        border: 2px solid var(--muted);
-        flex-shrink: 0;
+        border: 2px solid var(--muted); flex-shrink: 0;
     }
-    .pick.active .dot {
-        background: var(--white); border-color: var(--white);
-    }
-    .pick .pick-label { flex: 1; }
-    .pick .pick-hint {
+    .pick.active .dot { background: var(--white); border-color: var(--white); }
+    .pick-label { flex: 1; }
+    .pick-hint {
         display: block;
-        font-size: 0.75rem; font-weight: 500;
-        color: var(--muted); margin-top: 0.15rem;
+        font-size: 0.72rem; font-weight: 500;
+        color: var(--muted); margin-top: 0.1rem;
         text-transform: none; letter-spacing: 0;
     }
-    .pick.active .pick-hint { color: rgba(255,255,255,0.85); }
+    .pick.active .pick-hint { color: rgba(255,255,255,0.9); }
 
     form.cap {
-        display: flex; gap: 0.5rem; flex-wrap: wrap;
-        max-width: 540px;
+        display: flex; gap: 0.4rem; flex-wrap: wrap;
     }
     form.cap input[type=email] {
-        flex: 1 1 260px; background: var(--ink);
+        flex: 1 1 200px; background: var(--ink);
         border: 2px solid var(--line); color: var(--white);
-        font: inherit; font-size: 1.05rem; padding: 1rem 1.1rem;
-        min-height: 54px; min-width: 0;
+        font: inherit; font-size: 1rem; padding: 0.9rem 1rem;
+        min-height: 52px; min-width: 0;
         transition: border-color 0.15s;
     }
     form.cap input[type=email]:focus { outline: none; border-color: var(--red); }
     form.cap input[type=email]::placeholder { color: var(--muted); }
     form.cap button {
         background: var(--red); color: var(--white);
-        border: 0; font: inherit; font-weight: 900; font-size: 1.05rem;
+        border: 0; font: inherit; font-weight: 900; font-size: 1rem;
         text-transform: uppercase; letter-spacing: 0.06em;
-        padding: 1rem 1.75rem; cursor: pointer;
-        min-height: 54px;
-        transition: background 0.15s;
+        padding: 0.9rem 1.5rem; cursor: pointer;
+        min-height: 52px; transition: background 0.15s;
     }
     form.cap button:hover { background: var(--red-deep); }
     form.cap button:disabled { opacity: 0.55; cursor: wait; }
     .msg {
-        margin-top: 0.85rem; font-weight: 700; font-size: 0.95rem;
+        margin-top: 0.7rem; font-weight: 700; font-size: 0.9rem;
         min-height: 1.2em;
     }
     .msg.ok { color: var(--ok); }
     .msg.err { color: #FF6B64; }
 
     .privacy-note {
-        margin-top: 1rem;
-        color: var(--muted); font-size: 0.78rem; line-height: 1.45;
-        max-width: 52ch;
+        margin-top: 0.9rem;
+        color: var(--muted); font-size: 0.72rem; line-height: 1.5;
     }
     .privacy-note a { color: var(--muted); text-decoration: underline; }
-    .privacy-note a:hover { color: var(--white); }
 
-    section.how {
-        padding: 2.5rem 1.5rem 3rem; border-top: 1px solid var(--line);
-        max-width: 960px; margin: 0 auto;
+    /* --- Info overlay (how it works) --- */
+    .overlay {
+        position: fixed; inset: 0; z-index: 100;
+        background: rgba(0,0,0,0.94); backdrop-filter: blur(8px);
+        padding: calc(3.25rem + var(--safe-top)) 1.5rem calc(1.5rem + var(--safe-bot));
+        display: flex; flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
     }
-    section.how h2 {
+    .overlay.open { transform: translateY(0); }
+    .overlay h2 {
         font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
-        font-size: clamp(1.25rem, 2.5vw, 1.75rem); margin-bottom: 1.5rem;
+        font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem;
     }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-    .step { border-top: 3px solid var(--red); padding-top: 0.9rem; }
+    .overlay .close {
+        position: absolute; top: calc(1rem + var(--safe-top)); right: 1.25rem;
+        background: transparent; color: var(--muted); border: 0;
+        font: inherit; font-size: 1.5rem; cursor: pointer;
+        width: 44px; height: 44px;
+    }
+    .overlay .close:hover { color: var(--white); }
+    .steps {
+        display: flex; flex-direction: column; gap: 1.25rem;
+        max-width: 640px; margin: 0 auto; width: 100%;
+    }
+    .step {
+        border-top: 3px solid var(--red); padding-top: 0.9rem;
+    }
     .step .n {
         font-weight: 900; font-size: 1.5rem; color: var(--red);
         letter-spacing: -0.03em; line-height: 1;
     }
     .step h3 {
-        font-weight: 900; font-size: 0.9rem; text-transform: uppercase;
+        font-weight: 900; font-size: 0.95rem; text-transform: uppercase;
         letter-spacing: 0.02em; margin: 0.4rem 0;
     }
-    .step p { color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
+    .step p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
 
-    footer {
-        padding: 1.5rem 1.5rem calc(1.5rem + var(--safe-bot));
-        border-top: 1px solid var(--line);
-        color: var(--muted); font-size: 0.78rem;
-        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    .overlay .tag {
+        margin-top: 2rem; font-size: 0.75rem; color: var(--muted);
+        max-width: 640px; margin-left: auto; margin-right: auto; width: 100%;
     }
+    .overlay .tag a { color: var(--red); text-decoration: none; }
 
-    @media (max-width: 640px) {
-        .steps { grid-template-columns: 1fr; }
+    /* Install hint (shown once, briefly, on iOS Safari if not installed) */
+    .install-hint {
+        position: fixed; bottom: calc(1rem + var(--safe-bot)); left: 1.25rem; right: 1.25rem;
+        background: var(--ink); border: 1px solid var(--line);
+        padding: 0.7rem 0.9rem;
+        font-size: 0.75rem; color: var(--muted);
+        border-radius: 6px;
+        display: none;
+        z-index: 50;
+    }
+    .install-hint.show { display: block; }
+    .install-hint strong { color: var(--white); }
+
+    @media (max-height: 640px) {
+        .card h1 { font-size: clamp(2rem, 8vw, 3rem); margin-bottom: 0.75rem; }
+        .card .sub { margin-bottom: 1rem; font-size: 0.9rem; }
+        .pick { padding: 0.7rem 1rem; min-height: 48px; }
+        .pick-row { margin-bottom: 1rem; }
     }
 </style>
 </head>
 <body>
 
-<nav class="top">
+<div class="topbar">
     <a href="/" class="brand">HowToCookAtHome<span class="dot">.</span></a>
-    <div class="links">
-        <a href="/tip-better">Tip better</a>
-        <a href="/next-show">Next show</a>
-    </div>
-</nav>
+    <button class="info-btn" id="info-open" aria-label="How it works">How it works →</button>
+</div>
 
-<section class="hero">
+<div class="card">
     <h1>Cook&nbsp;more.<br><span class="red">Keep the savings.</span></h1>
-    <p class="sub">A few meals at home each week adds up fast. We send one email a week with what to cook, what you saved, and one thing worth doing with it.</p>
+    <p class="sub">One email a week. What to cook, what you saved, one thing worth doing with it.</p>
 
     <div class="kicker">Pick what you're here for:</div>
     <div class="pick-row" id="picks">
@@ -193,14 +231,14 @@
             <span class="dot"></span>
             <span class="pick-label">
                 More generous nights out
-                <span class="pick-hint">bigger tips at the spots you already love</span>
+                <span class="pick-hint">bigger tips at your spots</span>
             </span>
         </button>
         <button class="pick" data-bucket="experience" data-source="home-experience">
             <span class="dot"></span>
             <span class="pick-label">
                 Save for something real
-                <span class="pick-hint">a concert, a trip, a night that matters</span>
+                <span class="pick-hint">a show, a trip, a night that matters</span>
             </span>
         </button>
     </div>
@@ -213,11 +251,13 @@
     <div class="msg" id="msg" aria-live="polite"></div>
 
     <p class="privacy-note">
-        We store your email to send the weekly drop and nothing else. No third-party trackers. One-click unsubscribe in every email. You can change your pick anytime.
+        Email only, never shared. <a href="#" id="info-link">How it works</a>.
     </p>
-</section>
+</div>
 
-<section class="how">
+<!-- Slide-up overlay — 'how it works' + links -->
+<div class="overlay" id="overlay" aria-hidden="true">
+    <button class="close" id="info-close" aria-label="Close">✕</button>
     <h2>How it works</h2>
     <div class="steps">
         <div class="step">
@@ -236,12 +276,17 @@
             <p>A generous tip, a ticket, a trip. You pick — the plan gets you there.</p>
         </div>
     </div>
-</section>
+    <p class="tag">
+        Direct entry: <a href="/tip-better">tip better</a> · <a href="/next-show">next show</a><br>
+        © HowToCookAtHome — email only, no third-party trackers, one-click unsubscribe.
+    </p>
+</div>
 
-<footer>
-    <div>© HowToCookAtHome</div>
-    <div><a href="/tip-better">tip better</a> · <a href="/next-show">next show</a></div>
-</footer>
+<!-- iOS install hint (shown once, dismissible) -->
+<div class="install-hint" id="install-hint">
+    Install this as an app: tap <strong>Share</strong> → <strong>Add to Home Screen</strong>
+    <button onclick="dismissInstallHint()" style="float:right;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem;padding:0 0.25rem;line-height:1;" aria-label="Dismiss">✕</button>
+</div>
 
 <script>
     let currentBucket = "patron";
@@ -268,10 +313,8 @@
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    email,
-                    bucket: currentBucket,
-                    weekly_saving: 0,
-                    source: currentSource
+                    email, bucket: currentBucket,
+                    weekly_saving: 0, source: currentSource
                 })
             });
             const data = await r.json();
@@ -291,6 +334,32 @@
             btn.disabled = false;
         }
     });
+
+    // --- overlay (how it works) ---
+    const overlay = document.getElementById("overlay");
+    function openOverlay() { overlay.classList.add("open"); overlay.setAttribute("aria-hidden", "false"); }
+    function closeOverlay() { overlay.classList.remove("open"); overlay.setAttribute("aria-hidden", "true"); }
+    document.getElementById("info-open").addEventListener("click", openOverlay);
+    document.getElementById("info-close").addEventListener("click", closeOverlay);
+    document.getElementById("info-link").addEventListener("click", (e) => { e.preventDefault(); openOverlay(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
+
+    // --- iOS install hint (shown once per device, only on iOS Safari not already installed) ---
+    function dismissInstallHint() {
+        document.getElementById("install-hint").classList.remove("show");
+        try { localStorage.setItem("htcah.installhint.dismissed", "1"); } catch (_) {}
+    }
+    window.dismissInstallHint = dismissInstallHint;
+    (function () {
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+                          || window.navigator.standalone;
+        let dismissed = false;
+        try { dismissed = localStorage.getItem("htcah.installhint.dismissed") === "1"; } catch (_) {}
+        if (isIOS && !isStandalone && !dismissed) {
+            setTimeout(() => document.getElementById("install-hint").classList.add("show"), 4000);
+        }
+    })();
 </script>
 
 </body>
