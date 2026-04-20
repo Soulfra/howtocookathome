@@ -1,769 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HowToCookAtHome — Learn to Cook with Confidence</title>
-    <meta name="description" content="Step-by-step cooking tutorials for complete beginners. Every episode answers a real search query. No fluff, no gimmicks.">
-
-    
-    <style>
-        :root {
-            --color-primary: #1A1A2E;
-            --color-accent: #C4975A;
-            --color-bg: #F5F0E8;
-            --color-surface: #FFFFFF;
-            --color-text: #333333;
-            --color-text-light: #666666;
-            --color-success: #2D6A4F;
-            --font-heading: Georgia, &#39;Times New Roman&#39;, serif;
-            --font-body: Arial, Helvetica, sans-serif;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: var(--font-body);
-            color: var(--color-text);
-            background: var(--color-bg);
-            line-height: 1.6;
-        }
-
-        /* --- NAV --- */
-        nav {
-            background: var(--color-primary);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        nav .brand {
-            font-family: var(--font-heading);
-            color: var(--color-accent);
-            font-size: 1.3rem;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        nav .links { display: flex; gap: 1.5rem; }
-        nav .links a {
-            color: var(--color-bg);
-            text-decoration: none;
-            font-size: 0.9rem;
-            opacity: 0.85;
-        }
-        nav .links a:hover { opacity: 1; }
-
-        /* --- LAYOUT --- */
-        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
-        .wide-container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-
-        /* --- HERO --- */
-        .hero {
-            background: var(--color-primary);
-            color: var(--color-bg);
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-        .hero h1 {
-            font-family: var(--font-heading);
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--color-accent);
-        }
-        .hero p {
-            font-size: 1.15rem;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-            opacity: 0.9;
-        }
-        .hero .cta {
-            display: inline-block;
-            background: var(--color-accent);
-            color: var(--color-primary);
-            padding: 0.8rem 2rem;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        /* --- SECTIONS --- */
-        section { padding: 3rem 0; }
-        section h2 {
-            font-family: var(--font-heading);
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--color-primary);
-        }
-
-        /* --- EPISODE GRID --- */
-        .episode-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .episode-card {
-            background: var(--color-surface);
-            border: 1px solid #ddd;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        .episode-card:hover {
-            border-color: var(--color-accent);
-        }
-        .episode-card .ep-number {
-            font-family: var(--font-heading);
-            font-size: 0.8rem;
-            color: var(--color-accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .episode-card h3 {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            margin: 0.5rem 0;
-            color: var(--color-primary);
-        }
-        .episode-card .hook {
-            font-size: 0.9rem;
-            color: var(--color-text-light);
-            font-style: italic;
-        }
-        .episode-card .meta {
-            margin-top: 0.75rem;
-            font-size: 0.8rem;
-            color: var(--color-text-light);
-            display: flex;
-            gap: 1rem;
-        }
-
-        /* --- EPISODE LIST (compact) --- */
-        .episode-list { list-style: none; }
-        .episode-list li {
-            padding: 1rem 0;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: baseline;
-            gap: 1rem;
-        }
-        .episode-list .num {
-            font-family: var(--font-heading);
-            color: var(--color-accent);
-            font-size: 0.85rem;
-            min-width: 2rem;
-        }
-        .episode-list a {
-            color: var(--color-primary);
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .episode-list a:hover { color: var(--color-accent); }
-        .episode-list .diff {
-            margin-left: auto;
-            font-size: 0.85rem;
-        }
-
-        /* --- SUBSCRIBE BLOCK --- */
-        .subscribe {
-            background: var(--color-primary);
-            color: var(--color-bg);
-            padding: 3rem 2rem;
-            text-align: center;
-        }
-        .subscribe h2 {
-            font-family: var(--font-heading);
-            color: var(--color-accent);
-        }
-        .subscribe p {
-            max-width: 500px;
-            margin: 0.75rem auto 1.5rem;
-            opacity: 0.85;
-        }
-        .subscribe form {
-            display: flex;
-            gap: 0.5rem;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .subscribe input[type="email"] {
-            flex: 1;
-            padding: 0.7rem 1rem;
-            border: none;
-            font-size: 1rem;
-            font-family: var(--font-body);
-        }
-        .subscribe button {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            border: none;
-            padding: 0.7rem 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: var(--font-body);
-        }
-
-        /* --- RECIPE PAGE --- */
-        .recipe-header {
-            background: var(--color-primary);
-            color: var(--color-bg);
-            padding: 3rem 2rem;
-        }
-        .recipe-header .ep-label {
-            color: var(--color-accent);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .recipe-header h1 {
-            font-family: var(--font-heading);
-            font-size: 2rem;
-            margin: 0.5rem 0;
-            color: var(--color-bg);
-        }
-        .recipe-header .hook-text {
-            font-style: italic;
-            opacity: 0.85;
-            font-size: 1.1rem;
-        }
-        .recipe-body { padding: 2rem; max-width: 720px; margin: 0 auto; }
-        .recipe-body h2 {
-            font-family: var(--font-heading);
-            font-size: 1.3rem;
-            color: var(--color-primary);
-            margin: 2rem 0 0.75rem;
-            padding-bottom: 0.3rem;
-            border-bottom: 2px solid var(--color-accent);
-        }
-        .recipe-body p { margin-bottom: 1rem; }
-        .recipe-meta-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        .meta-item {
-            background: var(--color-surface);
-            border: 1px solid #ddd;
-            padding: 1rem;
-            text-align: center;
-        }
-        .meta-item .label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--color-text-light);
-            letter-spacing: 0.05em;
-        }
-        .meta-item .value {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            color: var(--color-primary);
-            margin-top: 0.25rem;
-        }
-
-        /* --- NAV BETWEEN EPISODES --- */
-        .episode-nav {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #ddd;
-        }
-        .episode-nav a {
-            color: var(--color-accent);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .episode-nav a:hover { text-decoration: underline; }
-
-        /* --- FOOTER --- */
-        footer {
-            background: var(--color-primary);
-            color: var(--color-bg);
-            padding: 1.5rem 2rem;
-            text-align: center;
-            font-size: 0.85rem;
-            opacity: 0.7;
-        }
-        footer a { color: var(--color-accent); text-decoration: none; }
-
-        /* --- SEO KEYWORDS (hidden, for reference) --- */
-        .seo-keywords { display: none; }
-    </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HowToCookAtHome — cook more, keep the savings</title>
+<meta name="description" content="Cook a few meals at home each week. Keep the savings. One email a week tracks the tally — and what you'll do with it.">
+<meta property="og:title" content="HowToCookAtHome">
+<meta property="og:description" content="Cook more. Keep the savings. Put them somewhere that means something.">
+<meta name="theme-color" content="#000000">
 <style>
-/* === Design system upgrade === */
-:root {
-  --color-primary: #1A1A2E;
-  --color-accent: #C4975A;
-  --color-bg: #FFFBF5;
-  --color-surface: #FFFFFF;
-  --color-text: #1C1917;
-  --color-text-light: #57534E;
-  --color-success: #2D6A4F;
-  --font-heading: 'Lora', Georgia, 'Times New Roman', serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --radius: 16px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 15px;
-  line-height: 1.7;
-  background: var(--color-bg);
-}
-h1,h2,h3,h4 { letter-spacing: -0.02em; line-height: 1.25; }
-a { transition: color var(--transition); }
-::selection { background: var(--color-accent); color: white; }
+    :root {
+        --black: #000000; --ink: #0A0A0A; --red: #D91E18; --red-deep: #B31812;
+        --white: #FFFFFF; --muted: #8A8A8A; --line: #1F1F1F;
+        --ok: #2DD18A;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: var(--black); color: var(--white); }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Arial, sans-serif;
+        font-weight: 500; line-height: 1.5;
+        -webkit-font-smoothing: antialiased; min-height: 100vh;
+    }
+    a { color: var(--red); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-/* Upgraded nav */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
-  backdrop-filter: blur(12px);
-}
-nav .links a {
-  transition: all var(--transition);
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
-}
-nav .links a:hover {
-  opacity: 1;
-  color: var(--color-accent);
-  border-bottom-color: var(--color-accent);
-}
+    nav.top {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: calc(1.25rem + var(--safe-top)) 1.5rem 1rem;
+        border-bottom: 1px solid var(--line);
+    }
+    nav.top .brand {
+        color: var(--white); font-weight: 900; letter-spacing: -0.02em;
+        font-size: 0.95rem; text-transform: uppercase;
+    }
+    nav.top .brand .dot { color: var(--red); }
+    nav.top .links { display: flex; gap: 1rem; align-items: center; }
+    nav.top .links a {
+        color: var(--muted); font-size: 0.8rem;
+        text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+    }
+    nav.top .links a:hover { color: var(--white); }
 
-/* Upgraded cards */
-.episode-card {
-  border-radius: var(--radius);
-  border: 1px solid rgba(0,0,0,0.04);
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-.episode-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(0,0,0,0.04);
-}
+    .hero {
+        padding: 3rem 1.5rem 2.5rem;
+        min-height: calc(100vh - 4rem - var(--safe-top));
+        display: flex; flex-direction: column; justify-content: center;
+        max-width: 720px;
+    }
+    .hero h1 {
+        font-weight: 900;
+        font-size: clamp(2.75rem, 10vw, 6rem);
+        line-height: 0.92; letter-spacing: -0.035em;
+        text-transform: uppercase; margin-bottom: 1.25rem;
+    }
+    .hero h1 .red { color: var(--red); }
+    .hero .sub {
+        font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+        max-width: 44ch; line-height: 1.5;
+        opacity: 0.9; margin-bottom: 2rem;
+    }
+    .hero .kicker {
+        color: var(--muted); font-size: 0.75rem;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        font-weight: 700; margin-bottom: 0.75rem;
+    }
 
-/* Upgraded hero */
-.hero { padding: 5rem 2rem 4rem; }
-.hero h1 { font-size: 2.6rem; letter-spacing: -0.03em; font-weight: 700; }
-.hero .cta {
-  border-radius: 8px;
-  transition: opacity var(--transition);
-}
-.hero .cta:hover { opacity: 0.9; }
+    .pick-row {
+        display: flex; flex-direction: column; gap: 0.6rem;
+        max-width: 540px;
+        margin-bottom: 2rem;
+    }
+    .pick {
+        background: var(--black); color: var(--white);
+        border: 2px solid var(--line);
+        padding: 1rem 1.25rem;
+        font: inherit; font-size: 1rem; font-weight: 700;
+        text-align: left;
+        cursor: pointer; transition: all 0.15s;
+        min-height: 56px;
+        display: flex; align-items: center; gap: 0.75rem;
+    }
+    .pick:hover { border-color: var(--red); }
+    .pick.active {
+        background: var(--red); border-color: var(--red);
+    }
+    .pick .dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        border: 2px solid var(--muted);
+        flex-shrink: 0;
+    }
+    .pick.active .dot {
+        background: var(--white); border-color: var(--white);
+    }
+    .pick .pick-label { flex: 1; }
+    .pick .pick-hint {
+        display: block;
+        font-size: 0.75rem; font-weight: 500;
+        color: var(--muted); margin-top: 0.15rem;
+        text-transform: none; letter-spacing: 0;
+    }
+    .pick.active .pick-hint { color: rgba(255,255,255,0.85); }
 
-/* Upgraded footer */
-footer {
-  padding: 2.5rem 2rem;
-  font-size: 0.82rem;
-  letter-spacing: 0.01em;
-}
+    form.cap {
+        display: flex; gap: 0.5rem; flex-wrap: wrap;
+        max-width: 540px;
+    }
+    form.cap input[type=email] {
+        flex: 1 1 260px; background: var(--ink);
+        border: 2px solid var(--line); color: var(--white);
+        font: inherit; font-size: 1.05rem; padding: 1rem 1.1rem;
+        min-height: 54px; min-width: 0;
+        transition: border-color 0.15s;
+    }
+    form.cap input[type=email]:focus { outline: none; border-color: var(--red); }
+    form.cap input[type=email]::placeholder { color: var(--muted); }
+    form.cap button {
+        background: var(--red); color: var(--white);
+        border: 0; font: inherit; font-weight: 900; font-size: 1.05rem;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        padding: 1rem 1.75rem; cursor: pointer;
+        min-height: 54px;
+        transition: background 0.15s;
+    }
+    form.cap button:hover { background: var(--red-deep); }
+    form.cap button:disabled { opacity: 0.55; cursor: wait; }
+    .msg {
+        margin-top: 0.85rem; font-weight: 700; font-size: 0.95rem;
+        min-height: 1.2em;
+    }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: #FF6B64; }
 
-/* Recipe page upgrades */
-.recipe-header { padding: 4rem 2rem; }
-.recipe-header h1 { font-size: 2.2rem; letter-spacing: -0.03em; }
-.meta-item {
-  border-radius: var(--radius);
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: var(--shadow-sm);
-}
+    .privacy-note {
+        margin-top: 1rem;
+        color: var(--muted); font-size: 0.78rem; line-height: 1.45;
+        max-width: 52ch;
+    }
+    .privacy-note a { color: var(--muted); text-decoration: underline; }
+    .privacy-note a:hover { color: var(--white); }
 
-/* Subscribe block */
-.subscribe { padding: 4rem 2rem; }
-.subscribe button { border-radius: 6px; transition: opacity var(--transition); }
-.subscribe button:hover { opacity: 0.9; }
-.subscribe input[type="email"] { border-radius: 6px 0 0 6px; }
+    section.how {
+        padding: 2.5rem 1.5rem 3rem; border-top: 1px solid var(--line);
+        max-width: 960px; margin: 0 auto;
+    }
+    section.how h2 {
+        font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
+        font-size: clamp(1.25rem, 2.5vw, 1.75rem); margin-bottom: 1.5rem;
+    }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .step { border-top: 3px solid var(--red); padding-top: 0.9rem; }
+    .step .n {
+        font-weight: 900; font-size: 1.5rem; color: var(--red);
+        letter-spacing: -0.03em; line-height: 1;
+    }
+    .step h3 {
+        font-weight: 900; font-size: 0.9rem; text-transform: uppercase;
+        letter-spacing: 0.02em; margin: 0.4rem 0;
+    }
+    .step p { color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .hero h1 { font-size: 1.8rem; }
-  .hero { padding: 3rem 1.5rem 2.5rem; }
-  nav { padding: 0.75rem 1rem; }
-  nav .links { gap: 0.8rem; }
-  nav .links a { font-size: 0.75rem; }
-}
+    footer {
+        padding: 1.5rem 1.5rem calc(1.5rem + var(--safe-bot));
+        border-top: 1px solid var(--line);
+        color: var(--muted); font-size: 0.78rem;
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .steps { grid-template-columns: 1fr; }
+    }
 </style>
-
 </head>
 <body>
 
-
-<nav>
-    <a href="index.html" class="brand">HowToCookAtHome</a>
+<nav class="top">
+    <a href="/" class="brand">HowToCookAtHome<span class="dot">.</span></a>
     <div class="links">
-        
-        <a href="episodes.html">Episodes</a>
-        
-        <a href="#recipes">Recipes</a>
-        
-        <a href="/restaurants">Restaurants</a>
-        <a href="/about">About</a>
-        
-        <a href="/onboard">Get Your Site</a>
-        
+        <a href="/tip-better">Tip better</a>
+        <a href="/next-show">Next show</a>
     </div>
 </nav>
 
+<section class="hero">
+    <h1>Cook&nbsp;more.<br><span class="red">Keep the savings.</span></h1>
+    <p class="sub">A few meals at home each week adds up fast. We send one email a week with what to cook, what you saved, and one thing worth doing with it.</p>
 
+    <div class="kicker">Pick what you're here for:</div>
+    <div class="pick-row" id="picks">
+        <button class="pick active" data-bucket="patron" data-source="home-patron">
+            <span class="dot"></span>
+            <span class="pick-label">
+                More generous nights out
+                <span class="pick-hint">bigger tips at the spots you already love</span>
+            </span>
+        </button>
+        <button class="pick" data-bucket="experience" data-source="home-experience">
+            <span class="dot"></span>
+            <span class="pick-label">
+                Save for something real
+                <span class="pick-hint">a concert, a trip, a night that matters</span>
+            </span>
+        </button>
+    </div>
 
-
-<div class="hero">
-    <h1>Learn to cook. For real this time.</h1>
-    <p>30 episodes. From boiling water to cooking without a recipe. No culinary school required.</p>
-    <a href="recipe_how-to-boil-water.html" class="cta">Start with Episode 1</a>
-</div>
-
-
-<div class="wide-container">
-    <section>
-        <h2>Start Here</h2>
-        <div class="episode-grid">
-            
-            <a href="recipe_how-to-boil-water.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Boil Water (Yes, Really)</h3>
-                <p class="hook">You&#39;ve been boiling water wrong.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>3 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-            <a href="recipe_how-to-hold-a-knife.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Hold a Kitchen Knife Safely</h3>
-                <p class="hook">This grip will change everything.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>2 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-            <a href="recipe_how-to-dice-an-onion.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Dice an Onion Without Crying</h3>
-                <p class="hook">Here&#39;s the trick no one tells you.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>3 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-            <a href="recipe_how-to-make-rice.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Make Perfect Rice Every Time</h3>
-                <p class="hook">Throw away your rice cooker instructions.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>5 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-            <a href="recipe_how-to-scramble-eggs.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Scramble Eggs Like a Chef</h3>
-                <p class="hook">Low and slow. That&#39;s it.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>3 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-            <a href="recipe_how-to-season-food.html" class="episode-card">
-                <span class="ep-number">Episode </span>
-                <h3>How to Season Food (The #1 Beginner Mistake)</h3>
-                <p class="hook">If your food tastes bland, this is why.</p>
-                <div class="meta">
-                    <span>★☆☆</span>
-                    <span>4 min</span>
-                    <span>Short</span>
-                </div>
-            </a>
-            
-        </div>
-    </section>
-
-    
-    
-    <section>
-        <h2>Recipes</h2>
-        <div class="episode-grid">
-            
-            <a href="r_abuelas-chicken-tinga.html" class="episode-card">
-                <span class="ep-number" style="color: var(--color-success);">mexican</span>
-                <h3>Abuela&#39;s Chicken Tinga</h3>
-                <div class="meta">
-                    <span>10 ingredients</span>
-                    <span>3 techniques</span>
-                    <span style="color: var(--color-success);">USDA-enriched</span>
-                </div>
-            </a>
-            
-            <a href="r_cacio-e-pepe.html" class="episode-card">
-                <span class="ep-number" style="color: var(--color-success);">italian</span>
-                <h3>Cacio e Pepe</h3>
-                <div class="meta">
-                    <span>4 ingredients</span>
-                    <span>1 techniques</span>
-                    <span style="color: var(--color-success);">USDA-enriched</span>
-                </div>
-            </a>
-            
-            <a href="r_oyakodon-parent-child-rice-bowl.html" class="episode-card">
-                <span class="ep-number" style="color: var(--color-success);">japanese</span>
-                <h3>Oyakodon (Parent-Child Rice Bowl)</h3>
-                <div class="meta">
-                    <span>9 ingredients</span>
-                    <span>1 techniques</span>
-                    <span style="color: var(--color-success);">USDA-enriched</span>
-                </div>
-            </a>
-            
-            <a href="r_oyakodon.html" class="episode-card">
-                <span class="ep-number" style="color: var(--color-success);">japanese</span>
-                <h3>Oyakodon</h3>
-                <div class="meta">
-                    <span>9 ingredients</span>
-                    <span>1 techniques</span>
-                    <span style="color: var(--color-success);">USDA-enriched</span>
-                </div>
-            </a>
-            
-            <a href="r_thai-green-curry.html" class="episode-card">
-                <span class="ep-number" style="color: var(--color-success);">thai</span>
-                <h3>Thai Green Curry</h3>
-                <div class="meta">
-                    <span>10 ingredients</span>
-                    <span>0 techniques</span>
-                    <span style="color: var(--color-success);">USDA-enriched</span>
-                </div>
-            </a>
-            
-        </div>
-    </section>
-    
-
-    
-    <section>
-        <h2>Season 1 — All 30 Episodes</h2>
-        <ul class="episode-list">
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-boil-water.html">How to Boil Water (Yes, Really)</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-hold-a-knife.html">How to Hold a Kitchen Knife Safely</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-dice-an-onion.html">How to Dice an Onion Without Crying</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-rice.html">How to Make Perfect Rice Every Time</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-scramble-eggs.html">How to Scramble Eggs Like a Chef</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-season-food.html">How to Season Food (The #1 Beginner Mistake)</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-pasta.html">How to Cook Pasta That Doesn&#39;t Suck</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-sear-meat.html">How to Sear Meat Without Ruining It</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-read-a-recipe.html">How to Read a Recipe (Like a Pro)</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-roast-vegetables.html">How to Roast Vegetables That Actually Taste Good</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-pan-sauce.html">How to Make a Pan Sauce in 5 Minutes</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-chicken-breast.html">How to Cook Chicken Breast That Isn&#39;t Dry</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-soup.html">How to Make Soup From Literally Anything</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-steak.html">How to Cook Steak at Home (Better Than a Restaurant)</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-a-salad.html">How to Make a Salad You Actually Want to Eat</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-saute.html">How to Sauté Like You Know What You&#39;re Doing</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-fried-rice.html">How to Make Fried Rice (Better Than Takeout)</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-bake.html">How to Bake Without Fear</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-fish.html">How to Cook Fish Without Stinking Up Your House</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-stir-fry.html">How to Make a Stir Fry in Under 10 Minutes</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-braise.html">How to Braise (The Set-It-and-Forget-It Method)</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-meal-prep.html">How to Meal Prep Without Hating Your Life</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-eggs.html">How to Cook Eggs 7 Ways</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-pasta.html">How to Make Homemade Pasta (It&#39;s Easier Than You Think)</a>
-                <span class="diff">★★★</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-grill.html">How to Grill (Even If You&#39;ve Never Touched a Grill)</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-roast-chicken.html">How to Roast a Whole Chicken (The One Recipe Everyone Needs)</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-make-bread.html">How to Make Bread With No Experience</a>
-                <span class="diff">★★★</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-build-a-pantry.html">How to Build a Pantry That Cooks for You</a>
-                <span class="diff">★☆☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-taste-like-a-chef.html">How to Taste Like a Chef</a>
-                <span class="diff">★★☆</span>
-            </li>
-            
-            <li>
-                <span class="num"></span>
-                <a href="recipe_how-to-cook-without-a-recipe.html">How to Cook Without a Recipe</a>
-                <span class="diff">★★★</span>
-            </li>
-            
-        </ul>
-    </section>
-</div>
-
-
-<div class="subscribe" id="subscribe">
-    <h2>New episode every week.</h2>
-    <p>Join the list. We&#39;ll send you one new technique every week — no spam, no fluff.</p>
-    <form action="/api/subscribe" method="POST">
-        <input type="email" name="email" placeholder="your@email.com" required>
-        <button type="submit">Subscribe</button>
+    <form class="cap" id="sub-form" autocomplete="on">
+        <input type="email" name="email" placeholder="you@wherever.com" required
+               autocomplete="email" inputmode="email" spellcheck="false">
+        <button type="submit">Sign me up</button>
     </form>
-</div>
+    <div class="msg" id="msg" aria-live="polite"></div>
 
+    <p class="privacy-note">
+        We store your email to send the weekly drop and nothing else. No third-party trackers. One-click unsubscribe in every email. You can change your pick anytime.
+    </p>
+</section>
 
-
+<section class="how">
+    <h2>How it works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="n">01</div>
+            <h3>Cook 2–4 meals</h3>
+            <p>Simple plan each Sunday — ingredients, cost, what to prep. Built for busy, not bougie.</p>
+        </div>
+        <div class="step">
+            <div class="n">02</div>
+            <h3>Bank the difference</h3>
+            <p>Every swap stacks up. We track the tally so you don't have to.</p>
+        </div>
+        <div class="step">
+            <div class="n">03</div>
+            <h3>Spend it on something that matters</h3>
+            <p>A generous tip, a ticket, a trip. You pick — the plan gets you there.</p>
+        </div>
+    </div>
+</section>
 
 <footer>
-    &copy; 2026 HowToCookAtHome.
-    Built by <a href="https://death2data.com">Death2Data</a>.
+    <div>© HowToCookAtHome</div>
+    <div><a href="/tip-better">tip better</a> · <a href="/next-show">next show</a></div>
 </footer>
+
+<script>
+    let currentBucket = "patron";
+    let currentSource = "home-patron";
+
+    document.getElementById("picks").addEventListener("click", (e) => {
+        const btn = e.target.closest(".pick"); if (!btn) return;
+        document.querySelectorAll(".pick").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        currentBucket = btn.dataset.bucket;
+        currentSource = btn.dataset.source;
+    });
+
+    document.getElementById("sub-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector("button");
+        const email = form.email.value.trim();
+        const msg = document.getElementById("msg");
+        msg.className = "msg"; msg.textContent = "";
+        btn.disabled = true;
+        try {
+            const r = await fetch("/api/subscribe", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    email,
+                    bucket: currentBucket,
+                    weekly_saving: 0,
+                    source: currentSource
+                })
+            });
+            const data = await r.json();
+            if (data.ok) {
+                msg.className = "msg ok";
+                msg.textContent = "You're in. First drop this Sunday.";
+                btn.textContent = "Locked ✓";
+                form.reset();
+            } else {
+                msg.className = "msg err";
+                msg.textContent = data.error || "Something went sideways. Try again?";
+                btn.disabled = false;
+            }
+        } catch (err) {
+            msg.className = "msg err";
+            msg.textContent = "Network hiccup. Try again in a sec.";
+            btn.disabled = false;
+        }
+    });
+</script>
 
 </body>
 </html>
