@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>HowToCookAtHome</title>
-<meta name="description" content="Cook more. Keep the savings. One email a week.">
+<title>HowToCookAtHome — Learn to cook, one technique at a time.</title>
+<meta name="description" content="30+ how-tos for people who want to actually cook. No fluff. Weekly Sunday plan.">
 <meta property="og:title" content="HowToCookAtHome">
-<meta property="og:description" content="Cook more. Keep the savings. Put them somewhere that means something.">
+<meta property="og:description" content="Learn to cook. One technique at a time. Weekly Sunday plan.">
 
-<!-- PWA: installable as an app on iOS/Android home screen -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,299 +24,245 @@
         --safe-bot: env(safe-area-inset-bottom, 0px);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-        background: var(--black); color: var(--white);
-        height: 100%; overflow: hidden;
-    }
+    html, body { background: var(--black); color: var(--white); }
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Arial, sans-serif;
         font-weight: 500; line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased; min-height: 100vh;
     }
     a { color: var(--red); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    /* --- Top bar: text brand + info toggle --- */
-    .topbar {
-        position: fixed; top: var(--safe-top); left: 0; right: 0;
+    nav.top {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 1rem 1.25rem; z-index: 10;
+        padding: calc(1.1rem + var(--safe-top)) 1.25rem 0.9rem;
+        border-bottom: 1px solid var(--line);
+        position: sticky; top: 0; background: var(--black); z-index: 10;
     }
-    .brand {
-        font-weight: 900; letter-spacing: -0.02em;
-        font-size: 1rem; text-transform: uppercase;
-        color: var(--white);
+    nav.top .brand {
+        color: var(--white); font-weight: 900; letter-spacing: -0.02em;
+        font-size: 0.95rem; text-transform: uppercase;
     }
-    .brand .dot { color: var(--red); }
-    .info-btn {
-        background: transparent; color: var(--muted); border: 0;
-        font: inherit; font-size: 0.75rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        cursor: pointer; padding: 0.3rem 0.5rem;
+    nav.top .brand .dot { color: var(--red); }
+    nav.top .links { display: flex; gap: 0.9rem; align-items: center; }
+    nav.top .links a {
+        color: var(--muted); font-size: 0.75rem;
+        text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
     }
-    .info-btn:hover { color: var(--white); }
+    nav.top .links a:hover { color: var(--white); text-decoration: none; }
 
-    /* --- Single-viewport card --- */
-    .card {
-        position: fixed; inset: 0;
-        padding: calc(3.25rem + var(--safe-top)) 1.5rem calc(1rem + var(--safe-bot));
-        display: flex; flex-direction: column;
-        justify-content: center;
-        max-width: 640px; margin: 0 auto;
+    /* --- HERO: single-viewport pitch + email form --- */
+    .hero {
+        padding: 3rem 1.25rem 2.5rem;
+        max-width: 760px;
     }
-    .card h1 {
+    .hero h1 {
         font-weight: 900;
-        font-size: clamp(2.25rem, 9vw, 4rem);
-        line-height: 0.95; letter-spacing: -0.035em;
-        text-transform: uppercase; margin-bottom: 1rem;
+        font-size: clamp(2.5rem, 9vw, 5.5rem);
+        line-height: 0.92; letter-spacing: -0.035em;
+        text-transform: uppercase; margin-bottom: 1.1rem;
     }
-    .card h1 .red { color: var(--red); }
-    .card .sub {
-        font-size: clamp(0.95rem, 2.4vw, 1.1rem);
-        max-width: 38ch; line-height: 1.5;
-        opacity: 0.88; margin-bottom: 1.5rem;
+    .hero h1 .red { color: var(--red); }
+    .hero .sub {
+        font-size: clamp(1rem, 1.6vw, 1.15rem);
+        max-width: 48ch; line-height: 1.5;
+        opacity: 0.9; margin-bottom: 1.75rem;
     }
-    .card .kicker {
-        color: var(--muted); font-size: 0.7rem;
-        text-transform: uppercase; letter-spacing: 0.12em;
-        font-weight: 700; margin-bottom: 0.5rem;
-    }
-
-    .pick-row {
-        display: flex; flex-direction: column; gap: 0.5rem;
-        margin-bottom: 1.25rem;
-    }
-    .pick {
-        background: var(--black); color: var(--white);
-        border: 2px solid var(--line);
-        padding: 0.85rem 1rem;
-        font: inherit; font-size: 0.95rem; font-weight: 700;
-        text-align: left;
-        cursor: pointer; transition: all 0.15s;
-        min-height: 52px;
-        display: flex; align-items: center; gap: 0.75rem;
-    }
-    .pick:hover { border-color: var(--red); }
-    .pick.active { background: var(--red); border-color: var(--red); }
-    .pick .dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        border: 2px solid var(--muted); flex-shrink: 0;
-    }
-    .pick.active .dot { background: var(--white); border-color: var(--white); }
-    .pick-label { flex: 1; }
-    .pick-hint {
-        display: block;
-        font-size: 0.72rem; font-weight: 500;
-        color: var(--muted); margin-top: 0.1rem;
-        text-transform: none; letter-spacing: 0;
-    }
-    .pick.active .pick-hint { color: rgba(255,255,255,0.9); }
 
     form.cap {
-        display: flex; gap: 0.4rem; flex-wrap: wrap;
+        display: flex; gap: 0.5rem; flex-wrap: wrap;
+        max-width: 540px;
     }
     form.cap input[type=email] {
-        flex: 1 1 200px; background: var(--ink);
+        flex: 1 1 260px; background: var(--ink);
         border: 2px solid var(--line); color: var(--white);
-        font: inherit; font-size: 1rem; padding: 0.9rem 1rem;
-        min-height: 52px; min-width: 0;
+        font: inherit; font-size: 1.05rem; padding: 1rem 1.1rem;
+        min-height: 54px; min-width: 0;
         transition: border-color 0.15s;
     }
     form.cap input[type=email]:focus { outline: none; border-color: var(--red); }
     form.cap input[type=email]::placeholder { color: var(--muted); }
     form.cap button {
         background: var(--red); color: var(--white);
-        border: 0; font: inherit; font-weight: 900; font-size: 1rem;
+        border: 0; font: inherit; font-weight: 900; font-size: 1.05rem;
         text-transform: uppercase; letter-spacing: 0.06em;
-        padding: 0.9rem 1.5rem; cursor: pointer;
-        min-height: 52px; transition: background 0.15s;
+        padding: 1rem 1.75rem; cursor: pointer;
+        min-height: 54px; transition: background 0.15s;
     }
     form.cap button:hover { background: var(--red-deep); }
     form.cap button:disabled { opacity: 0.55; cursor: wait; }
     .msg {
-        margin-top: 0.7rem; font-weight: 700; font-size: 0.9rem;
+        margin-top: 0.85rem; font-weight: 700; font-size: 0.95rem;
         min-height: 1.2em;
     }
     .msg.ok { color: var(--ok); }
     .msg.err { color: #FF6B64; }
-
-    .privacy-note {
-        margin-top: 0.9rem;
-        color: var(--muted); font-size: 0.72rem; line-height: 1.5;
+    .tiny {
+        color: var(--muted); font-size: 0.75rem; margin-top: 0.75rem;
     }
-    .privacy-note a { color: var(--muted); text-decoration: underline; }
 
-    /* --- Info overlay (how it works) --- */
-    .overlay {
-        position: fixed; inset: 0; z-index: 100;
-        background: rgba(0,0,0,0.94); backdrop-filter: blur(8px);
-        padding: calc(3.25rem + var(--safe-top)) 1.5rem calc(1.5rem + var(--safe-bot));
-        display: flex; flex-direction: column;
-        transform: translateY(100%);
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow-y: auto;
+    /* --- RECIPE GRID --- */
+    section.recipes {
+        padding: 2rem 1.25rem 3rem;
+        border-top: 1px solid var(--line);
+        max-width: 1100px; margin: 0 auto;
     }
-    .overlay.open { transform: translateY(0); }
-    .overlay h2 {
+    section.recipes h2 {
         font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
-        font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1.5rem;
+        font-size: clamp(1.25rem, 2.5vw, 1.75rem); margin-bottom: 0.4rem;
     }
-    .overlay .close {
-        position: absolute; top: calc(1rem + var(--safe-top)); right: 1.25rem;
-        background: transparent; color: var(--muted); border: 0;
-        font: inherit; font-size: 1.5rem; cursor: pointer;
-        width: 44px; height: 44px;
+    section.recipes .subtitle {
+        color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem;
     }
-    .overlay .close:hover { color: var(--white); }
-    .steps {
-        display: flex; flex-direction: column; gap: 1.25rem;
-        max-width: 640px; margin: 0 auto; width: 100%;
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 0.5rem;
     }
-    .step {
-        border-top: 3px solid var(--red); padding-top: 0.9rem;
-    }
-    .step .n {
-        font-weight: 900; font-size: 1.5rem; color: var(--red);
-        letter-spacing: -0.03em; line-height: 1;
-    }
-    .step h3 {
-        font-weight: 900; font-size: 0.95rem; text-transform: uppercase;
-        letter-spacing: 0.02em; margin: 0.4rem 0;
-    }
-    .step p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
-
-    .overlay .tag {
-        margin-top: 2rem; font-size: 0.75rem; color: var(--muted);
-        max-width: 640px; margin-left: auto; margin-right: auto; width: 100%;
-    }
-    .overlay .tag a { color: var(--red); text-decoration: none; }
-
-    /* Install button — shown on Android/Chrome/Edge when beforeinstallprompt fires */
-    .install-btn {
-        position: fixed; bottom: calc(1rem + var(--safe-bot)); right: 1.25rem;
-        background: var(--red); color: var(--white);
-        border: 0; font: inherit; font-weight: 900; font-size: 0.85rem;
-        text-transform: uppercase; letter-spacing: 0.06em;
-        padding: 0.75rem 1rem; min-height: 44px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        z-index: 50;
-    }
-    .install-btn:hover { background: var(--red-deep); }
-
-    /* iOS install hint — shown when we know iOS + not installed + no programmatic prompt available */
-    .install-hint {
-        position: fixed; bottom: calc(1rem + var(--safe-bot)); left: 1.25rem; right: 1.25rem;
+    .recipe-card {
         background: var(--ink); border: 1px solid var(--line);
-        padding: 0.7rem 0.9rem;
-        font-size: 0.75rem; color: var(--muted);
-        border-radius: 6px;
-        display: none;
-        z-index: 50;
+        padding: 1rem 1.1rem;
+        text-decoration: none; color: var(--white);
+        transition: all 0.15s;
+        display: flex; flex-direction: column; gap: 0.4rem;
+        min-height: 110px;
     }
-    .install-hint.show { display: block; }
-    .install-hint strong { color: var(--white); }
+    .recipe-card:hover {
+        border-color: var(--red); background: #0F0F0F;
+        text-decoration: none;
+    }
+    .recipe-card .n {
+        color: var(--muted); font-size: 0.68rem;
+        font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+        font-variant-numeric: tabular-nums;
+    }
+    .recipe-card h3 {
+        font-weight: 800; font-size: 1rem;
+        line-height: 1.25; letter-spacing: -0.01em;
+    }
+    .recipe-card .meta {
+        margin-top: auto;
+        display: flex; gap: 0.75rem;
+        color: var(--muted); font-size: 0.72rem;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .recipe-card .meta .time { color: var(--red); font-weight: 700; }
 
-    @media (max-height: 640px) {
-        .card h1 { font-size: clamp(2rem, 8vw, 3rem); margin-bottom: 0.75rem; }
-        .card .sub { margin-bottom: 1rem; font-size: 0.9rem; }
-        .pick { padding: 0.7rem 1rem; min-height: 48px; }
-        .pick-row { margin-bottom: 1rem; }
+    /* --- WHY (savings angle, tucked below as optional reading) --- */
+    section.why {
+        padding: 2rem 1.25rem 1rem;
+        max-width: 760px; margin: 0 auto;
+        border-top: 1px solid var(--line);
+    }
+    section.why h2 {
+        font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase;
+        font-size: clamp(1.15rem, 2.2vw, 1.5rem); margin-bottom: 0.75rem;
+    }
+    section.why p {
+        color: var(--muted); font-size: 0.9rem; line-height: 1.6;
+        margin-bottom: 0.8rem; max-width: 52ch;
+    }
+    .why-links {
+        display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;
+    }
+    .why-link {
+        background: transparent; color: var(--white);
+        border: 1px solid var(--line);
+        padding: 0.6rem 0.9rem;
+        font: inherit; font-size: 0.8rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        transition: all 0.15s;
+    }
+    .why-link:hover { border-color: var(--red); color: var(--red); text-decoration: none; }
+
+    footer {
+        padding: 2rem 1.25rem calc(1.5rem + var(--safe-bot));
+        border-top: 1px solid var(--line);
+        color: var(--muted); font-size: 0.78rem;
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 520px) {
+        .recipe-grid { grid-template-columns: 1fr; }
     }
 </style>
 </head>
 <body>
 
-<div class="topbar">
+<nav class="top">
     <a href="/" class="brand">HowToCookAtHome<span class="dot">.</span></a>
-    <button class="info-btn" id="info-open" aria-label="How it works">How it works →</button>
-</div>
-
-<div class="card">
-    <h1>Cook&nbsp;more.<br><span class="red">Keep the savings.</span></h1>
-    <p class="sub">One email a week. What to cook, what you saved, one thing worth doing with it.</p>
-
-    <div class="kicker">Pick what you're here for:</div>
-    <div class="pick-row" id="picks">
-        <button class="pick active" data-bucket="patron" data-source="home-patron">
-            <span class="dot"></span>
-            <span class="pick-label">
-                More generous nights out
-                <span class="pick-hint">bigger tips at your spots</span>
-            </span>
-        </button>
-        <button class="pick" data-bucket="experience" data-source="home-experience">
-            <span class="dot"></span>
-            <span class="pick-label">
-                Save for something real
-                <span class="pick-hint">a show, a trip, a night that matters</span>
-            </span>
-        </button>
+    <div class="links">
+        <a href="/tip-better">tip better</a>
+        <a href="/next-show">next show</a>
     </div>
+</nav>
 
+<section class="hero">
+    <h1>Learn to cook.<br><span class="red">One technique<br>at a time.</span></h1>
+    <p class="sub">30+ short how-tos for people who want to actually cook at home. No fluff, no 20-ingredient lists, no food-blogger preambles. One plan every Sunday.</p>
     <form class="cap" id="sub-form" autocomplete="on">
         <input type="email" name="email" placeholder="you@wherever.com" required
                autocomplete="email" inputmode="email" spellcheck="false">
-        <button type="submit">Sign me up</button>
+        <button type="submit">Get the weekly plan</button>
     </form>
     <div class="msg" id="msg" aria-live="polite"></div>
+    <p class="tiny">Email only, never shared. One-click unsubscribe.</p>
+</section>
 
-    <p class="privacy-note">
-        Email only, never shared. <a href="#" id="info-link">How it works</a>.
-    </p>
-</div>
-
-<!-- Slide-up overlay — 'how it works' + links -->
-<div class="overlay" id="overlay" aria-hidden="true">
-    <button class="close" id="info-close" aria-label="Close">✕</button>
-    <h2>How it works</h2>
-    <div class="steps">
-        <div class="step">
-            <div class="n">01</div>
-            <h3>Cook 2–4 meals</h3>
-            <p>Simple plan each Sunday — ingredients, cost, what to prep. Built for busy, not bougie.</p>
-        </div>
-        <div class="step">
-            <div class="n">02</div>
-            <h3>Bank the difference</h3>
-            <p>Every swap stacks up. We track the tally so you don't have to.</p>
-        </div>
-        <div class="step">
-            <div class="n">03</div>
-            <h3>Spend it on something that matters</h3>
-            <p>A generous tip, a ticket, a trip. You pick — the plan gets you there.</p>
-        </div>
+<section class="recipes">
+    <h2>Start here</h2>
+    <p class="subtitle">30 techniques. Each one short enough to read while waiting for a pot to boil.</p>
+    <div class="recipe-grid">
+        <a class="recipe-card" href="/recipe_how-to-boil-water"><div class="n">01</div><h3>How to Boil Water (Yes, Really)</h3><div class="meta"><span class="time">3 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-hold-a-knife"><div class="n">02</div><h3>How to Hold a Kitchen Knife Safely</h3><div class="meta"><span class="time">4 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-dice-an-onion"><div class="n">03</div><h3>How to Dice an Onion Without Crying</h3><div class="meta"><span class="time">5 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-rice"><div class="n">04</div><h3>How to Make Perfect Rice Every Time</h3><div class="meta"><span class="time">6 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-scramble-eggs"><div class="n">05</div><h3>How to Scramble Eggs Like a Chef</h3><div class="meta"><span class="time">4 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-season-food"><div class="n">06</div><h3>How to Season Food (The #1 Beginner Mistake)</h3><div class="meta"><span class="time">5 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-pasta"><div class="n">07</div><h3>How to Cook Pasta That Doesn't Suck</h3><div class="meta"><span class="time">6 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-sear-meat"><div class="n">08</div><h3>How to Sear Meat Without Ruining It</h3><div class="meta"><span class="time">7 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-read-a-recipe"><div class="n">09</div><h3>How to Read a Recipe (Like a Pro)</h3><div class="meta"><span class="time">5 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-roast-vegetables"><div class="n">10</div><h3>How to Roast Vegetables That Actually Taste Good</h3><div class="meta"><span class="time">6 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-pan-sauce"><div class="n">11</div><h3>How to Make a Pan Sauce in 5 Minutes</h3><div class="meta"><span class="time">5 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-chicken-breast"><div class="n">12</div><h3>How to Cook Chicken Breast That Isn't Dry</h3><div class="meta"><span class="time">7 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-soup"><div class="n">13</div><h3>How to Make Soup From Literally Anything</h3><div class="meta"><span class="time">6 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-steak"><div class="n">14</div><h3>How to Cook Steak at Home (Better Than a Restaurant)</h3><div class="meta"><span class="time">8 min</span><span>Lvl 3</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-a-salad"><div class="n">15</div><h3>How to Make a Salad You Actually Want to Eat</h3><div class="meta"><span class="time">5 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-saute"><div class="n">16</div><h3>How to Sauté Like You Know What You're Doing</h3><div class="meta"><span class="time">6 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-fried-rice"><div class="n">17</div><h3>How to Make Fried Rice (Better Than Takeout)</h3><div class="meta"><span class="time">7 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-bake"><div class="n">18</div><h3>How to Bake Without Fear</h3><div class="meta"><span class="time">8 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-fish"><div class="n">19</div><h3>How to Cook Fish Without Stinking Up Your House</h3><div class="meta"><span class="time">7 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-stir-fry"><div class="n">20</div><h3>How to Make a Stir Fry in Under 10 Minutes</h3><div class="meta"><span class="time">6 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-braise"><div class="n">21</div><h3>How to Braise (Set-It-and-Forget-It)</h3><div class="meta"><span class="time">7 min</span><span>Lvl 3</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-meal-prep"><div class="n">22</div><h3>How to Meal Prep Without Hating Your Life</h3><div class="meta"><span class="time">8 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-eggs"><div class="n">23</div><h3>How to Cook Eggs 7 Ways</h3><div class="meta"><span class="time">7 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-pasta"><div class="n">24</div><h3>How to Make Homemade Pasta (Easier Than You Think)</h3><div class="meta"><span class="time">10 min</span><span>Lvl 3</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-grill"><div class="n">25</div><h3>How to Grill (Even If You've Never Touched One)</h3><div class="meta"><span class="time">8 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-roast-chicken"><div class="n">26</div><h3>How to Roast a Whole Chicken</h3><div class="meta"><span class="time">10 min</span><span>Lvl 3</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-make-bread"><div class="n">27</div><h3>How to Make Bread With No Experience</h3><div class="meta"><span class="time">12 min</span><span>Lvl 3</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-build-a-pantry"><div class="n">28</div><h3>How to Build a Pantry That Cooks for You</h3><div class="meta"><span class="time">7 min</span><span>Lvl 1</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-taste-like-a-chef"><div class="n">29</div><h3>How to Taste Like a Chef</h3><div class="meta"><span class="time">5 min</span><span>Lvl 2</span></div></a>
+        <a class="recipe-card" href="/recipe_how-to-cook-without-a-recipe"><div class="n">30</div><h3>How to Cook Without a Recipe</h3><div class="meta"><span class="time">8 min</span><span>Lvl 3</span></div></a>
     </div>
-    <p class="tag">
-        Direct entry: <a href="/tip-better">tip better</a> · <a href="/next-show">next show</a><br>
-        © HowToCookAtHome — email only, no third-party trackers, one-click unsubscribe.
-    </p>
-</div>
+</section>
 
-<!-- Install prompt — programmatic on Android/Chrome (real 1-tap install),
-     falls back to iOS-specific instructions on Safari. -->
-<button class="install-btn" id="install-btn" aria-label="Install as app" hidden>
-    ⤓ Install as app
-</button>
+<section class="why">
+    <h2>Why bother cooking at home?</h2>
+    <p>Eating out adds up fast. A normal dinner is ~$25; the same dinner at home is ~$8. Swap a few nights a week and you're pocketing $50+ you didn't have before.</p>
+    <p>We track the tally in the weekly email. What you do with it — leave a bigger tip at a place you love, save for a show, or just stop flinching at the bank balance — is up to you.</p>
+    <div class="why-links">
+        <a class="why-link" href="/tip-better">Point it at tipping →</a>
+        <a class="why-link" href="/next-show">Point it at experiences →</a>
+    </div>
+</section>
 
-<div class="install-hint" id="install-hint">
-    Install this as an app: tap <strong>Share</strong> ⎋ → <strong>Add to Home Screen</strong>
-    <button onclick="dismissInstallHint()" style="float:right;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem;padding:0 0.25rem;line-height:1;" aria-label="Dismiss">✕</button>
-</div>
+<footer>
+    <div>© HowToCookAtHome</div>
+    <div><a href="/tip-better">tip better</a> · <a href="/next-show">next show</a></div>
+</footer>
 
 <script>
-    let currentBucket = "patron";
-    let currentSource = "home-patron";
-
-    document.getElementById("picks").addEventListener("click", (e) => {
-        const btn = e.target.closest(".pick"); if (!btn) return;
-        document.querySelectorAll(".pick").forEach(p => p.classList.remove("active"));
-        btn.classList.add("active");
-        currentBucket = btn.dataset.bucket;
-        currentSource = btn.dataset.source;
-    });
-
     document.getElementById("sub-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -331,8 +276,10 @@
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    email, bucket: currentBucket,
-                    weekly_saving: 0, source: currentSource
+                    email,
+                    bucket: "patron",
+                    weekly_saving: 0,
+                    source: "home-plan"
                 })
             });
             const data = await r.json();
@@ -352,64 +299,6 @@
             btn.disabled = false;
         }
     });
-
-    // --- overlay (how it works) ---
-    const overlay = document.getElementById("overlay");
-    function openOverlay() { overlay.classList.add("open"); overlay.setAttribute("aria-hidden", "false"); }
-    function closeOverlay() { overlay.classList.remove("open"); overlay.setAttribute("aria-hidden", "true"); }
-    document.getElementById("info-open").addEventListener("click", openOverlay);
-    document.getElementById("info-close").addEventListener("click", closeOverlay);
-    document.getElementById("info-link").addEventListener("click", (e) => { e.preventDefault(); openOverlay(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
-
-    // --- Install flow: programmatic on Android/Chrome/Edge, fallback on iOS ---
-    // beforeinstallprompt fires on Chromium-based browsers when PWA criteria are met
-    // (has manifest, has service worker or similar, HTTPS, etc.). iOS Safari does not
-    // support this event — Apple requires users to use the Share menu manually.
-    let deferredInstallPrompt = null;
-    const installBtn = document.getElementById("install-btn");
-    const installHint = document.getElementById("install-hint");
-
-    function dismissInstallHint() {
-        installHint.classList.remove("show");
-        try { localStorage.setItem("htcah.installhint.dismissed", "1"); } catch (_) {}
-    }
-    window.dismissInstallHint = dismissInstallHint;
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        installBtn.hidden = false;
-    });
-
-    installBtn.addEventListener("click", async () => {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        const { outcome } = await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        installBtn.hidden = true;
-        if (outcome === "accepted") {
-            try { localStorage.setItem("htcah.installhint.dismissed", "1"); } catch (_) {}
-        }
-    });
-
-    window.addEventListener("appinstalled", () => {
-        installBtn.hidden = true;
-        installHint.classList.remove("show");
-    });
-
-    // iOS fallback: if we're on iOS Safari, not installed, and haven't dismissed,
-    // show the manual-instructions banner instead (Apple disallows programmatic install).
-    (function () {
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isStandalone = window.matchMedia("(display-mode: standalone)").matches
-                          || window.navigator.standalone;
-        let dismissed = false;
-        try { dismissed = localStorage.getItem("htcah.installhint.dismissed") === "1"; } catch (_) {}
-        if (isIOS && !isStandalone && !dismissed) {
-            setTimeout(() => installHint.classList.add("show"), 4000);
-        }
-    })();
 </script>
 
 </body>
